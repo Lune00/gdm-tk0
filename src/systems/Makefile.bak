@@ -1,0 +1,197 @@
+INC_PATH  = ../include
+LIB_PATH  = ../../lib
+
+CC      = g++
+CFLAGS  = -O3 -Wall -Werror -I$(INC_PATH)
+
+SRC = system.cpp \
+      generalCD.cpp \
+      biaxial.cpp shear.cpp\
+	  shearP_CD.cpp biaxial_dof.cpp\
+	  dev_cluster.cpp\
+	  check_friction.cpp\
+	  brazilian.cpp
+
+
+OBJS = $(subst .cpp,.o,$(SRC))
+
+.SUFFIXES: .cpp
+.cpp.o:
+	$(CC) -c $(CFLAGS) $<
+	cp -f $@ $(LIB_PATH)
+
+all: $(OBJS)
+
+clean:
+	rm -f *~ \#*\#
+	rm -f *.o
+
+depend:
+	makedepend -- $(CFLAGS) -- *.cpp
+
+# DO NOT DELETE
+
+biaxial.o: ../include/biaxial.hpp ../include/system.hpp
+biaxial.o: ../include/control.hpp ../include/talk.hpp ../include/sample.hpp
+biaxial.o: ../include/body2d.hpp ../include/dof.hpp /usr/include/math.h
+biaxial.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+biaxial.o: ../include/inter2d.hpp ../include/vertex.hpp ../include/disk.hpp
+biaxial.o: ../include/polyg.hpp ../include/rline.hpp ../include/purge.h
+biaxial.o: ../include/network.hpp ../include/groupRelationData.hpp
+biaxial.o: ../include/cohesionLaw.hpp ../include/Fragmentation.hpp
+biaxial.o: ../include/fsafe.hpp ../include/near.hpp
+biaxial.o: ../include/circularProbe.hpp ../include/probe.hpp
+biaxial.o: ../include/stress.hpp ../include/tensor.hpp
+biaxial.o: ../include/heightProbe.hpp ../include/dkdkP.hpp
+biaxial.o: ../include/dkdk.hpp ../include/interdof.hpp
+biaxial_dof.o: ../include/biaxial_dof.hpp ../include/system.hpp
+biaxial_dof.o: ../include/control.hpp ../include/talk.hpp
+biaxial_dof.o: ../include/sample.hpp ../include/body2d.hpp ../include/dof.hpp
+biaxial_dof.o: /usr/include/math.h /usr/include/architecture/i386/math.h
+biaxial_dof.o: /usr/include/sys/cdefs.h ../include/inter2d.hpp
+biaxial_dof.o: ../include/vertex.hpp ../include/disk.hpp ../include/polyg.hpp
+biaxial_dof.o: ../include/rline.hpp ../include/purge.h ../include/network.hpp
+biaxial_dof.o: ../include/groupRelationData.hpp ../include/cohesionLaw.hpp
+biaxial_dof.o: ../include/Fragmentation.hpp ../include/fsafe.hpp
+biaxial_dof.o: ../include/near.hpp ../include/circularProbe.hpp
+biaxial_dof.o: ../include/probe.hpp ../include/stress.hpp
+biaxial_dof.o: ../include/tensor.hpp ../include/heightProbe.hpp
+biaxial_dof.o: ../include/dkdkP.hpp ../include/dkdk.hpp
+biaxial_dof.o: ../include/interdof.hpp
+brazilian.o: ../include/brazilian.hpp ../include/system.hpp
+brazilian.o: ../include/control.hpp ../include/talk.hpp ../include/sample.hpp
+brazilian.o: ../include/body2d.hpp ../include/dof.hpp /usr/include/math.h
+brazilian.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+brazilian.o: ../include/inter2d.hpp ../include/vertex.hpp ../include/disk.hpp
+brazilian.o: ../include/polyg.hpp ../include/rline.hpp ../include/purge.h
+brazilian.o: ../include/network.hpp ../include/groupRelationData.hpp
+brazilian.o: ../include/cohesionLaw.hpp ../include/Fragmentation.hpp
+brazilian.o: ../include/fsafe.hpp ../include/near.hpp
+brazilian.o: ../include/circularProbe.hpp ../include/probe.hpp
+brazilian.o: ../include/stress.hpp ../include/tensor.hpp
+brazilian.o: ../include/heightProbe.hpp ../include/dkdkP.hpp
+brazilian.o: ../include/dkdk.hpp ../include/interdof.hpp
+check_friction.o: ../include/check_friction.hpp ../include/system.hpp
+check_friction.o: ../include/control.hpp ../include/talk.hpp
+check_friction.o: ../include/sample.hpp ../include/body2d.hpp
+check_friction.o: ../include/dof.hpp /usr/include/math.h
+check_friction.o: /usr/include/architecture/i386/math.h
+check_friction.o: /usr/include/sys/cdefs.h ../include/inter2d.hpp
+check_friction.o: ../include/vertex.hpp ../include/disk.hpp
+check_friction.o: ../include/polyg.hpp ../include/rline.hpp
+check_friction.o: ../include/purge.h ../include/network.hpp
+check_friction.o: ../include/groupRelationData.hpp ../include/cohesionLaw.hpp
+check_friction.o: ../include/Fragmentation.hpp ../include/fsafe.hpp
+check_friction.o: ../include/near.hpp ../include/circularProbe.hpp
+check_friction.o: ../include/probe.hpp ../include/stress.hpp
+check_friction.o: ../include/tensor.hpp ../include/heightProbe.hpp
+check_friction.o: ../include/dkdkP.hpp ../include/dkdk.hpp
+check_friction.o: ../include/interdof.hpp
+dev_cluster.o: ../include/dev_cluster.hpp /usr/include/stdio.h
+dev_cluster.o: /usr/include/_types.h /usr/include/sys/_types.h
+dev_cluster.o: /usr/include/sys/cdefs.h /usr/include/machine/_types.h
+dev_cluster.o: /usr/include/i386/_types.h ../include/io.hpp
+dev_cluster.o: ../include/algo.hpp ../include/sample.hpp
+dev_cluster.o: ../include/body2d.hpp ../include/dof.hpp /usr/include/math.h
+dev_cluster.o: /usr/include/architecture/i386/math.h ../include/talk.hpp
+dev_cluster.o: ../include/inter2d.hpp ../include/vertex.hpp
+dev_cluster.o: ../include/disk.hpp ../include/polyg.hpp ../include/rline.hpp
+dev_cluster.o: ../include/purge.h ../include/network.hpp
+dev_cluster.o: ../include/groupRelationData.hpp ../include/cohesionLaw.hpp
+dev_cluster.o: ../include/Fragmentation.hpp ../include/fsafe.hpp
+dev_cluster.o: ../include/near.hpp ../include/system.hpp
+dev_cluster.o: ../include/control.hpp ../include/groupData.hpp
+dev_cluster.o: ../include/simulation.hpp /usr/include/assert.h
+dev_cluster.o: /usr/include/sys/types.h /usr/include/sys/appleapiopts.h
+dev_cluster.o: /usr/include/machine/types.h /usr/include/i386/types.h
+dev_cluster.o: /usr/include/machine/endian.h /usr/include/i386/endian.h
+dev_cluster.o: /usr/include/sys/_endian.h /usr/include/libkern/_OSByteOrder.h
+dev_cluster.o: /usr/include/libkern/i386/_OSByteOrder.h
+dev_cluster.o: /usr/include/sys/_structs.h /usr/include/signal.h
+dev_cluster.o: /usr/include/sys/signal.h /usr/include/machine/signal.h
+dev_cluster.o: /usr/include/i386/signal.h /usr/include/i386/_structs.h
+dev_cluster.o: ../include/system_A.hpp /usr/include/sys/stat.h
+generalCD.o: ../include/generalCD.hpp ../include/system.hpp
+generalCD.o: ../include/control.hpp ../include/talk.hpp ../include/sample.hpp
+generalCD.o: ../include/body2d.hpp ../include/dof.hpp /usr/include/math.h
+generalCD.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+generalCD.o: ../include/inter2d.hpp ../include/vertex.hpp ../include/disk.hpp
+generalCD.o: ../include/polyg.hpp ../include/rline.hpp ../include/purge.h
+generalCD.o: ../include/network.hpp ../include/groupRelationData.hpp
+generalCD.o: ../include/cohesionLaw.hpp ../include/Fragmentation.hpp
+generalCD.o: ../include/fsafe.hpp ../include/near.hpp
+oedometric.o: ../include/oedometric.hpp ../include/system.hpp
+oedometric.o: ../include/control.hpp ../include/talk.hpp
+oedometric.o: ../include/sample.hpp ../include/body2d.hpp ../include/dof.hpp
+oedometric.o: /usr/include/math.h /usr/include/architecture/i386/math.h
+oedometric.o: /usr/include/sys/cdefs.h ../include/inter2d.hpp
+oedometric.o: ../include/vertex.hpp ../include/disk.hpp ../include/polyg.hpp
+oedometric.o: ../include/rline.hpp ../include/purge.h ../include/network.hpp
+oedometric.o: ../include/groupRelationData.hpp ../include/cohesionLaw.hpp
+oedometric.o: ../include/Fragmentation.hpp ../include/fsafe.hpp
+oedometric.o: ../include/near.hpp ../include/circularProbe.hpp
+oedometric.o: ../include/probe.hpp ../include/rectangularProbe.hpp
+oedometric.o: ../include/stress.hpp ../include/tensor.hpp
+oedometric.o: ../include/heightProbe.hpp ../include/dkdkP.hpp
+oedometric.o: ../include/dkdk.hpp ../include/interdof.hpp
+shear.o: ../include/shear.hpp ../include/system.hpp ../include/control.hpp
+shear.o: ../include/talk.hpp ../include/sample.hpp ../include/body2d.hpp
+shear.o: ../include/dof.hpp /usr/include/math.h
+shear.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+shear.o: ../include/inter2d.hpp ../include/vertex.hpp ../include/disk.hpp
+shear.o: ../include/polyg.hpp ../include/rline.hpp ../include/purge.h
+shear.o: ../include/network.hpp ../include/groupRelationData.hpp
+shear.o: ../include/cohesionLaw.hpp ../include/Fragmentation.hpp
+shear.o: ../include/fsafe.hpp ../include/near.hpp
+shearP_CD.o: ../include/shearP_CD.hpp /usr/include/stdio.h
+shearP_CD.o: /usr/include/_types.h /usr/include/sys/_types.h
+shearP_CD.o: /usr/include/sys/cdefs.h /usr/include/machine/_types.h
+shearP_CD.o: /usr/include/i386/_types.h ../include/io.hpp ../include/algo.hpp
+shearP_CD.o: ../include/sample.hpp ../include/body2d.hpp ../include/dof.hpp
+shearP_CD.o: /usr/include/math.h /usr/include/architecture/i386/math.h
+shearP_CD.o: ../include/talk.hpp ../include/inter2d.hpp ../include/vertex.hpp
+shearP_CD.o: ../include/disk.hpp ../include/polyg.hpp ../include/rline.hpp
+shearP_CD.o: ../include/purge.h ../include/network.hpp
+shearP_CD.o: ../include/groupRelationData.hpp ../include/cohesionLaw.hpp
+shearP_CD.o: ../include/Fragmentation.hpp ../include/fsafe.hpp
+shearP_CD.o: ../include/near.hpp ../include/system.hpp ../include/control.hpp
+shearP_CD.o: ../include/groupData.hpp ../include/simulation.hpp
+shearP_CD.o: /usr/include/assert.h /usr/include/sys/types.h
+shearP_CD.o: /usr/include/sys/appleapiopts.h /usr/include/machine/types.h
+shearP_CD.o: /usr/include/i386/types.h /usr/include/machine/endian.h
+shearP_CD.o: /usr/include/i386/endian.h /usr/include/sys/_endian.h
+shearP_CD.o: /usr/include/libkern/_OSByteOrder.h
+shearP_CD.o: /usr/include/libkern/i386/_OSByteOrder.h
+shearP_CD.o: /usr/include/sys/_structs.h /usr/include/signal.h
+shearP_CD.o: /usr/include/sys/signal.h /usr/include/machine/signal.h
+shearP_CD.o: /usr/include/i386/signal.h /usr/include/i386/_structs.h
+shearP_CD.o: ../include/system_A.hpp /usr/include/sys/stat.h
+system.o: ../include/system.hpp ../include/control.hpp ../include/talk.hpp
+system.o: ../include/sample.hpp ../include/body2d.hpp ../include/dof.hpp
+system.o: /usr/include/math.h /usr/include/architecture/i386/math.h
+system.o: /usr/include/sys/cdefs.h ../include/inter2d.hpp
+system.o: ../include/vertex.hpp ../include/disk.hpp ../include/polyg.hpp
+system.o: ../include/rline.hpp ../include/purge.h ../include/network.hpp
+system.o: ../include/groupRelationData.hpp ../include/cohesionLaw.hpp
+system.o: ../include/Fragmentation.hpp ../include/fsafe.hpp
+system.o: ../include/near.hpp ../include/generalCD.hpp ../include/biaxial.hpp
+system.o: ../include/circularProbe.hpp ../include/probe.hpp
+system.o: ../include/stress.hpp ../include/tensor.hpp
+system.o: ../include/heightProbe.hpp ../include/dkdkP.hpp ../include/dkdk.hpp
+system.o: ../include/interdof.hpp ../include/biaxial_dof.hpp
+system.o: ../include/shear.hpp ../include/shearP_CD.hpp /usr/include/stdio.h
+system.o: /usr/include/_types.h /usr/include/sys/_types.h
+system.o: /usr/include/machine/_types.h /usr/include/i386/_types.h
+system.o: ../include/io.hpp ../include/algo.hpp ../include/groupData.hpp
+system.o: ../include/simulation.hpp /usr/include/assert.h
+system.o: /usr/include/sys/types.h /usr/include/sys/appleapiopts.h
+system.o: /usr/include/machine/types.h /usr/include/i386/types.h
+system.o: /usr/include/machine/endian.h /usr/include/i386/endian.h
+system.o: /usr/include/sys/_endian.h /usr/include/libkern/_OSByteOrder.h
+system.o: /usr/include/libkern/i386/_OSByteOrder.h
+system.o: /usr/include/sys/_structs.h /usr/include/signal.h
+system.o: /usr/include/sys/signal.h /usr/include/machine/signal.h
+system.o: /usr/include/i386/signal.h /usr/include/i386/_structs.h
+system.o: ../include/system_A.hpp /usr/include/sys/stat.h
+system.o: ../include/dev_cluster.hpp ../include/check_friction.hpp
+system.o: ../include/brazilian.hpp

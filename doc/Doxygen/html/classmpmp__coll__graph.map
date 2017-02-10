@@ -1,0 +1,4 @@
+base referer
+rect $classinter2d.html 8,85 88,112
+rect $classmass_point.html 112,85 218,112
+rect $classbody2d.html 122,8 208,34

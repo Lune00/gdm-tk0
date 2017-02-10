@@ -1,0 +1,4 @@
+base referer
+rect $classinter2d.html 8,88 88,114
+rect $classdisk.html 209,88 262,114
+rect $classbody2d.html 130,8 216,34

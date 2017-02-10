@@ -1,0 +1,42 @@
+INC_PATH  = ../include
+LIB_PATH  = ../../lib
+
+CC      = g++
+CFLAGS  = -O3 -Wall -Werror -I$(INC_PATH)
+
+SRC = alteration.cpp grid.cpp
+
+OBJS = $(subst .cpp,.o,$(SRC))
+
+.SUFFIXES: .cpp
+.cpp.o:
+	$(CC) -c $(CFLAGS) $<
+	cp -f $@ $(LIB_PATH)
+
+all: $(OBJS)
+
+clean:
+	rm -f *~ \#*\#
+	rm -f *.o $(DATA_PACK).a
+
+depend:
+	makedepend -- $(CFLAGS) -- *.cpp
+# DO NOT DELETE
+
+alteration.o: ../include/alteration.hpp ../include/sample.hpp
+alteration.o: ../include/body2d.hpp ../include/dof.hpp /usr/include/math.h
+alteration.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+alteration.o: ../include/talk.hpp ../include/inter2d.hpp
+alteration.o: ../include/vertex.hpp ../include/disk.hpp ../include/polyg.hpp
+alteration.o: ../include/rline.hpp ../include/purge.h ../include/NRsource.hpp
+alteration.o: /usr/include/stdio.h /usr/include/_types.h
+alteration.o: /usr/include/sys/_types.h /usr/include/machine/_types.h
+alteration.o: /usr/include/i386/_types.h
+grid.o: ../include/grid.hpp ../include/sample.hpp ../include/body2d.hpp
+grid.o: ../include/dof.hpp /usr/include/math.h
+grid.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+grid.o: ../include/talk.hpp ../include/inter2d.hpp ../include/vertex.hpp
+grid.o: ../include/disk.hpp ../include/polyg.hpp ../include/rline.hpp
+grid.o: ../include/purge.h ../include/NRsource.hpp /usr/include/stdio.h
+grid.o: /usr/include/_types.h /usr/include/sys/_types.h
+grid.o: /usr/include/machine/_types.h /usr/include/i386/_types.h

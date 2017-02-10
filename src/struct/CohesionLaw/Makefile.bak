@@ -1,0 +1,57 @@
+INC_PATH  = ../../include
+LIB_PATH  = ../../../lib
+
+CC      = g++
+CFLAGS  = -O3 -Wall -Werror -I$(INC_PATH)
+
+SRC = cohesionLaw.cpp weightedAdhesion.cpp nocohesion.cpp simpleAdhesion.cpp \
+
+OBJS = $(subst .cpp,.o,$(SRC))
+
+.SUFFIXES: .cpp
+.cpp.o:
+	$(CC) -c $(CFLAGS) $<
+	cp -f $@ $(LIB_PATH)
+
+all: $(OBJS)
+
+clean:
+	rm -f *~ \#*\#
+	rm -f *.o
+
+depend:
+	makedepend -- $(CFLAGS) -- *.cpp
+
+# DO NOT DELETE
+
+Fragmentation.o: ../../include/cohesionLaw.hpp ../../include/inter2d.hpp
+Fragmentation.o: ../../include/body2d.hpp ../../include/dof.hpp
+Fragmentation.o: /usr/include/math.h /usr/include/architecture/i386/math.h
+Fragmentation.o: /usr/include/sys/cdefs.h ../../include/talk.hpp
+Fragmentation.o: ../../include/vertex.hpp
+cohesionLaw.o: ../../include/cohesionLaw.hpp ../../include/inter2d.hpp
+cohesionLaw.o: ../../include/body2d.hpp ../../include/dof.hpp
+cohesionLaw.o: /usr/include/math.h /usr/include/architecture/i386/math.h
+cohesionLaw.o: /usr/include/sys/cdefs.h ../../include/talk.hpp
+cohesionLaw.o: ../../include/vertex.hpp weightedAdhesion.cpp
+cohesionLaw.o: simpleAdhesion.cpp nocohesion.cpp
+dirtyCapilarity.o: ../../include/cohesionLaw.hpp ../../include/inter2d.hpp
+dirtyCapilarity.o: ../../include/body2d.hpp ../../include/dof.hpp
+dirtyCapilarity.o: /usr/include/math.h /usr/include/architecture/i386/math.h
+dirtyCapilarity.o: /usr/include/sys/cdefs.h ../../include/talk.hpp
+dirtyCapilarity.o: ../../include/vertex.hpp
+nocohesion.o: ../../include/cohesionLaw.hpp ../../include/inter2d.hpp
+nocohesion.o: ../../include/body2d.hpp ../../include/dof.hpp
+nocohesion.o: /usr/include/math.h /usr/include/architecture/i386/math.h
+nocohesion.o: /usr/include/sys/cdefs.h ../../include/talk.hpp
+nocohesion.o: ../../include/vertex.hpp
+simpleAdhesion.o: ../../include/cohesionLaw.hpp ../../include/inter2d.hpp
+simpleAdhesion.o: ../../include/body2d.hpp ../../include/dof.hpp
+simpleAdhesion.o: /usr/include/math.h /usr/include/architecture/i386/math.h
+simpleAdhesion.o: /usr/include/sys/cdefs.h ../../include/talk.hpp
+simpleAdhesion.o: ../../include/vertex.hpp
+weightedAdhesion.o: ../../include/cohesionLaw.hpp ../../include/inter2d.hpp
+weightedAdhesion.o: ../../include/body2d.hpp ../../include/dof.hpp
+weightedAdhesion.o: /usr/include/math.h /usr/include/architecture/i386/math.h
+weightedAdhesion.o: /usr/include/sys/cdefs.h ../../include/talk.hpp
+weightedAdhesion.o: ../../include/vertex.hpp

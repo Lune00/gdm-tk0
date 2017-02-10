@@ -1,0 +1,42 @@
+#!/bin/bash
+
+PATH1=/Users/pat/Documents/Applications/bin
+
+
+#Compilation sources
+cd src
+make clean
+make
+
+#Compilation gdm run
+cd ../app
+make clean
+make
+
+#Copie des executables
+cd ..
+
+echo " "
+echo " "
+echo "--- Copie des executables ---"
+echo " "
+
+echo "==================--======================="
+pwd
+echo "==================--======================="
+
+echo " "
+echo " "
+echo "done"
+cp app/gdm_run/gdm_run $PATH1/gdm_run_2D_0
+#cp gdm-tk-post-hanh/app/convert/disk2cluster/disk2cluster $PATH1/disk2cluster_2D
+#cp gdm-tk-post-hanh/app/convert/disk2polyg/disk2polyg $PATH1/disk2polyg_2D
+#cp gdm-tk-post-hanh/app/convert/Grid/Grid $PATH1/Grid_2D
+#cp gdm-tk-post-hanh/app/convert/his2mgp/his2mgp $PATH1/his2mgp_2D
+#cp gdm-tk-post-hanh/app/convert/spl2cin/spl2cin $PATH1/spl2cinb_2D
+#cp gdm-tk-post-hanh/gdm-tk-stab/app/convert/dof2clust/dof2clust $PATH1/dof2cluster_stab
+cp app/SNA/SNA $PATH1/SNA_2D_0
+#cp gdm-tk-model1-stab/app/Time_mean/Time_mean $PATH1/Time-mean_2D
+#cp gdm-tk-post-hanh/app/SNA/bougeDir $PATH1/bougeDir_2D
+#cp gdm-tk-model1-stab/app/Fusion/Fusion $PATH1/Fusion_2D
+#cp gdm-tk-post-hanh/app/PRG/PRG $PATH1/PRG_2D

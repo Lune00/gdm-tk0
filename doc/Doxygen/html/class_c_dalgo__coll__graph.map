@@ -1,0 +1,7 @@
+base referer
+rect $class_algo.html 261,189 320,215
+rect $class_group_data.html 8,98 117,125
+rect $class_network.html 164,7 254,34
+rect $class_system.html 249,98 332,125
+rect $class_sample.html 300,7 380,34
+rect $class_group_relation_data.html 452,98 628,125

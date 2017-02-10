@@ -1,0 +1,129 @@
+DATA_PACK = analyze
+INC_PATH  = ../include
+LIB_PATH  = ../../lib
+
+
+CC      = g++
+CFLAGS  = -Wall -O3 -I$(INC_PATH)
+
+SRC = tensor.cpp stress.cpp\
+      pointSet.cpp dataSet.cpp\
+      anisotropy.cpp NRsource.cpp solidfraction.cpp\
+      connectivity_A.cpp speedProfile.cpp \
+	  grading.cpp cluster_A.cpp interdof.cpp
+
+OBJS = $(subst .cpp,.o,$(SRC))
+
+.SUFFIXES: .cpp
+.cpp.o:
+	$(CC) -c $(CFLAGS) $<
+	cp -f $@ $(LIB_PATH)
+
+all: $(OBJS)
+
+
+clean:
+	rm -f *~ \#*\#
+	rm -f *.o $(DATA_PACK).a
+
+depend:
+	makedepend -- $(CFLAGS) -- *.cpp
+# DO NOT DELETE
+
+NRsource.o: ../include/NRsource.hpp /usr/include/math.h
+NRsource.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+NRsource.o: /usr/include/stdio.h /usr/include/_types.h
+NRsource.o: /usr/include/sys/_types.h /usr/include/machine/_types.h
+NRsource.o: /usr/include/i386/_types.h
+anisotropy.o: ../include/anisotropy.hpp ../include/sample.hpp
+anisotropy.o: ../include/body2d.hpp ../include/dof.hpp /usr/include/math.h
+anisotropy.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+anisotropy.o: ../include/talk.hpp ../include/inter2d.hpp
+anisotropy.o: ../include/vertex.hpp ../include/disk.hpp ../include/polyg.hpp
+anisotropy.o: ../include/rline.hpp ../include/purge.h ../include/network.hpp
+anisotropy.o: ../include/groupRelationData.hpp ../include/cohesionLaw.hpp
+anisotropy.o: ../include/Fragmentation.hpp ../include/fsafe.hpp
+anisotropy.o: ../include/near.hpp ../include/tensor.hpp ../include/probe.hpp
+anisotropy.o: ../include/heightProbe.hpp ../include/dkdkP.hpp
+anisotropy.o: ../include/pointSet.hpp ../include/point.hpp
+anisotropy.o: ../include/dataSet.hpp
+cluster_A.o: ../include/cluster_A.hpp ../include/system.hpp
+cluster_A.o: ../include/control.hpp ../include/talk.hpp ../include/sample.hpp
+cluster_A.o: ../include/body2d.hpp ../include/dof.hpp /usr/include/math.h
+cluster_A.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+cluster_A.o: ../include/inter2d.hpp ../include/vertex.hpp ../include/disk.hpp
+cluster_A.o: ../include/polyg.hpp ../include/rline.hpp ../include/purge.h
+cluster_A.o: ../include/network.hpp ../include/groupRelationData.hpp
+cluster_A.o: ../include/cohesionLaw.hpp ../include/Fragmentation.hpp
+cluster_A.o: ../include/fsafe.hpp ../include/near.hpp ../include/interdof.hpp
+cluster_A.o: ../include/probe.hpp ../include/dataSet.hpp
+cluster_A.o: ../include/pointSet.hpp ../include/point.hpp
+cluster_A.o: ../include/rectangularProbe.hpp ../include/tensor.hpp
+connectivity.o: ../include/connectivity.hpp
+connectivity_A.o: ../include/connectivity_A.hpp ../include/sample.hpp
+connectivity_A.o: ../include/body2d.hpp ../include/dof.hpp
+connectivity_A.o: /usr/include/math.h /usr/include/architecture/i386/math.h
+connectivity_A.o: /usr/include/sys/cdefs.h ../include/talk.hpp
+connectivity_A.o: ../include/inter2d.hpp ../include/vertex.hpp
+connectivity_A.o: ../include/disk.hpp ../include/polyg.hpp
+connectivity_A.o: ../include/rline.hpp ../include/purge.h
+connectivity_A.o: ../include/network.hpp ../include/groupRelationData.hpp
+connectivity_A.o: ../include/cohesionLaw.hpp ../include/Fragmentation.hpp
+connectivity_A.o: ../include/fsafe.hpp ../include/near.hpp
+connectivity_A.o: ../include/probe.hpp
+dataSet.o: ../include/dataSet.hpp /usr/include/math.h
+dataSet.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+dataSet.o: ../include/pointSet.hpp ../include/point.hpp
+grading.o: ../include/grading.hpp ../include/body2d.hpp
+grading.o: ../include/pointSet.hpp /usr/include/math.h
+grading.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+grading.o: ../include/point.hpp
+interdof.o: ../include/interdof.hpp ../include/dof.hpp /usr/include/math.h
+interdof.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+interdof.o: ../include/talk.hpp ../include/body2d.hpp ../include/inter2d.hpp
+interdof.o: ../include/vertex.hpp ../include/system.hpp
+interdof.o: ../include/control.hpp ../include/sample.hpp ../include/disk.hpp
+interdof.o: ../include/polyg.hpp ../include/rline.hpp ../include/purge.h
+interdof.o: ../include/network.hpp ../include/groupRelationData.hpp
+interdof.o: ../include/cohesionLaw.hpp ../include/Fragmentation.hpp
+interdof.o: ../include/fsafe.hpp ../include/near.hpp
+pointSet.o: ../include/pointSet.hpp /usr/include/math.h
+pointSet.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+pointSet.o: ../include/point.hpp
+solidfraction.o: ../include/solidfraction.hpp ../include/sample.hpp
+solidfraction.o: ../include/body2d.hpp ../include/dof.hpp /usr/include/math.h
+solidfraction.o: /usr/include/architecture/i386/math.h
+solidfraction.o: /usr/include/sys/cdefs.h ../include/talk.hpp
+solidfraction.o: ../include/inter2d.hpp ../include/vertex.hpp
+solidfraction.o: ../include/disk.hpp ../include/polyg.hpp
+solidfraction.o: ../include/rline.hpp ../include/purge.h
+solidfraction.o: ../include/network.hpp ../include/groupRelationData.hpp
+solidfraction.o: ../include/cohesionLaw.hpp ../include/Fragmentation.hpp
+solidfraction.o: ../include/fsafe.hpp ../include/near.hpp
+solidfraction.o: ../include/heightProbe.hpp ../include/probe.hpp
+solidfraction.o: ../include/circularProbe.hpp ../include/rectangularProbe.hpp
+speedProfile.o: ../include/speedProfile.hpp ../include/sample.hpp
+speedProfile.o: ../include/body2d.hpp ../include/dof.hpp /usr/include/math.h
+speedProfile.o: /usr/include/architecture/i386/math.h
+speedProfile.o: /usr/include/sys/cdefs.h ../include/talk.hpp
+speedProfile.o: ../include/inter2d.hpp ../include/vertex.hpp
+speedProfile.o: ../include/disk.hpp ../include/polyg.hpp ../include/rline.hpp
+speedProfile.o: ../include/purge.h ../include/network.hpp
+speedProfile.o: ../include/groupRelationData.hpp ../include/cohesionLaw.hpp
+speedProfile.o: ../include/Fragmentation.hpp ../include/fsafe.hpp
+speedProfile.o: ../include/near.hpp ../include/heightProbe.hpp
+speedProfile.o: ../include/probe.hpp
+stress.o: ../include/stress.hpp ../include/sample.hpp ../include/body2d.hpp
+stress.o: ../include/dof.hpp /usr/include/math.h
+stress.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+stress.o: ../include/talk.hpp ../include/inter2d.hpp ../include/vertex.hpp
+stress.o: ../include/disk.hpp ../include/polyg.hpp ../include/rline.hpp
+stress.o: ../include/purge.h ../include/network.hpp
+stress.o: ../include/groupRelationData.hpp ../include/cohesionLaw.hpp
+stress.o: ../include/Fragmentation.hpp ../include/fsafe.hpp
+stress.o: ../include/near.hpp ../include/tensor.hpp ../include/probe.hpp
+stress.o: ../include/heightProbe.hpp ../include/dkdkP.hpp ../include/dkdk.hpp
+stress.o: ../include/interdof.hpp ../include/system.hpp
+stress.o: ../include/control.hpp
+tensor.o: ../include/tensor.hpp /usr/include/math.h
+tensor.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h

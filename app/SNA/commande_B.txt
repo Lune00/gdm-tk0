@@ -1,0 +1,40 @@
+System_A{  
+Solidfraction
+Globalstress
+Fabric
+Forcesanisotropy
+Ptheta 30 1 1
+PDFFN 100 1 3
+PDFFT 100 2 5
+Export
+Forcescorrelation
+
+Z
+ZP
+}
+
+
+Globalstress
+Granulopdf 10
+
+
+
+Zgranulo 30
+RemoveVisu
+Granulostress 40 1 5
+Z 
+ZP
+
+Sumforce
+Forcesanisotropy 50
+
+
+norm
+Ptheta 50 1 5
+Fabric
+Z
+ZP
+Zgranulo 30
+Sprofile 30
+Gap 
+Def

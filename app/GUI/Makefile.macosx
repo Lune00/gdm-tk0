@@ -1,0 +1,32 @@
+APP = GUI
+CC = g++
+INC_PATH = ../include
+SYS_PATH = ../systems
+CFLAGS = -I/sw/include -I$(INC_PATH) -I$(SYS_PATH) -Wall -O2 -g
+
+LIBS =  -lfltk -lfltk_gl \
+        -framework AGL -framework OpenGL \
+        -framework Carbon -framework ApplicationServices \
+        -lm \
+        -lsupc++
+
+OBJS = $(APP).o display.o ../struct/*.o ../algo/CD/*.o $(SYS_PATH)/box2d/*.o
+
+all: $(APP)
+
+display.o : display.cpp display.h
+	$(CC) $(CFLAGS) -c display.cpp
+
+$(APP).o : $(APP).cpp $(APP).h
+	$(CC) $(CFLAGS) -c $(APP).cpp
+
+$(APP).a : $(OBJS)
+	ar -r $@ $(OBJS)
+
+$(APP): $(APP).a
+	$(CC) -o $@ $(APP).a $(LIBS)
+	/Developer/Tools/Rez -t APPL -o $(APP) /sw/include/FL/mac.r
+
+clean:
+	rm -f *~ \#*\#
+	rm -f *.o $(APP) $(APP).a

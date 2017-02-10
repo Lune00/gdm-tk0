@@ -1,0 +1,43 @@
+INC_PATH  = ../../include
+LIB_PATH  = ../../../lib
+
+CC      = g++
+CFLAGS  = -O3 -Wall -Werror -I$(INC_PATH)
+
+SRC = body2d.cpp \
+      disk.cpp polyg.cpp rline.cpp massPoint.cpp 
+
+OBJS = $(subst .cpp,.o,$(SRC))
+
+.SUFFIXES: .cpp
+.cpp.o:
+	$(CC) -c $(CFLAGS) $<
+	cp -f $@ $(LIB_PATH)
+
+all: $(OBJS)
+
+clean:
+	rm -f *~ \#*\#
+	rm -f *.o
+
+depend:
+	makedepend -- $(CFLAGS) -- *.cpp
+
+# DO NOT DELETE
+
+body2d.o: ../../include/body2d.hpp ../../include/disk.hpp /usr/include/math.h
+body2d.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+body2d.o: ../../include/rline.hpp ../../include/polyg.hpp
+body2d.o: ../../include/vertex.hpp
+disk.o: ../../include/disk.hpp /usr/include/math.h
+disk.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+disk.o: ../../include/body2d.hpp
+massPoint.o: ../../include/massPoint.hpp /usr/include/math.h
+massPoint.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+massPoint.o: ../../include/body2d.hpp
+polyg.o: ../../include/polyg.hpp /usr/include/math.h
+polyg.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+polyg.o: ../../include/body2d.hpp ../../include/vertex.hpp
+rline.o: ../../include/rline.hpp /usr/include/math.h
+rline.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+rline.o: ../../include/body2d.hpp

@@ -1,0 +1,116 @@
+INC_PATH  = ../include
+LIB_PATH  = ../../lib
+
+CC      = g++
+CFLAGS  = -O3 -Wall -Werror -I$(INC_PATH)
+
+SRC = sample.cpp network.cpp \
+      simulation.cpp \
+      control.cpp near.cpp \
+      io.cpp talk.cpp \
+      groupData.cpp groupRelationData.cpp\
+	  dof.cpp
+
+OBJS = $(subst .cpp,.o,$(SRC))
+
+.SUFFIXES: .cpp
+.cpp.o:
+	$(CC) -c $(CFLAGS) $<
+	cp -f $@ $(LIB_PATH)
+
+all: $(OBJS)
+
+clean:
+	rm -f *~ \#*\#
+	rm -f *.o
+
+depend:
+	makedepend -- $(CFLAGS) -- *.cpp
+
+# DO NOT DELETE
+
+MDlaw0.o: ../include/MDlaw0.hpp ../include/MDforceLaw.hpp
+MDlaw0.o: ../include/network.hpp ../include/sample.hpp ../include/body2d.hpp
+MDlaw0.o: ../include/dof.hpp /usr/include/math.h
+MDlaw0.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+MDlaw0.o: ../include/talk.hpp ../include/inter2d.hpp ../include/vertex.hpp
+MDlaw0.o: ../include/disk.hpp ../include/polyg.hpp ../include/rline.hpp
+MDlaw0.o: ../include/purge.h ../include/groupRelationData.hpp
+MDlaw0.o: ../include/cohesionLaw.hpp ../include/Fragmentation.hpp
+MDlaw0.o: ../include/fsafe.hpp ../include/near.hpp
+MDlaw0.o: ../include/GroupRelationData.hpp
+control.o: ../include/control.hpp ../include/talk.hpp
+dof.o: ../include/dof.hpp /usr/include/math.h
+dof.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+dof.o: ../include/talk.hpp ../include/body2d.hpp ../include/inter2d.hpp
+dof.o: ../include/vertex.hpp
+groupData.o: ../include/groupData.hpp
+groupRelationData.o: ../include/groupRelationData.hpp
+groupRelationData.o: ../include/cohesionLaw.hpp ../include/inter2d.hpp
+groupRelationData.o: ../include/body2d.hpp ../include/dof.hpp
+groupRelationData.o: /usr/include/math.h
+groupRelationData.o: /usr/include/architecture/i386/math.h
+groupRelationData.o: /usr/include/sys/cdefs.h ../include/talk.hpp
+groupRelationData.o: ../include/vertex.hpp ../include/Fragmentation.hpp
+io.o: ../include/io.hpp ../include/algo.hpp ../include/sample.hpp
+io.o: ../include/body2d.hpp ../include/dof.hpp /usr/include/math.h
+io.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+io.o: ../include/talk.hpp ../include/inter2d.hpp ../include/vertex.hpp
+io.o: ../include/disk.hpp ../include/polyg.hpp ../include/rline.hpp
+io.o: ../include/purge.h ../include/network.hpp
+io.o: ../include/groupRelationData.hpp ../include/cohesionLaw.hpp
+io.o: ../include/Fragmentation.hpp ../include/fsafe.hpp ../include/near.hpp
+io.o: ../include/system.hpp ../include/control.hpp ../include/groupData.hpp
+io.o: ../include/simulation.hpp /usr/include/assert.h
+io.o: /usr/include/sys/types.h /usr/include/sys/appleapiopts.h
+io.o: /usr/include/machine/types.h /usr/include/i386/types.h
+io.o: /usr/include/i386/_types.h /usr/include/sys/_types.h
+io.o: /usr/include/machine/_types.h /usr/include/machine/endian.h
+io.o: /usr/include/i386/endian.h /usr/include/sys/_endian.h
+io.o: /usr/include/libkern/_OSByteOrder.h
+io.o: /usr/include/libkern/i386/_OSByteOrder.h /usr/include/sys/_structs.h
+io.o: /usr/include/signal.h /usr/include/_types.h /usr/include/sys/signal.h
+io.o: /usr/include/machine/signal.h /usr/include/i386/signal.h
+io.o: /usr/include/i386/_structs.h ../include/system_A.hpp
+io.o: /usr/include/sys/stat.h /usr/include/stdio.h
+near.o: ../include/near.hpp ../include/vertex.hpp /usr/include/math.h
+near.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+near.o: ../include/body2d.hpp ../include/disk.hpp ../include/polyg.hpp
+near.o: ../include/rline.hpp
+network.o: ../include/network.hpp ../include/sample.hpp ../include/body2d.hpp
+network.o: ../include/dof.hpp /usr/include/math.h
+network.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+network.o: ../include/talk.hpp ../include/inter2d.hpp ../include/vertex.hpp
+network.o: ../include/disk.hpp ../include/polyg.hpp ../include/rline.hpp
+network.o: ../include/purge.h ../include/groupRelationData.hpp
+network.o: ../include/cohesionLaw.hpp ../include/Fragmentation.hpp
+network.o: ../include/fsafe.hpp ../include/near.hpp
+sample.o: ../include/sample.hpp ../include/body2d.hpp ../include/dof.hpp
+sample.o: /usr/include/math.h /usr/include/architecture/i386/math.h
+sample.o: /usr/include/sys/cdefs.h ../include/talk.hpp ../include/inter2d.hpp
+sample.o: ../include/vertex.hpp ../include/disk.hpp ../include/polyg.hpp
+sample.o: ../include/rline.hpp ../include/purge.h
+simulation.o: ../include/simulation.hpp /usr/include/assert.h
+simulation.o: /usr/include/sys/cdefs.h /usr/include/sys/types.h
+simulation.o: /usr/include/sys/appleapiopts.h /usr/include/machine/types.h
+simulation.o: /usr/include/i386/types.h /usr/include/i386/_types.h
+simulation.o: /usr/include/sys/_types.h /usr/include/machine/_types.h
+simulation.o: /usr/include/machine/endian.h /usr/include/i386/endian.h
+simulation.o: /usr/include/sys/_endian.h /usr/include/libkern/_OSByteOrder.h
+simulation.o: /usr/include/libkern/i386/_OSByteOrder.h
+simulation.o: /usr/include/sys/_structs.h /usr/include/signal.h
+simulation.o: /usr/include/_types.h /usr/include/sys/signal.h
+simulation.o: /usr/include/machine/signal.h /usr/include/i386/signal.h
+simulation.o: /usr/include/i386/_structs.h ../include/algo.hpp
+simulation.o: ../include/sample.hpp ../include/body2d.hpp ../include/dof.hpp
+simulation.o: /usr/include/math.h /usr/include/architecture/i386/math.h
+simulation.o: ../include/talk.hpp ../include/inter2d.hpp
+simulation.o: ../include/vertex.hpp ../include/disk.hpp ../include/polyg.hpp
+simulation.o: ../include/rline.hpp ../include/purge.h ../include/network.hpp
+simulation.o: ../include/groupRelationData.hpp ../include/cohesionLaw.hpp
+simulation.o: ../include/Fragmentation.hpp ../include/fsafe.hpp
+simulation.o: ../include/near.hpp ../include/system.hpp
+simulation.o: ../include/control.hpp ../include/groupData.hpp
+simulation.o: ../include/io.hpp ../include/system_A.hpp
+simulation.o: /usr/include/sys/stat.h /usr/include/stdio.h
+talk.o: ../include/talk.hpp

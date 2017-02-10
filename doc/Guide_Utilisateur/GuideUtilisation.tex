@@ -1,0 +1,861 @@
+\documentclass{gdmdoc}
+
+\newcommand{\mgpost}{\texttt{mgpost}\ }
+\newcommand{\var}[1]{$<$#1$>$}
+\newcommand{\opt}[1]{$[$#1$]$}
+\newcommand{\file}[1]{\textit{#1}}
+\newcommand{\screen}[1]{\texttt{#1}}
+\newcommand{\key}[1]{\fbox{#1}}
+
+
+\title{Granular Dynamics Methods toolKit -- Guide d'utilisation}
+\author{Vincent Richefeu\\
+richefeu@lmgc.univ-montp2.fr\\
+Laboratoire de M\'ecanique et G\'enie Civil\\
+UMR CNRS 5508\\
+Université Montpellier 2
+}
+
+\pagestyle{myfootings}
+\markboth{Guide d'utilisation gdm-tk}%
+         {Guide d'utilisation gdm-tk}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\maketitle
+
+
+\begin{abstract}
+Ce document décrit l'utilisation du toolKit gdm-tk dédié à la simulation
+de dynamique des particules. 
+\end{abstract}
+
+%\setlength{\cftbeforeXskip}{0cm}
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+
+Ce document est un guide d'utilisation du toolKit gdm-tk dédié au simulations de dynamique granulaire. Ce guide donne une description sommaire de la structure globale du toolKit, des concepts et des fichiers. Le lecteur est supposé avoir les bases nécessaires pour la compréhension des extraits de code en C++.
+
+\section{Compilation et installation}
+
+TODO
+
+
+
+\section{Structure générale et concepts}
+
+TODO
+
+\section{Fichier de données}
+
+Un fichier de données gdm-tk est un fichier ASCII pouvant contenir des paramètres relatifs à chacune des entités (Simulation, System, Algo,...). Il convient d'associer l'extension '.sim' à de tels fichiers.
+
+
+
+
+\begin{lstlisting}[style=gdmdata]
+Simulation{
+speakLevel 2
+ns  0
+nsi 0
+nsf 5000
+nSpeak 50 
+nHist 50
+historyNetwork
+}
+
+System{ generalCD
+Gravity 9.8
+.. 4
+blocx blocy blocrot
+.. 5
+blocx blocy vrot -2
+}
+
+Algo{ CD
+speakLevel 1
+dt      0.001
+ns      0
+nsi     0
+nsf     5000
+epsf    0.001
+nitermn 10
+nitermx 10000
+nver    1
+}
+
+GroupData{
+ngrp 2
+parameter density
+set density 0 2650.0
+set density 1 100000.0
+}
+
+GroupRelationData{
+ngrp 2
+noact 1 1
+    
+parameter mu
+setall mu 0.5
+set mu 0 1 0.0
+    
+parameter ah   
+parameter en
+parameter et
+parameter rs
+setall rs 1.0
+}
+
+Network{
+dverlet 0.0005
+}
+
+includeFile data.spl
+
+\end{lstlisting}
+
+
+\begin{lstlisting}[style=gdmdata]
+Sample{
+rline 1 0.0005 0.1 -0.0015 -0.000535 1.57075 0 -0.1029 0
+rline 1 0.0005 0.1 0.054198 -0.000535 1.57075 0 -0.1029 0
+rline 1 0.0005 0.1 0.01 -0.00203508 0 0 -0.1029 0
+rline 1 0.0005 0.1 0.01 0.0236119 0 0 -0.1029 0
+rline 1 0.0005 0.01 0.027573 0.01088 -1.56004 0 -0.1029 0
+disk 0 0.000500002 -0.000516001 -0.00103763 0 0 -0.1029 0
+disk 0 0.000532884 0.000516433 -0.00100861 0 0 -0.1029 0
+disk 0 0.000688901 0.00172756 -0.000847712 0 0 -0.1029 0
+disk 0 0.000614663 0.00302395 -0.000930266 0 0 -0.1029 0
+...
+}
+\end{lstlisting}
+
+\subsection{Paramètres de simulation}
+
+
+
+\section{l'application gdm\_run}
+
+
+\begin{lstlisting}[style=gdmcpp,texcl] 
+#include "simulation.hpp"
+
+// test un truc $\sqrt{2}$
+
+int main(int argc, char **argv)
+{
+  Simulation * mySimu = new Simulation();
+  mySimu->read_data(argv[1]);
+  mySimu->init();
+  mySimu->run();
+  return 0;
+}
+\end{lstlisting}
+
+
+
+
+\end{document}
+%********
+
+
+
+\section {Exécuter mgpost}
+
+\subsection {Paramètres d'exécution}
+
+Les paramètres utilisables en ligne de commande sont les suivants :
+
+\marginlabel{\texttt{-v}} 
+Affiche le numéro de version de mgpost et les
+information sur la license utilisée.
+
+\begin{verbatim}
+  $ mgpost -v
+
+       mgpost version 0.3, V. Richefeu
+       mgpost comes with ABSOLUTELY NO WARRANTY.
+\end{verbatim}
+
+\marginlabel{-files} 
+Crée les fichiers \file{mgpalloc} et \file{mgconf}.
+
+\begin{verbatim}
+  $ mgpost -files
+    File 'mgpalloc' created
+    File 'mgconf' created
+\end{verbatim}
+
+\marginlabel{\texttt{-mgpalloc}} 
+Crée un fichier \file{mgpalloc}.
+
+\begin{verbatim}
+  $ mgpost -mgpalloc
+    File 'mgpalloc' created
+\end{verbatim}
+
+\marginlabel{\texttt{-mgconf}}
+Crée un fichier \file{mgconf}.
+
+\begin{verbatim}
+  $ mgpost -mgconf
+    File 'mgconf' created
+\end{verbatim}
+
+\marginlabel{\texttt{-i \var{nom du fichier}}} 
+Lit le fichier MGP nommé
+<nom du fichier>. Ce fichier peut contenir un ou plusieurs états.
+
+\begin{verbatim}
+  $ mgpost -i Simu.mgp
+\end{verbatim}
+
+\marginlabel{\texttt{-mf \opt{\var{numéro de l'état}}}}
+Lecture d'une série de fichiers MGP nommés \file{mgp.out.\textbf{nnn}} se
+trouvant dans le répertoire courant. Si le numéro de l'état n'est pas
+renseigné, l'option -mf doit être la dernière de la liste ; le numéro
+d'état par défaut est le 1.
+
+\begin{verbatim}
+  $ mgpost -mf 50
+\end{verbatim}
+
+\marginlabel{\texttt{-mfz \opt{\var{numéro de l'état}}}}
+Lecture d'une série de fichiers MGP compressés qui sont nommés
+\file{mgp.out.\textbf{nnn}.gz} et qui se trouvent dans le répertoire
+courant. Sur Linux, on peut réaliser cette compression avec
+l'utilitaire gzip (pour plus d'information taper \texttt{man
+gzip}). Si le numéro de l'état n'est pas renseigné, l'option -mfz
+doit être la dernière de la liste. Dans ce cas l'état numéro 1 est lu
+par défaut.
+
+\begin{verbatim}
+  $ gzip -9 mgp.out.*
+  $ mgpost -mfz
+\end{verbatim}
+
+\marginlabel{\texttt{-r0}}
+Permet de visualiser un échantillon qui n'est pas centré sur le repère global.
+
+\begin{verbatim}
+  $ mgpost -i Simu.mgp -r0
+\end{verbatim}
+
+\marginlabel{\texttt{-dim \var{largeur} \var{hauteur}}}
+Impose les dimensions de la fenêtre graphique.
+
+\begin{verbatim}
+  $ mgpost -i Simu.mgp -dim 500 600
+\end{verbatim}
+
+\marginlabel{\texttt{-2d}}
+Force \mgpost à se mettre en mode 2D (par défaut c'est le mode 3D qui
+est privilégié).  On pourra changer de mode en cours d'utilisation par
+l'intermédiaire des touche '2' et '3' du clavier.
+
+\begin{verbatim}
+  $ mgpost -i Simu.mgp -2d
+\end{verbatim}
+
+\marginlabel{\texttt{-mono}}
+Force \mgpost à utiliser une échelle de couleur allant du noir au
+blanc en passant par des niveaux de gris. On ne peut pas modifier ce
+mode pendant l'utilisation du programme.
+
+\begin{verbatim}
+  $ mgpost -i Simu.mgp -mono
+\end{verbatim}
+
+\marginlabel{\texttt{-section {\scriptsize \var{a} \var{b} \var{c} \var{d}}}}
+Permet d'entrer les paramètres $a$ $b$ $c$ et $d$ d'un plan de section
+défini par l'équation :
+
+\begin{equation}
+aX + bY + cZ + d = 0 
+\end{equation}
+
+Ce plan sert à réaliser des sections dans les échantillons 3D (en
+activant l'option section). Le vecteur $(a\;b\;c)^T$ est normal à ce
+plan et $d$ est la distance plan-origine.
+
+\begin{verbatim}
+  $ mgpost -i Simu.mgp -section 1 0 0 0
+\end{verbatim}
+
+\marginlabel{\texttt{-dsec \var{distance}}}
+Définie la distance au plan de section. \`A Chaque corps correspond un point
+remarquable, en général il s'agit du centre des masses. Lorsque
+le mode section est activé, les corps dont la distance du
+point remarquable au le plan de section est supérieure à la distance
+définie par l'option \texttt{-dsec} ne seront pas affichés.
+
+\begin{verbatim}
+  $ mgpost -i Simu.mgp -dsec 5.0e-3
+\end{verbatim}
+
+\subsection{Les modes de lecture Normal / Multi-fichiers}
+
+Le mode Mono-fichier est activé lorsque le programme est exécuté avec
+l'option -i (fichier nom.mgp[.gz]).
+
+Le mode Multi-fichiers est activé lorsque le programme est exécuté
+avec l'option -mf ou -mfz (fichiers mgp.out.\textit{nnn}[.gz]).
+
+Pour ces deux modes, le passage d'un état à l'autre s'effectue en
+appuyant sur les touches \key{+} ou \key{-}. La touche \key{0} permet de se placer
+au premier état. Ces modes ne sont pas modifiables en cours
+d'execution.
+
+\attention
+L'ensemble des fichiers MGP à
+visualiser de façon séquentielle doit se situe dans le répertoire
+courant.
+
+\section{Interface}
+
+\subsection{Utilisation de la souris}
+
+\marginlabel{Le bouton gauche} Il permet de faire tourner
+l'échantillon. On maintient le bouton appuyé en déplaçant la souris.
+
+\marginlabel{Le bouton du milieu} Zoom avant et arrière. 
+
+\marginlabel{Le bouton droit} Il permet de faire appara\^itre le menu.
+
+\marginlabel{La combinaison CTRL + Bouton gauche} Elle permet de
+selectionner un corps en particulier. Lorsque un corps est
+sélectionné, le fait d'appuyer sur la touche \key{i} permet d'obtenir des
+informations sur le corps sélectionné uniquement.
+
+\subsection{Raccourcis clavier}
+
+\marginlabel{\key{espace}}
+arrête une animation.
+
+\marginlabel{\key{c}}
+Bascule l'échelle de couleurs entre la représentation des corps et
+celle des interactions.
+
+\marginlabel{\key{d}}
+affichage de la forme des corps.
+
+\marginlabel{\key{e}}
+n'affiche que l'encombrement des éléments correspondant à l'enveloppe
+de l'échantillon numérique. L'affichage est ainsi plus rapide
+lorsqu'il y a beaucoup d'éléments.
+
+\marginlabel{\key{h}}
+aide sommaire sur les raccourcis clavier.
+
+\marginlabel{\key{i}}
+informations sur l'état de l'échantillon (rayon moyen, miminum,
+maximun, nombre de grains...).
+
+\marginlabel{\key{n}}
+affiche le numéro des corps.
+
+\marginlabel{\key{o}}
+affiche l'orientation des corps.
+
+\marginlabel{\key{p}}
+affiche la position des centres des éléments qui sont repérés par des
+points.
+
+\marginlabel{\key{q}}
+quitte le programme.
+
+\marginlabel{\key{r}}
+affichage du repère on/off.
+
+\marginlabel{\key{s}}
+produit un lissage (lent) de la représentation graphique en vue d'en
+faire une copie d'écran.
+
+\marginlabel{\key{t}}
+affichage du temps on/off
+
+\marginlabel{\key{w}}
+lance le défilement des états.
+
+\marginlabel{\key{z}}
+n'affiche que les corps prévus pour imposer des conditions aux
+limites. C'est à dire les obstacles tels que les murs, cylindres,
+joncs, segments...
+
+\marginlabel{\key{/}}
+coupe l'échantillon à la coordonnée (0, 0, 0) parallèlement à l'écran.
+
+\marginlabel{\key{*}}
+annule la coupe avec \key{/}.
+
+\marginlabel{\key{0}}
+revient au premier état de la simulation.
+
+\marginlabel{\key{2}}
+passage en mode 2D forcé.
+
+\marginlabel{\key{3}}
+passage en mode 3D forcé.
+
+\section {Fichiers d'entrée}
+
+Il  existe 3 types de  fichiers en  entrée :  \file{mgconf} et \file{mgpalloc} qui
+permettent de  paramétrer la  visualisation graphique et  les fichiers
+MGP qui contiennent les données à visualiser.
+
+\subsection{Le fichier mgconf}
+
+Ce fichier permet de configurer les principales options de
+représentation graphique.  Il s'agit tout simplement d'un fichier
+texte contenant des mots clés suivis d'une ou de plusieurs valeurs.
+L'ensemble des mots clés et des valeurs constituent des ``token''. Ils
+sont séparés entre eux par les caractères suivants (au choix) :
+espace, égale, tabulation, virgule, point-virgule, parenthèses,
+accolades.  Le fichier est interprété par \mgpost ligne par ligne.
+Les valeurs associées à un mot clé doivent donc se situer sur la
+m\^eme ligne que ce mot clé. On peut, par contre, placer plusieurs
+mots clés et leurs valeurs associées sur une m\^eme ligne. Tout ce qui
+suit le caractère \textbf{\#} ou \textbf{!}  est ignoré, ce qui permet de placer des
+commentaires dans le fichier.
+
+\subsubsection{Exemple de fichier mgconf}
+
+\begin{lstlisting}[style=mgpdata]
+# Dimensions de la fenetre
+Lfen = 500 ; Hfen = 500 
+
+# couleurs
+funRVB = (0.5, 0.5, 0.8)
+bgcolor  = fun 
+fgcolor  = bleu
+fgcolor1 = noir
+fgcolor2 = rouge
+
+# Quadrillage initial de l'echantillon
+GridXYZ = (1.0e-2 , 1.0e-2 , 1.0e-2)
+
+# echelle de couleurs
+autoScaleColors = yes
+valcMAX = 1.0e0  ! rouge
+valcMIN = -1.0e0 ! bleu
+
+# echelle vecteurs vitesse
+multiVit = 1.0e0
+
+# vitesse du repere mobil
+vitX = 1.0e-2
+vitY = 0.0e0
+vitZ = 0.0e0
+\end{lstlisting}
+
+\subsubsection{Description du fichier mgconf}
+
+\marginlabel{Lfen ou Wwin}
+Largeur de la fenêtre graphique (un entier).
+
+\marginlabel{Hfen ou Hwin}
+Hauteur de la fenêtre graphique (un entier).
+
+\marginlabel{funRVB ou funRGB}
+composantes rouge, verte et bleue (valeurs réelles comprisent entre
+0.0 et 1.0) d'une couleur 'utilisateur'. Dans \mgpost, certaines
+couleurs sont prédéfinies, il s'agit des valeurs bleu, blanc, vert,
+noir, jaune et rouge (ou bien leurs équivalent en anglais blue, white,
+green, black, yellow et red). Si vous voulez définir votre couleur
+personnelle pour l'arrière plan par exemple, vous devez la spécifier
+avec funRVB ou funRGV. Cette couleur a pour valeur 'fun' (voir
+l'exemple).
+
+\marginlabel{bgcolor}
+Couleur d'arrière plan (le fond de la fenêtre).
+
+\marginlabel{fgcolor}
+Couleur principale de premier plan (texte, forme des corps...)
+
+\marginlabel{fgcolor1, fgcolor2}
+Seconde et troisième couleurs de premier plan.
+
+\marginlabel{GridXYZ}
+Mailles X, Y et Z du quadrillage de l'échantillon. 
+
+\marginlabel{autoScaleColors}
+Flag indicant si les valeurs maximum et minimum de l'échelle de
+couleurs sont recalculées à chaque état (\texttt{autoScaleColors =
+yes}) ou si elles sont fixées entre les valeurs \texttt{valcMIN} et
+\texttt{valcMAX} (\texttt{autoScaleColors = no})
+
+\marginlabel{valcMAX}
+Valeur de la couleur rouge (valeur maximum sur l'échelle de couleurs).
+
+\marginlabel{valcMIN}
+Valeur de la couleur bleu (valeur minimum sur l'échelle de couleurs).
+
+\marginlabel{multiVit ou velocityFactor}
+facteur multiplicatif pour la représentation graphique des vecteurs
+vitesse.
+
+Dans \texttt{mgpost}, on appelle repère ``mobile'' un repère initialement
+confondu avec le repère global mais qui peut se déplacer à vitesse
+imposée. Cependant, le déplacement ne peut être effectué qu'en
+translation. La vitesse des grains peut alors être exprimée soit dans
+le repère global soit dans le repère mobile (utile pour les
+écoulements).
+
+\marginlabel{vitX}
+Vitesse suivant l'axe $X$ du repère mobile.
+
+\marginlabel{vitY}
+Vitesse suivant l'axe $Y$ du repère mobile.
+
+\marginlabel{vitZ}
+Vitesse suivant l'axe $Z$ du repère mobile.
+
+
+\subsection{Le fichier mgpalloc}
+
+Ce fichier permet d'allouer l'espace mémoire suffisant pour permettre
+la visualisation des différents corps et des grandeurs associées.
+
+\subsubsection{Exemple de fichier mgpalloc}
+
+\begin{lstlisting}[style=mgpdata]
+  nb_times    200
+  nb_bodies   2000
+  nb_interactions_per_body 12
+  nb_data_per_body         1
+\end{lstlisting}
+
+\subsubsection{Description du fichier mgpalloc}
+
+\marginlabel{nb\_times}
+Nombre d'état par fichier MGP. 
+
+\marginlabel{nb\_bodies}
+Nombre de corps par fichier MGP.
+
+\marginlabel{nb\_interactions\_per\_body}
+Nombre maximum d'interactions par corps et par état .
+
+\marginlabel{nb\_data\_per\_body}
+Nombre maximum de données supplémentaires par corps et par état. Les
+données supplémentaires sont en général les paramètres de description
+de la géométrie des corps, par exemple les axes ax1 et ax2 d'un jonc,
+les noeuds d'un polygone, les faces d'un polyèdre...
+
+\subsection{Fichiers *.mgp ou mgp.out.\textit{nnn}}
+
+Il s'agit des fichiers contenant les données nécessaires à la
+visualisation des différents corps et des grandeurs qui leur sont
+associées.
+
+\subsubsection{Le(s) fichier(s) MGP}
+
+Un fichier MGP est un document XML (eXtensible Markup Language). Il
+s'agit d'un fichier texte. On peut donc ``voir'' le contenu de ce
+fichier avec un simple éditeur de texte (par exemple vi sur un Unix,
+notepad sur Windows ou TextEdit sur Mac OS X). Le fichier est composé 
+d'espaces de stockage,
+nommés entités, qui contiennent d'autres entités ou des données. Les entités sont
+caractérisées par des marqueurs (nom de l'entité) et des attributs (paramètres). Dans le format MGP, mis
+à part l'entité \texttt{comment}, une entité ne peut contenir que
+d'autres entités (pas de texte).\\ 
+
+La structure générale d'un fichier MGP est la suivante :\\
+
+\begin{itemize}
+
+\item un marqueur indiquant qu'il s'agit d'un document XML.
+
+\begin{lstlisting}[style=mgpdata]
+  <?xml version="1.0"?>
+\end{lstlisting}
+
+\item une entité racine \texttt{mgpost} (niveau 0) contenant les
+  autres entités. On doit indiquer avec l'attribut 'mode' si on se
+  trouve en mode 2D ou 3D.
+
+\begin{lstlisting}[style=mgpdata]
+  <mgpost mode="2D">
+    ...
+  </mgpost>
+\end{lstlisting}
+
+\item une ou plusieurs entités \texttt{state} (niveau 1) à l'intérieur
+de laquelle ou desquelles l'état des corps est décrit. On doit
+indiquer en attribut le temps correspondant à l'état décrit.
+
+\begin{lstlisting}[style=mgpdata]
+  <mgpost mode="2D">
+    <state time="0">
+      ...
+    </state>
+    <state time="0.1">
+      ...
+    </state>
+    ...
+  </mgpost>
+\end{lstlisting}
+
+\item les entités \texttt{body} (niveau 2) contenant la description
+des corps.
+
+\begin{lstlisting}[style=mgpdata]
+  <mgpost mode="2D">
+    <state time="0">
+      <body>
+          ...
+      </body>
+      <body>
+          ...
+      </body>
+      ...
+    </state>
+    ...
+  </mgpost>
+\end{lstlisting}
+
+\end{itemize}
+
+On indique ensuite, entre les balises \texttt{<body>} et
+\texttt{</body>}, une (et une seule) forme de corps par
+l'intermédiaire d'une entité ``forme de corps'' ainsi que la liste des
+interactions du corps avec ces voisins par l'intermédiaire d'entités
+``interactions'' (de la m\^eme manière qu'une liste de Verlet).
+
+\begin{lstlisting}[style=mgpdata]
+      <body>
+        <DISKx>
+          <position x="0" y="1"/>
+        </DISKx>
+        <DKDKx j="2" rn="0" rt="0">
+        <DKDKx j="3" rn="1.254e-4" rt="0">
+      </body>
+\end{lstlisting}
+
+\subsubsection{Entités ``forme de corps''}
+
+\marginlabel{DISKx}
+On doit indiquer en propriétés le rayon \texttt{r} du disque. Une
+entité \texttt{position} doit obligatoirement être contenu dans
+l'entités \texttt{DISKx}. D'autre entités sont elles falcultatives, il
+s'agit par exemple de \texttt{velocity}, \texttt{Strain},
+\texttt{Stress}...
+
+\begin{lstlisting}[style=mgpdata]
+  <DISKx r="0.004">
+      <position x="0" y="0" rot="0.000031"/>
+      <velocity x="-0.000076" y="-0.000133"/>
+      <Stress xx="2.605614e+03" yy="6.299324e+03"/>
+      <Strain xx="8.968122e-10" yy="-2.578861e-10"/>
+  </DISKx>
+\end{lstlisting}
+
+\marginlabel{SPHER}
+On doit indiquer en attibut le rayon \texttt{r} de la sphère.
+\texttt{SPHER} est l'équivalent en 3D de \texttt{DISKx}. Il faut
+utiliser 3 coordonnées (x, y, z) pour décrire les différentes
+caractéristiques géométriques, cinétiques et les grandeurs associées.
+
+\begin{lstlisting}[style=mgpdata]
+  <SPHER r="0.002182">
+     <position x="0" y="0.011137" z="0.016"/>
+     <velocity x="0" y="-0.058855" z="0"/>
+  </SPHER>
+\end{lstlisting}
+
+\marginlabel{JONCx}
+On doit indiquer en attribut les longueurs \texttt{ax1} et
+\texttt{ax2}. Pour plus d'informations sur cette forme, voir la
+documentation du code de calcul LMGC90.
+
+\begin{lstlisting}[style=mgpdata]
+  <JONCx ax1="0.048" ax2="0.002">
+    <position x="0.2400000e-01" y="0.2464100e-01" rot="0.3141592e+01"/>
+    <velocity x="0" y="-0.1e-03" z="0"/>
+  </JONCx>
+\end{lstlisting}
+
+\marginlabel{WALLX, WALLY ou WALLZ}
+On doit indiquer en attribut la position \texttt{pos} du mur (suivant
+l'axe X, Y ou Z respectivement).
+
+\begin{lstlisting}[style=mgpdata]
+  <WALLX pos="-0.015"/>
+  <WALLX pos="0.3"/>
+  <WALLY pos="-0.015"/>
+  <WALLY pos="0.3"/>
+  <WALLZ pos="-0.015"/>
+  <WALLZ pos="0.3"/>
+\end{lstlisting}
+
+
+%\marginlabel{MBRxx} \textit{-- à rédiger --}
+
+%\marginlabel{SEGMT} \textit{-- à rédiger --}
+
+%\marginlabel{CYLYx} \textit{-- à rédiger --}
+
+\marginlabel{POLYG} \textit{-- à rédiger --}
+
+\marginlabel{POLYE} \textit{-- à rédiger --}
+
+\subsubsection{Entités ``données associées''} \label{sec:marq_donnees}
+
+On entend par ``données associées'' toutes données relatives au
+corps. Ces données peuvent en particulier être des données
+géométriques, cinétiques ou autres.\\
+
+\textbf{DONNEES GEOMETRIQUES :}
+
+\marginlabel{position} 
+Cette entité contient les coordonnées \texttt{x y z} d'un corps 3D ou
+bien les coordonnées \texttt{x y rot} d'un corps 2D. \texttt{rot}
+correspond à l'angle (en radians) de rotation autour de l'axe Z.
+
+\begin{lstlisting}[style=mgpdata]
+  <position x="0.000000" y="0.011137" z="0.016000"/> 
+\end{lstlisting}
+
+\attention
+y est orienté vers le haut
+
+\marginlabel{node}
+Cette entité contient les coordonnées \texttt{x y z} d'un noeuds de
+polyèdre ou bien les coordonnées \texttt{x y} d'un polygone. Les
+noeuds sont numérotés à partir de 0 dans l'ordre o˘ ils apparaissent
+dans le fichier. Dans le cas des polygones, les noeuds doivent être
+décrits dans l'ordre trigonométrique.
+
+\begin{lstlisting}[style=mgpdata]
+  <node x="0.01" y="0.01" z="0"/>
+\end{lstlisting}
+
+\marginlabel{face}
+Cette entité contient les numéros de noeuds décrivant une face
+triangulaire. Tous les noeuds doivent donc être déjà décrits.
+
+\begin{lstlisting}[style=mgpdata]
+  <face n1="0" n2="2" n3="3"/>
+\end{lstlisting}
+
+Pour gagner de l'espace disque, les entités node et face ne seront
+présentes que dans l'état initial.\\
+
+\textbf{DONNEES CINETIQUES :}
+
+\marginlabel{velocity}
+Vitesses \texttt{x y z} en 3D ou bien \texttt{x y rot} en 2D.
+
+\begin{lstlisting}[style=mgpdata]
+  <velocity x="0.000000" y="-0.058855" z="0.000000"/>
+\end{lstlisting}
+
+%\textbf{AUTRES DONNEES :}
+
+% \marginlabel{Stress}
+
+%Composantes de la matrice de contrainte définie au niveau
+%du grain. Seules les composantes diagonales \texttt{xx yy zz} sont pris en
+%compte pour le moment.
+
+%\begin{verbatim}
+%  <Stress xx="2.605614e+03" yy="6.299324e+03" zz="6.299324e+03"/>
+%\end{verbatim}
+
+% \marginlabel{Strain}
+
+%Composantes de la matrice de déformation définie au niveau
+%du grain. Seules les composantes diagonales \texttt{xx yy zz} sont pris en
+%compte pour le moment.
+
+%\begin{verbatim}
+%  <Strain xx="8.968122e-02" yy="-2.578861e-02" zz="-2.578861e-02"/>
+%\end{verbatim}
+
+\subsubsection{Entité ``interactions''}
+
+\marginlabel{DKDKx}
+Interaction entre deux disques. On doit indiquer en attribut le numéro
+\texttt{j} du disque en interaction avec le disque qui contient
+l'entité (le numéro d'un corps est le numéro d'apparition du corps
+dans le fichier MGP, le premier corps ayant le numéro 1).
+
+Les autres attributs sont le statut d'interaction \texttt{stat} ; les
+forces normale, tangentielle et le couple au point d'interaction,
+respectivement \texttt{rn}, \texttt{rt} et \texttt{M} ; les vitesses
+relatives normale et tangentielle, respectivement \texttt{vn} et
+\texttt{vt} ; et le volume du pont liquide \texttt{Vliq}.
+
+\marginlabel{SPSPx} Interaction entre deux sphères. Cette entité accepte
+les mêmes attributs que l'entité \texttt{DKDKx}.
+
+\subsubsection{Exemple de fichier MGP}
+
+\begin{lstlisting}[style=mgpdata]
+  <?xml version="1.0"?>
+  <mgpost mode="2D">
+    <state time="0">
+      <body>
+        <DISKx r="0.004">
+          <position x="0" y="0" rot="0"/>
+          <velocity x="0" y="0"/>
+        </DISKx>
+        <DKDKx j="2" rn="0" rt="0"/>
+        <DKDKx j="3" rn="0" rt="0"/>
+      </body>
+      <body>
+        <DISKx r="0.004000">
+         <position x="0.008" y="0" rot="0"/>
+         <velocity x="0" y="0"/>
+        </DISKx>
+        <DKDKx j="3" rn="0" rt="0"/>
+      </body>
+      <body>
+        <DISKx r="0.004">
+         <position x="0.004" y="0.006928" rot="0"/>
+         <velocity x="0" y="0"/>
+        </DISKx>
+      </body>
+      <body>
+        <WALY0 pos="-0.004"/>
+      </body>
+      <body>
+        <WALY1 pos="1.092830e-02"/>
+      </body>
+    </state>
+   </mgpost>
+\end{lstlisting}
+
+\section {Fichiers en sortie}
+
+L'application \mgpost est capable de générer différents types de
+fichiers facilitant le traitement des données issues de la simulation,
+voire de créer de nouveaux fichiers pouvant servir à des simulations
+ultérieures. 
+
+\subsection{Fichiers de copies d'écran}
+
+\mgpost permet l'exportation d'images au format eps (fichier
+'shot.eps' en 2D uniquement) ou tif (fichier 'shot.tif') pouvant
+\^etre réutilisées avec d'autres logiciels de façon simple. La
+possibilité d'export une séries d'images au format tif
+(ani\textit{nnnn}.tif) existe également.  Tous ces fichiers de sorties
+permettent de créer des images d'illustration ou des films
+d'animation.
+
+\subsection{Fichiers de données pour simulations}
+
+Il est possible d'exporter l'échantillon dans un état donné (à un
+temps donné) comme fichier de départ pour d'autres simulations.  Les
+formats disponnibles sont le format CIN pour le code de calcul tapio-K
+et 'BODIES.DAT' pour le code de calcul LMGC90.  Cette fonctionnalité
+va au delà de la simple représentation graphique et il n'y a pas de
+garantie sur les résultats obtenus : toute personne souhaitant
+utiliser cette fonctionalitée devra s'intéresser de prés au code
+source du programme \mgpost.
+ 
+\end{document}

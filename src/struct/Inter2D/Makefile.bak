@@ -1,0 +1,79 @@
+INC_PATH  = ../../include
+LIB_PATH  = ../../../lib
+
+CC      = g++
+CFLAGS  = -O3 -Wall -Werror -I$(INC_PATH)
+
+SRC = inter2d.cpp \
+      dkdk.cpp dkdkP.cpp \
+	  pgpg.cpp dkrl.cpp pgrl.cpp dkpg.cpp mpmp.cpp
+
+OBJS = $(subst .cpp,.o,$(SRC))
+
+.SUFFIXES: .cpp
+.cpp.o:
+	$(CC) -c $(CFLAGS) $<
+	cp -f $@ $(LIB_PATH)
+
+all: $(OBJS)
+
+clean:
+	rm -f *~ \#*\#
+	rm -f *.o
+
+depend:
+	makedepend -- $(CFLAGS) -- *.cpp
+
+# DO NOT DELETE
+
+dkdk.o: ../../include/dkdk.hpp ../../include/body2d.hpp
+dkdk.o: ../../include/disk.hpp /usr/include/math.h
+dkdk.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+dkdk.o: ../../include/inter2d.hpp ../../include/dof.hpp
+dkdk.o: ../../include/talk.hpp ../../include/vertex.hpp
+dkdkP.o: ../../include/dkdkP.hpp ../../include/body2d.hpp
+dkdkP.o: ../../include/disk.hpp /usr/include/math.h
+dkdkP.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+dkdkP.o: ../../include/inter2d.hpp ../../include/dof.hpp
+dkdkP.o: ../../include/talk.hpp ../../include/vertex.hpp
+dkpg.o: ../../include/dkpg.hpp ../../include/body2d.hpp
+dkpg.o: ../../include/disk.hpp /usr/include/math.h
+dkpg.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+dkpg.o: ../../include/polyg.hpp ../../include/vertex.hpp
+dkpg.o: ../../include/inter2d.hpp ../../include/dof.hpp
+dkpg.o: ../../include/talk.hpp
+dkrl.o: ../../include/dkrl.hpp ../../include/body2d.hpp
+dkrl.o: ../../include/disk.hpp /usr/include/math.h
+dkrl.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+dkrl.o: ../../include/rline.hpp ../../include/inter2d.hpp
+dkrl.o: ../../include/dof.hpp ../../include/talk.hpp ../../include/vertex.hpp
+inter2d.o: ../../include/inter2d.hpp ../../include/body2d.hpp
+inter2d.o: ../../include/dof.hpp /usr/include/math.h
+inter2d.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+inter2d.o: ../../include/talk.hpp ../../include/vertex.hpp
+inter2d.o: ../../include/dkdk.hpp ../../include/disk.hpp
+inter2d.o: ../../include/dkdkP.hpp ../../include/pgpg.hpp
+inter2d.o: ../../include/polyg.hpp ../../include/dkrl.hpp
+inter2d.o: ../../include/rline.hpp ../../include/dkpg.hpp
+inter2d.o: ../../include/pgrl.hpp
+mpmp.o: ../../include/mpmp.hpp ../../include/body2d.hpp
+mpmp.o: ../../include/massPoint.hpp /usr/include/math.h
+mpmp.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+mpmp.o: ../../include/inter2d.hpp ../../include/dof.hpp
+mpmp.o: ../../include/talk.hpp ../../include/vertex.hpp
+pgpg.o: ../../include/pgpg.hpp ../../include/body2d.hpp
+pgpg.o: ../../include/polyg.hpp /usr/include/math.h
+pgpg.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+pgpg.o: ../../include/vertex.hpp ../../include/inter2d.hpp
+pgpg.o: ../../include/dof.hpp ../../include/talk.hpp
+pgrl.o: ../../include/pgrl.hpp ../../include/body2d.hpp
+pgrl.o: ../../include/polyg.hpp /usr/include/math.h
+pgrl.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+pgrl.o: ../../include/vertex.hpp ../../include/rline.hpp
+pgrl.o: ../../include/inter2d.hpp ../../include/dof.hpp
+pgrl.o: ../../include/talk.hpp
+rlrl.o: ../../include/rlrl.hpp ../../include/body2d.hpp
+rlrl.o: ../../include/rline.hpp /usr/include/math.h
+rlrl.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+rlrl.o: ../../include/inter2d.hpp ../../include/dof.hpp
+rlrl.o: ../../include/talk.hpp ../../include/vertex.hpp

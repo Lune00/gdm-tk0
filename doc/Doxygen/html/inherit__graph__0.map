@@ -1,0 +1,4 @@
+base referer
+rect $class_algo.html 7,33 66,59
+rect $class_c_dalgo.html 115,7 195,34
+rect $class_m_dalgo.html 115,58 195,85

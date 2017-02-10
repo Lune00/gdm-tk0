@@ -1,0 +1,6 @@
+base referer
+rect $classbody2d.html 8,84 93,110
+rect $classdisk.html 168,8 221,34
+rect $classmass_point.html 141,58 248,85
+rect $classpolyg.html 161,109 228,136
+rect $classrline.html 166,160 222,186

@@ -1,0 +1,81 @@
+INC_PATH  = ../include
+LIB_PATH  = ../../lib
+
+CC      = g++
+CFLAGS  = -O3 -Wall -Werror -I$(INC_PATH)
+
+SRC = algo.cpp \
+      CDalgo.cpp
+
+OBJS = $(subst .cpp,.o,$(SRC))
+
+.SUFFIXES: .cpp
+.cpp.o:
+	$(CC) -c $(CFLAGS) $<
+	cp -f $@ $(LIB_PATH)
+
+all: $(OBJS)
+
+clean:
+	rm -f *~ \#*\#
+	rm -f *.o
+
+depend:
+	makedepend -- $(CFLAGS) -- *.cpp
+
+# DO NOT DELETE
+
+CDalgo.o: ../include/CDalgo.hpp /usr/include/assert.h
+CDalgo.o: /usr/include/sys/cdefs.h ../include/talk.hpp ../include/algo.hpp
+CDalgo.o: ../include/sample.hpp ../include/body2d.hpp ../include/dof.hpp
+CDalgo.o: /usr/include/math.h /usr/include/architecture/i386/math.h
+CDalgo.o: ../include/inter2d.hpp ../include/vertex.hpp ../include/disk.hpp
+CDalgo.o: ../include/polyg.hpp ../include/rline.hpp ../include/purge.h
+CDalgo.o: ../include/network.hpp ../include/groupRelationData.hpp
+CDalgo.o: ../include/cohesionLaw.hpp ../include/Fragmentation.hpp
+CDalgo.o: ../include/fsafe.hpp ../include/near.hpp ../include/system.hpp
+CDalgo.o: ../include/control.hpp ../include/groupData.hpp ../include/io.hpp
+CDalgo.o: ../include/simulation.hpp /usr/include/sys/types.h
+CDalgo.o: /usr/include/sys/appleapiopts.h /usr/include/machine/types.h
+CDalgo.o: /usr/include/i386/types.h /usr/include/i386/_types.h
+CDalgo.o: /usr/include/sys/_types.h /usr/include/machine/_types.h
+CDalgo.o: /usr/include/machine/endian.h /usr/include/i386/endian.h
+CDalgo.o: /usr/include/sys/_endian.h /usr/include/libkern/_OSByteOrder.h
+CDalgo.o: /usr/include/libkern/i386/_OSByteOrder.h
+CDalgo.o: /usr/include/sys/_structs.h /usr/include/signal.h
+CDalgo.o: /usr/include/_types.h /usr/include/sys/signal.h
+CDalgo.o: /usr/include/machine/signal.h /usr/include/i386/signal.h
+CDalgo.o: /usr/include/i386/_structs.h ../include/system_A.hpp
+CDalgo.o: /usr/include/sys/stat.h /usr/include/stdio.h
+MDalgo.o: ../include/MDalgo.hpp ../include/algo.hpp ../include/sample.hpp
+MDalgo.o: ../include/body2d.hpp ../include/dof.hpp /usr/include/math.h
+MDalgo.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+MDalgo.o: ../include/talk.hpp ../include/inter2d.hpp ../include/vertex.hpp
+MDalgo.o: ../include/disk.hpp ../include/polyg.hpp ../include/rline.hpp
+MDalgo.o: ../include/purge.h ../include/network.hpp
+MDalgo.o: ../include/groupRelationData.hpp ../include/cohesionLaw.hpp
+MDalgo.o: ../include/Fragmentation.hpp ../include/fsafe.hpp
+MDalgo.o: ../include/near.hpp ../include/system.hpp ../include/control.hpp
+MDalgo.o: ../include/groupData.hpp ../include/MDforceLaw.hpp
+MDalgo.o: ../include/GroupRelationData.hpp
+algo.o: ../include/algo.hpp ../include/sample.hpp ../include/body2d.hpp
+algo.o: ../include/dof.hpp /usr/include/math.h
+algo.o: /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+algo.o: ../include/talk.hpp ../include/inter2d.hpp ../include/vertex.hpp
+algo.o: ../include/disk.hpp ../include/polyg.hpp ../include/rline.hpp
+algo.o: ../include/purge.h ../include/network.hpp
+algo.o: ../include/groupRelationData.hpp ../include/cohesionLaw.hpp
+algo.o: ../include/Fragmentation.hpp ../include/fsafe.hpp ../include/near.hpp
+algo.o: ../include/system.hpp ../include/control.hpp ../include/groupData.hpp
+algo.o: ../include/CDalgo.hpp /usr/include/assert.h ../include/io.hpp
+algo.o: ../include/simulation.hpp /usr/include/sys/types.h
+algo.o: /usr/include/sys/appleapiopts.h /usr/include/machine/types.h
+algo.o: /usr/include/i386/types.h /usr/include/i386/_types.h
+algo.o: /usr/include/sys/_types.h /usr/include/machine/_types.h
+algo.o: /usr/include/machine/endian.h /usr/include/i386/endian.h
+algo.o: /usr/include/sys/_endian.h /usr/include/libkern/_OSByteOrder.h
+algo.o: /usr/include/libkern/i386/_OSByteOrder.h /usr/include/sys/_structs.h
+algo.o: /usr/include/signal.h /usr/include/_types.h /usr/include/sys/signal.h
+algo.o: /usr/include/machine/signal.h /usr/include/i386/signal.h
+algo.o: /usr/include/i386/_structs.h ../include/system_A.hpp
+algo.o: /usr/include/sys/stat.h /usr/include/stdio.h

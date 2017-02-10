@@ -1,0 +1,223 @@
+#!/bin/bash
+
+fichier=Ptheta_mob.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=ZP.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=FTtheta_mob.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=FNtheta_mob.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=Ptheta_mob.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=Ltheta_mob.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=PF_approx.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=SPinst.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=granutilZ.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=granutilS.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=fgu.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=stressgranulomoy.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=Zid.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=DZ2.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=DZ.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=ZD.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=granulospeed.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=qpid.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=pg_mob.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=pga_mob.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=qg_mob.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=qga_mob.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=qpg_mob.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=qpga_mob.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=DPMg_mob.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=DPMga_mob.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=pdffn.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=pdffn_mob.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=pdfft.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=pdfft_mob.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+
+fichier=FC.txt
+if [ -f $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+
+
+

@@ -1,0 +1,22 @@
+utilisation SNA : 
+
+Analyse d'un fichier unique : 
+./SNA   xxx.sim  yyy.zzz
+xxx.sim est un fichier de simulation classique dont l'echantillon à charger est
+celui à analyser.
+yyy.zzz (ascii) est un fichier de "commande" pour les mesure si on veut mesurer des 
+grandeurs differentes de celle spécifiées dans xxx.sim (evite de modifier le fichier sim)
+
+
+Analyse multi fichier: 
+./SNA
+se laisser guider....
+
+
+
+- SNA effectue une copie du fichier time (xxx.zzz) donné en argument sous le titre 
+  xxx.zzz_svg
+- fichier neccessaire a la lecture sequentielle des .his :
+	xxx.sim (incluant le fichier spl ou his de reference)
+	time.txt (lien entre numero de fichiers et temps ecoulé au moment de la capture)
+	commande (voir plus haut)

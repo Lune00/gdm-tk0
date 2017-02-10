@@ -1,0 +1,52 @@
+APP = gdm_run
+CC = g++
+INC_PATH = ../../src/include
+LIB_PATH = ../../lib
+
+CFLAGS = -I/sw/include -I$(INC_PATH) -Wall -O3 -Werror -g
+
+OBJS = $(APP).o  $(LIB_PATH)/*.o
+
+all: $(APP)
+
+$(APP).o : $(APP).cpp 
+	$(CC) $(CFLAGS) -c $(APP).cpp
+
+$(APP) : $(OBJS)
+	$(CC) -o $@ $(CFLAGS) $(OBJS)
+
+clean:
+	rm -f *~ \#*\#
+	rm -f *.o $(APP) 
+
+depend:
+	makedepend -- $(CFLAGS) -- *.cpp
+
+# DO NOT DELETE
+
+gdm_run.o: ../../src/include/simulation.hpp /usr/include/assert.h
+gdm_run.o: /usr/include/sys/cdefs.h /usr/include/sys/types.h
+gdm_run.o: /usr/include/sys/appleapiopts.h /usr/include/machine/types.h
+gdm_run.o: /usr/include/i386/types.h /usr/include/i386/_types.h
+gdm_run.o: /usr/include/sys/_types.h /usr/include/machine/_types.h
+gdm_run.o: /usr/include/machine/endian.h /usr/include/i386/endian.h
+gdm_run.o: /usr/include/sys/_endian.h /usr/include/libkern/_OSByteOrder.h
+gdm_run.o: /usr/include/libkern/i386/_OSByteOrder.h
+gdm_run.o: /usr/include/sys/_structs.h /usr/include/signal.h
+gdm_run.o: /usr/include/_types.h /usr/include/sys/signal.h
+gdm_run.o: /usr/include/machine/signal.h /usr/include/i386/signal.h
+gdm_run.o: /usr/include/i386/_structs.h ../../src/include/algo.hpp
+gdm_run.o: ../../src/include/sample.hpp ../../src/include/body2d.hpp
+gdm_run.o: ../../src/include/dof.hpp /usr/include/math.h
+gdm_run.o: /usr/include/architecture/i386/math.h ../../src/include/talk.hpp
+gdm_run.o: ../../src/include/inter2d.hpp ../../src/include/vertex.hpp
+gdm_run.o: ../../src/include/disk.hpp ../../src/include/polyg.hpp
+gdm_run.o: ../../src/include/rline.hpp ../../src/include/purge.h
+gdm_run.o: ../../src/include/network.hpp
+gdm_run.o: ../../src/include/groupRelationData.hpp
+gdm_run.o: ../../src/include/cohesionLaw.hpp
+gdm_run.o: ../../src/include/Fragmentation.hpp ../../src/include/fsafe.hpp
+gdm_run.o: ../../src/include/near.hpp ../../src/include/system.hpp
+gdm_run.o: ../../src/include/control.hpp ../../src/include/groupData.hpp
+gdm_run.o: ../../src/include/io.hpp ../../src/include/system_A.hpp
+gdm_run.o: /usr/include/sys/stat.h /usr/include/stdio.h

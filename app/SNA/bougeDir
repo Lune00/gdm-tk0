@@ -1,0 +1,68 @@
+#!/bin/bash
+
+fichier=Analyse/pdf
+if [ -d $fichier ]
+then 
+	mv $fichier $1
+	mkdir $fichier
+
+else echo " pas de fichier $fichier"
+fi
+
+fichier=Analyse/Connect
+if [ -d $fichier ]
+then 
+	mv $fichier $1
+	mkdir $fichier
+	
+else echo " pas de fichier $fichier"
+fi
+
+fichier=Analyse/angDistrib
+if [ -d $fichier ]
+then 
+	mv $fichier $1
+	mkdir $fichier
+else echo " pas de fichier $fichier"
+fi
+
+fichier=Analyse/forceCorr
+if [ -d $fichier ]
+then 
+	mv $fichier $1
+	mkdir $fichier
+else echo " pas de fichier $fichier"
+fi
+
+fichier=Analyse/granuloS
+if [ -d $fichier ]
+then 
+	mv $fichier $1
+	mkdir $fichier
+else echo " pas de fichier $fichier"
+fi
+
+fichier=Analyse/granuloPDF
+if [ -d $fichier ]
+then 
+	mv $fichier $1
+	mkdir $fichier
+else echo " pas de fichier $fichier"
+fi
+
+fichier=Analyse/PartialLengthstress.txt
+if [ -a $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+fichier=Analyse/PartialNormalForcestress.txt
+if [ -a $fichier ]
+then 
+	mv $fichier $1
+else echo " pas de fichier $fichier"
+fi
+
+
+exit 0

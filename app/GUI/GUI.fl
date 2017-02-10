@@ -1,0 +1,762 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0107 
+header_name {.h} 
+code_name {.cpp}
+decl {\#include "glob.h"} {public
+} 
+
+class demtkGUI {open
+} {
+  Function {demtkGUI()} {open
+  } {
+    Fl_Window ControlWindow {
+      label {Control Panel} open
+      xywh {613 73 566 465} type Double visible
+    } {
+      Fl_Button ComputeButton {
+        label Compute
+        callback {//algo.stand();
+//write_mgpost("mgp.out.001",spl,nwk);
+stopComputation = 0;
+//algo.look();
+for ( Simu.ns()=Simu.ns()+1;Simu.ns()<=Simu.nsf();++Simu.ns())
+  {
+     Simu.time()+=Simu.algo()->dt();
+     Simu.algo()->step();
+   
+     
+     
+     Simu.algo()->look();
+     if ( Simu.doAnalyse()&& Simu.ns()%Simu.nAnalyse()  == 0)
+		{
+			cout<<" simuRun : analyse "<<endl;
+			Simu.sysA()->analyse(Simu.time());
+		};
+     
+     if(Simu.ns()%nwiter==0)
+       {
+         niterOutput->value((double)cdalgo->niter());
+         SimuProgressBar->value((double)Simu.ns());
+         //Fl::check();
+         Fl::redraw();
+       }
+       
+     Simu.algo()->hand(Simu.ns());
+           
+  
+     if(HistorySave && Simu.ns()%Simu.nHist() == 0)
+       {
+         char name[15];
+	 
+	 switch(FormatChoose->value())
+	 {
+	 case 0:
+           history_write(iHist,*(Simu.spl()),*(Simu.nwk()),false,saveNetwork,false);
+           break;
+           
+ 	 case 1:
+           history_write(iHist,*(Simu.spl()),*(Simu.nwk()),true,saveNetwork,false);
+           break;
+           	 
+	 case 2:
+           sprintf((char *) name, "mgp.out.%04d",iHist);
+           write_mgpost(name,*(Simu.spl()),*(Simu.nwk()),iHist,Simu.time());
+	   break; 
+	 }
+	ofstream time("time.txt",ios::app);
+	time<<iHist<<" "<<Simu.time()<<endl;
+	time.close();
+
+         
+         iHist++;
+         NextNumberinput->value((double)iHist);
+         //Fl::check();
+        }
+       
+      
+     //algo.step(ns);   
+       
+     
+      
+			
+         
+     Fl::check();    
+     if (stopComputation) break;   
+      
+ }
+ 
+updateAlgoValues();
+updateControlValues();}
+        xywh {5 280 105 37} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX labelfont 1 labelsize 20
+      }
+      Fl_Group PanelsGrp {
+        label Data open
+        xywh {5 19 110 132} box PLASTIC_THIN_DOWN_BOX
+      } {
+        Fl_Button AlgoButton {
+          label Algorithm
+          callback {AlgoWindow->show()}
+          xywh {12 27 95 20} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+        }
+        Fl_Button SampleButton {
+          label Sample
+          callback {SampleWindow->show();}
+          xywh {12 47 95 20} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+        }
+        Fl_Button SystemButton {
+          label System
+          xywh {12 85 95 20} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+        }
+        Fl_Button MechanicalButton {
+          label Mechanical
+          callback {MechanicalWindow->show();}
+          xywh {12 105 95 20} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+        }
+        Fl_Button AlteractionButton {
+          label Alterations
+          xywh {12 125 95 20} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+        }
+        Fl_Button NetworkButton {
+          label Network
+          callback {NetworkWindow->show();}
+          xywh {12 65 95 20} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+        }
+      }
+      Fl_Value_Output niterOutput {
+        xywh {356 279 165 38} box PLASTIC_DOWN_FRAME color 7 textfont 13 textsize 30 textcolor 4
+      }
+      Fl_Progress SimuProgressBar {
+        xywh {5 323 315 12} selection_color 0
+      }
+      Fl_Button OneStepButton {
+        label {One step}
+        callback {Simu.time()+=Simu.algo()->dt();
+Simu.algo()->step();
+Simu.algo()->look();
+
+if(Simu.ns()%nwiter ==0)
+       {
+         niterOutput->value((double)cdalgo->niter());
+         SimuProgressBar->value((double)Simu.ns());
+         Fl::redraw();
+       } 
+
+if ( Simu.doAnalyse()&& Simu.ns()%Simu.nAnalyse()  == 0)
+		{
+			cout<<" simuRun : analyse "<<endl;
+			Simu.sysA()->analyse(Simu.time());
+		};    
+ 
+Simu.algo()->hand(Simu.ns()); 
+
+		
+
+
+/*niterOutput->value((double)cdalgo->niter());
+SimuProgressBar->value((double)Simu.ns());  
+Fl::check();
+Fl::redraw();*/
+++Simu.ns();
+
+Fl::check(); 
+
+updateAlgoValues();
+updateControlValues();}
+        xywh {215 280 105 37} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX labelfont 1 labelsize 20
+      }
+      Fl_Button StopButton {
+        label Stop
+        callback {stopComputation = 1;}
+        xywh {110 280 105 37} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX labelfont 1 labelsize 20
+      }
+      Fl_Group {} {
+        label {Updating counters} open
+        xywh {120 20 175 130} box PLASTIC_THIN_DOWN_BOX
+      } {
+        Fl_Value_Input nverInput {
+          label {Neighbor list:}
+          callback {cdalgo->nver() =(unsigned int) o->value();}
+          tooltip {update de niter every nwtier steps} xywh {210 55 80 20}
+        }
+        Fl_Value_Input nwiterInput {
+          label {Graphic:}
+          callback {nwiter=(unsigned int) o->value();}
+          tooltip {update de niter every nwtier steps} xywh {210 30 80 20}
+        }
+      }
+      Fl_Group {} {
+        label History open
+        xywh {5 185 540 65} box PLASTIC_THIN_DOWN_BOX
+      } {
+        Fl_Value_Input ioutInput {
+          label {steps:}
+          callback {Simu.nHist() = (unsigned int) o->value();}
+          tooltip {Number of steps between two historical save} xywh {55 194 45 20} minimum 1 maximum 10000 value 10
+        }
+        Fl_Light_Button {} {
+          label Save
+          callback {HistorySave = o->value();}
+          xywh {480 193 60 20} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX selection_color 2
+        }
+        Fl_Value_Input NextNumberinput {
+          label {Next number:}
+          xywh {433 193 35 20} minimum 1 maximum 999 value 1
+        }
+        Fl_Button {} {
+          label Change
+          callback {fl_message("Non implŽmentŽ");
+//char * dname = fl_dir_chooser("Choose directory...",NULL,0);
+
+//if(dname != NULL) 
+//{
+//  WorkingPath = dname;
+//}}
+          xywh {480 219 60 20} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+        }
+        Fl_Choice FormatChoose {
+          label {Format:}
+          xywh {159 194 181 20} down_box BORDER_BOX
+          code0 {FormatChoose->add("dem-tk (One file)");}
+          code1 {FormatChoose->add("dem-tk (Two file)");}
+          code2 {FormatChoose->add("mgpost");}
+          code3 {FormatChoose->value(0);}
+        } {}
+        Fl_Output WorkPathNameOutput {
+          label {Working path:}
+          xywh {105 220 370 20}
+        }
+      }
+      Fl_Group {} {
+        label Files open selected
+        xywh {305 19 235 129} box PLASTIC_THIN_DOWN_BOX
+      } {
+        Fl_Check_Button saveNetworkCheckBox {
+          label {with network}
+          callback {saveNetwork = o->value();}
+          xywh {414 31 110 19} down_box DOWN_BOX
+        }
+        Fl_Button QuitButton {
+          label Quit
+          callback {// ajouter verifs
+exit(0);}
+          xywh {316 108 80 20} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+        }
+        Fl_Button SaveDataButton {
+          label {Save Data}
+          callback {char * name = fl_file_chooser("Save data...",NULL,NULL,1);
+if(name != NULL) 
+{
+  Simu.save_data((const char *)name);
+}}
+          xywh {316 29 80 20} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+          code0 {\#include <FL/Fl_File_Chooser.H>}
+        }
+      }
+      Fl_Group {} {
+        label Analysis open
+        xywh {115 371 265 49} box PLASTIC_THIN_DOWN_BOX
+      } {
+        Fl_Value_Input analyzeInput {
+          label {steps:}
+          callback {Simu.nAnalyse() = (unsigned int) o->value();}
+          tooltip {Number of steps between two analysis save} xywh {165 387 40 23} minimum 1 maximum 10000 value 123
+        }
+        Fl_Light_Button saveAnalyse {
+          label saveAnalyse
+          callback {if (Simu.sysA()!=NULL)
+Simu.doAnalyse() = o->value();}
+          xywh {240 385 115 25} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX selection_color 2
+        }
+      }
+    }
+    Fl_Window AlgoWindow {
+      label Algorithm open
+      xywh {59 181 226 262} type Double hide
+    } {
+      Fl_Value_Input dtInput {
+        label {time step:}
+        callback {Simu.algo()->dt()=o->value();}
+        tooltip {Time step} xywh {100 11 115 20} value 0.0001
+      }
+      Fl_Value_Input nsInput {
+        label {current step:}
+        callback {Simu.ns()=(unsigned int)o->value();}
+        tooltip {Current step number} xywh {100 35 115 20} maximum 1e+30 step 1
+      }
+      Fl_Value_Input nsfInput {
+        label {last step:}
+        callback {Simu.nsf()=(unsigned int)o->value();
+SimuProgressBar->maximum((float)o->value());
+Fl::redraw();}
+        tooltip {Final step number} xywh {100 60 115 20} maximum 1e+30 step 1 value 100
+      }
+      Fl_Value_Input tInput {
+        label {current time:}
+        xywh {100 85 115 20} maximum 10000
+      }
+      Fl_Value_Input nitermnInput {
+        label {nb iter mini:}
+        callback {cdalgo->nitermn()=(unsigned int)o->value();}
+        tooltip {Minimum number of atoms} xywh {100 129 115 20} maximum 1e+20 step 1 value 3
+      }
+      Fl_Value_Input nitermxInput {
+        label {nb iter maxi:}
+        callback {cdalgo->nitermx()=(unsigned int)o->value();}
+        tooltip {Maximum number of atoms} xywh {100 154 115 20} maximum 1e+20 step 1 value 100
+      }
+      Fl_Value_Input epsfInput {
+        label {epsf:}
+        callback {cdalgo->epsf()=o->value();}
+        tooltip {Accuracy of mean forces} xywh {100 179 115 20} value 0.001
+      }
+      Fl_Return_Button AlgoCloseButton {
+        label Close
+        callback {AlgoWindow->hide();}
+        xywh {60 220 110 25} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+      }
+    }
+    Fl_Window SampleWindow {
+      label Sample open
+      xywh {9 74 602 574} type Double visible
+    } {
+      Fl_Box DisplayArea {
+        label {DISPLAY AREA}
+        xywh {10 35 500 500} box ENGRAVED_BOX
+        code0 {\#include "display.h"}
+        class Display
+      }
+      Fl_Button dispOptButton {
+        label Options
+        callback {DispOptionsWindow->show()}
+        xywh {10 5 65 25} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+      }
+      Fl_Value_Input zoomInput {
+        label {zoom:}
+        callback {DisplayArea->size((float)(o->value()));
+zoomOutput->value((float)DisplayArea->size());
+
+DisplayArea->redraw();}
+        xywh {515 35 80 25} align 1 when 8
+      }
+      Fl_Value_Input xshiftInput {
+        label {xshift:}
+        callback {DisplayArea->xshift((float)(o->value()));
+xshiftOutput->value((float)DisplayArea->xshift());
+DisplayArea->redraw();}
+        xywh {515 80 80 25} align 1 when 8
+      }
+      Fl_Value_Input yshiftInput {
+        label {yshift:}
+        callback {DisplayArea->yshift((float)(o->value()));
+yshiftOutput->value((float)DisplayArea->yshift());
+
+DisplayArea->redraw();}
+        xywh {515 130 80 25} align 1 when 8
+      }
+      Fl_Button fitButton {
+        label Fit
+        callback {/*
+spl.updateBoundaries();
+float l = spl.xmax() - spl.xmin();
+float h = spl.ymax() - spl.ymin();
+float L = 500.;
+float H = 500.;
+
+float size_factor = (l>h) ? L/l : H/h;
+float xtrans = spl.xmin() + 0.5 * l;
+float ytrans = spl.ymin() + 0.5 * h;
+
+DisplayArea->size(size_factor);
+DisplayArea->xshift(-xtrans);
+DisplayArea->yshift(-ytrans);
+
+updateDispOptionsValues();
+DisplayArea->redraw();
+*/}
+        xywh {465 5 45 25} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+      }
+      Fl_Button UpButton {
+        label Up
+        callback {DisplayArea->addyshift(-1);
+DisplayArea->redraw();
+yshiftOutput->value((float)DisplayArea->yshift());
+Fl::redraw();}
+        xywh {525 255 60 35} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+      }
+      Fl_Button DownButton {
+        label Down
+        callback {DisplayArea->addyshift(+1);
+yshiftOutput->value((float)DisplayArea->yshift());
+
+DisplayArea->redraw();}
+        xywh {525 295 60 35} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+      }
+      Fl_Button RightButton {
+        label Right
+        callback {DisplayArea->addxshift(-1);
+xshiftOutput->value((float)DisplayArea->xshift());
+
+DisplayArea->redraw();}
+        xywh {525 390 60 35} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+      }
+      Fl_Button LeftButton {
+        label Left
+        callback {DisplayArea->addxshift(+1);
+xshiftOutput->value((float)DisplayArea->xshift());
+
+DisplayArea->redraw();}
+        xywh {525 350 60 35} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+      }
+      Fl_Button ZoomButton {
+        label {Z +}
+        callback {DisplayArea->addsize(1);
+zoomOutput->value((float)DisplayArea->size());
+DisplayArea->redraw();}
+        xywh {525 170 60 35} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+      }
+      Fl_Button deZoomButton {
+        label {Z -}
+        callback {DisplayArea->addsize(-1);
+zoomOutput->value((float)DisplayArea->size());
+DisplayArea->redraw();}
+        xywh {525 210 60 35} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+      }
+      Fl_Value_Output zoomOutput {
+        label zoom
+        callback {zoomOutput->value((float)DisplayArea->size());}
+        xywh {140 6 36 24} color 46
+      }
+      Fl_Value_Output xshiftOutput {
+        label xshift
+        xywh {235 6 36 24} color 46
+      }
+      Fl_Value_Output yshiftOutput {
+        label yshift
+        xywh {335 6 36 24} color 46
+      }
+      Fl_Value_Input BodyToTrack {
+        callback {DisplayArea->trackingBody((unsigned int)(o->value()));
+
+DisplayArea->redraw();}
+        xywh {130 539 50 26} align 1
+      }
+      Fl_Check_Button BodyButton {
+        label {Body Tracking : }
+        callback {DisplayArea->disp_trackingBody((bool)o->value());
+DisplayArea->redraw();}
+        xywh {10 538 120 25} down_box DOWN_BOX
+      }
+      Fl_Value_Input ClusterToTrack {
+        callback {DisplayArea->trackingCluster((unsigned int)(o->value()));
+
+DisplayArea->redraw();}
+        xywh {355 539 50 26} align 1
+      }
+      Fl_Check_Button ClusterButton {
+        label {Cluster Tracking : }
+        callback {DisplayArea->disp_trackingCluster((bool)o->value());
+DisplayArea->redraw();}
+        xywh {225 538 120 25} down_box DOWN_BOX
+      }
+      Fl_Check_Button FillButton {
+        label {Fill bodies}
+        callback {DisplayArea->fill_bodies((bool)o->value());
+DisplayArea->redraw();}
+        xywh {510 435 90 20} down_box DOWN_BOX
+      }
+    }
+    Fl_Window DispOptionsWindow {
+      label {Display Customization} open
+      xywh {138 271 420 213} type Double visible
+    } {
+      Fl_Group dispOptSample {
+        label Sample open
+        xywh {15 20 135 140} box BORDER_BOX
+      } {
+        Fl_Check_Button shapesCheck {
+          label shapes
+          callback {DisplayArea->disp_shapes((bool)(o->value()));
+DisplayArea->redraw();}
+          xywh {25 30 70 25} down_box DOWN_BOX
+        }
+        Fl_Check_Button orientCheck {
+          label orientations
+          callback {DisplayArea->disp_orient((bool)(o->value()));
+DisplayArea->redraw();}
+          xywh {25 50 95 25} down_box DOWN_BOX
+        }
+        Fl_Check_Button velCheck {
+          label velocity
+          callback {DisplayArea->disp_vel((bool)(o->value()));
+DisplayArea->redraw();}
+          xywh {25 70 95 25} down_box DOWN_BOX
+        }
+        Fl_Check_Button {} {
+          label clusters
+          callback {DisplayArea->disp_cluster((bool)(o->value()));
+DisplayArea->redraw();}
+          xywh {25 95 80 15} down_box DOWN_BOX
+        }
+      }
+      Fl_Group dispOptNetwork {
+        label Network open
+        xywh {165 20 245 140} box BORDER_BOX
+      } {
+        Fl_Check_Button fnCheck {
+          label fn
+          callback {DisplayArea->disp_fn((bool)(o->value()));
+DisplayArea->redraw();}
+          xywh {175 30 35 25} down_box DOWN_BOX
+        }
+        Fl_Check_Button ftCheck {
+          label ft
+          callback {DisplayArea->disp_ft((bool)(o->value()));
+DisplayArea->redraw();}
+          xywh {175 50 35 25} down_box DOWN_BOX
+        }
+        Fl_Check_Button forcesScaledCheck {
+          label {forces scaled by:}
+          callback {DisplayArea->fixScalf((bool)(o->value()));
+DisplayArea->redraw();}
+          xywh {175 70 125 25} down_box DOWN_BOX
+        }
+        Fl_Value_Input scalfInput {
+          callback {DisplayArea->scalf((float)(o->value()));
+DisplayArea->redraw();}
+          xywh {310 70 90 25} when 8
+        }
+        Fl_Check_Button locFrameCheck {
+          label {local frames}
+          callback {DisplayArea->disp_locFrame((bool)(o->value()));
+DisplayArea->redraw();}
+          xywh {175 105 100 25} down_box DOWN_BOX
+        }
+        Fl_Check_Button verletCheck {
+          label {neighbors visibility}
+          callback {DisplayArea->disp_verlet((bool)(o->value()));
+DisplayArea->redraw();}
+          xywh {175 125 100 25} down_box DOWN_BOX
+        }
+        Fl_Check_Button fnposCheck {
+          label {fn > 0}
+          callback {DisplayArea->disp_fn_pos((bool)(o->value()));
+DisplayArea->redraw();}
+          xywh {225 30 60 25} down_box DOWN_BOX
+        }
+        Fl_Check_Button fnnegCheck {
+          label {fn < 0}
+          callback {DisplayArea->disp_fn_neg((bool)(o->value()));
+DisplayArea->redraw();}
+          xywh {290 30 60 25} down_box DOWN_BOX
+        }
+      }
+      Fl_Button DispOptCloseButton {
+        label Close
+        callback {DispOptionsWindow->hide();}
+        xywh {325 170 85 25} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+      }
+      Fl_Button {} {
+        label {Save display.opt}
+        callback {ofstream opt("display2.opt",ios::out);
+opt<<"shapes "<<DisplayArea->disp_shapes()<<endl;
+opt<<"vel "<<DisplayArea->disp_vel()<<endl;
+opt<<"orient "<<DisplayArea->disp_orient()<<endl;
+opt<<"fn "<<DisplayArea->disp_fn()<<endl;
+opt<<"ft "<<DisplayArea->disp_ft()<<endl;
+opt<<"verlet "<<DisplayArea->disp_verlet()<<endl;
+opt<<"locFrame "<<DisplayArea->disp_locFrame()<<endl<<endl;
+
+opt<<"size "<<DisplayArea->size()<<endl;
+opt<<"xshift "<<DisplayArea->xshift()<<endl;
+opt<<"yshift "<<DisplayArea->yshift()<<endl<<endl;
+
+opt<<"scalf "<<DisplayArea->scalf()<<endl;
+opt<<"scalv "<<DisplayArea->scalv()<<endl<<endl;}
+        xywh {190 170 125 25} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+      }
+    }
+    Fl_Window MechanicalWindow {
+      label Mechanical
+      xywh {461 193 204 402} type Double hide
+    } {
+      Fl_Choice parChoice {
+        label {Parameter:} open
+        xywh {80 5 105 20} down_box BORDER_BOX
+      } {}
+      Fl_Choice g1Choice {
+        label {Groups:} open
+        xywh {80 45 105 20} down_box BORDER_BOX
+      } {}
+      Fl_Choice g2Choice {open
+        xywh {80 65 105 20} down_box BORDER_BOX
+      } {}
+      Fl_Value_Input parValueInput {
+        label {Value:}
+        xywh {80 95 105 20}
+      }
+    }
+    code {if(dataReadOK == false)
+  {
+  char * name = fl_file_chooser("Load data...",NULL,NULL,0);
+  if(name != NULL) 
+    {
+    string dirName(name);
+    dirName.erase(dirName.rfind("/"),dirName.length());
+    chdir(dirName.c_str());
+    Simu.read_data((const char *)name);
+    dataReadOK = true; 
+    free(name);
+    } 
+  }
+
+parChoice->add("mu");
+parChoice->add("ah");
+
+g1Choice->add("Grains");
+g1Choice->add("Walls");
+
+g2Choice->add("Grains");
+g2Choice->add("Walls");
+
+SampleWindow->show();
+ControlWindow->show();} {}
+    Fl_Window NetworkWindow {
+      label Network open
+      xywh {278 202 226 262} type Double visible
+    } {
+      Fl_Value_Input dverletInput {
+        label {dverlet:}
+        callback {Simu.nwk()->dverlet()=o->value();
+DisplayArea->redraw();}
+        tooltip {Verlet distance} xywh {100 11 115 20} maximum 10 value 0.0001
+      }
+      Fl_Value_Input dsuperInput {
+        label {dsuperList:}
+        callback {Simu.nwk()->dsuperList()=(double) o->value();
+DisplayArea->redraw();}
+        tooltip {Current step number} xywh {100 75 115 20} maximum 1e+30
+      }
+      Fl_Return_Button NetworkCloseButton {
+        label Close
+        callback {NetworkWindow->hide();}
+        xywh {60 220 110 25} box PLASTIC_UP_BOX down_box PLASTIC_DOWN_BOX
+      }
+      Fl_Check_Button SuperButton {
+        label {Use super list}
+        callback {Simu.nwk()->useSuperList() = (bool) o->value();
+DisplayArea->redraw();}
+        xywh {20 55 115 15} down_box DOWN_BOX align 22
+      }
+    }
+  }
+  Function {updateAlgoValues()} {open
+  } {
+    code {dtInput->value(cdalgo->dt());
+nsInput->value((double)Simu.ns());
+nsfInput->value((double) Simu.nsf());
+nitermnInput->value((double)cdalgo->nitermn());
+nitermxInput->value((double)cdalgo->nitermx());
+tInput->value(Simu.time());
+epsfInput->value(cdalgo->epsf());} {}
+  }
+  Function {updateControlValues()} {open
+  } {
+    code {nwiterInput->value((double)nwiter);
+//nwpostInput->value((double)algo.nwpost());
+nverInput->value((double)cdalgo->nver());
+ioutInput->value((double)Simu.nHist() );
+
+analyzeInput->value((double)Simu.nAnalyse() );
+saveAnalyse->value(Simu.doAnalyse());
+
+SimuProgressBar->minimum((float)Simu.nsi());
+SimuProgressBar->maximum((float)Simu.nsf());
+
+WorkPathNameOutput->value(WorkingPath.c_str());
+saveNetworkCheckBox->value(saveNetwork);} {}
+  }
+  Function {updateDispOptionsValues()} {open
+  } {
+    code {zoomInput->value(DisplayArea->size());
+xshiftInput->value(DisplayArea->xshift());
+yshiftInput->value(DisplayArea->yshift());
+
+shapesCheck->value(DisplayArea->disp_shapes());
+orientCheck->value(DisplayArea->disp_orient());
+velCheck->value(DisplayArea->disp_vel());
+
+
+fnCheck->value(DisplayArea->disp_fn());
+fnposCheck->value(DisplayArea->disp_fn_pos());
+fnnegCheck->value(DisplayArea->disp_fn_neg());
+
+ftCheck->value(DisplayArea->disp_ft());
+forcesScaledCheck->value(DisplayArea->fixScalf());
+scalfInput->value(DisplayArea->scalf());
+locFrameCheck->value(DisplayArea->disp_locFrame());
+verletCheck->value(DisplayArea->disp_verlet());} {}
+  }
+} 
+
+Function {main(int argc,char **argv)} {open return_type int
+} {
+  code {char * name = 0;
+
+switch(argc)
+{
+  case 2:
+    Simu.read_data(argv[1]);
+    dataReadOK = true;
+    break;
+
+  default:
+    name = fl_file_chooser("Load data...",NULL,NULL,0);
+    if(name != NULL) 
+      {
+      // bricolage... a rendre propre
+      cout << name << endl;
+      string dirName(name);
+      dirName.erase(dirName.rfind("/"),dirName.length());
+      WorkingPath = dirName;
+      chdir(dirName.c_str());
+      cout << dirName << endl;
+      Simu.read_data((const char *)name);
+      dataReadOK = true; 
+      free(name);
+      }  
+    break; 
+    // cerr << "@GUI, Usage: " << argv[0] << " sampleFile" << endl;
+    
+}
+ 
+cdalgo = dynamic_cast < CDalgo*>( Simu.algo());
+
+//! \\todo
+//! lorsqu'on doucle-clique sur l'appli GUI est bien construit
+//! mais read_data n'est pas appele... Bizard!!!!
+
+// system CL
+cdalgo->algoFill();
+Simu.sys()->init();
+if (Simu.sys()->check() == 0) return 0;
+
+if ( Simu.doAnalyse()) Simu.sysA()->initAnalyse();
+
+demtkGUI* GUI = new demtkGUI();
+GUI->DisplayArea->sim()=&Simu;
+/*GUI->DisplayArea->spl()=Simu.spl();
+GUI->DisplayArea->nwk()=Simu.nwk();
+GUI->DisplayArea->sys()=Simu.sys();*/
+
+GUI->updateAlgoValues();
+GUI->updateControlValues();
+GUI->updateDispOptionsValues();
+
+
+Simu.algo()->stand();
+Simu.algo()->look();
+Fl::check();
+Fl::redraw();
+
+return Fl::run();} {}
+} 

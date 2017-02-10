@@ -1,0 +1,39 @@
+#!/bin/bash
+
+
+# creation de dossier externes pour l'execution
+cd ..
+mkdir execution
+cd execution
+mkdir run1 run2
+cd ../gdm-tk-stab
+
+#clean lib
+cd lib
+rm *
+cd ..
+
+#Compilation tk
+cd src
+make clean
+make depend 
+make
+#compilation gdm_run
+
+cd ../app/gdm_run/
+make clean
+make depend
+make
+
+#Copie des executables
+cd ../../../
+echo " "
+echo "--- Copie des applications gdm_run ---"
+echo " "
+cp gdm-tk-stab/app/gdm_run/gdm_run execution/run1/gdm_run1-stab
+cp gdm-tk-stab/app/gdm_run/gdm_run execution/run2/gdm_run2-stab
+
+
+
+
+

@@ -1,0 +1,36 @@
+APP = GUI
+CC = g++
+CFLAGS = -I/usr/local/include -I/usr/X11R6/include -I../include -I../systems -L/usr/local/lib -Wall -O2 -g
+
+LIBS =  -L/usr/X11R6/lib \
+        -lfltk -lfltk_gl \
+	-lGL \
+	-lX11 -lXext \
+	-lm \
+        -lsupc++ \
+
+OBJS = $(APP).o display.o ../struct/*.o ../algo/*.o ../systems/box2d/box2d.o
+
+all: $(APP)
+
+display.o : display.cpp display.h
+	$(CC) $(CFLAGS) -c display.cpp
+
+$(APP).o : $(APP).cpp $(APP).h
+	$(CC) $(CFLAGS) -c $(APP).cpp
+
+$(APP).a : $(OBJS)
+	ar -r $@ $(OBJS)
+
+$(APP): $(APP).a
+	$(CC) -o $@ $(APP).a $(LIBS)
+	
+
+clean:
+	rm -f *~ \#*\#
+	rm -f *.o $(APP) $(APP).a
+
+depend:
+	makedepend -- $(CFLAGS) -- *.cpp
+
+

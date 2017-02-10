@@ -1,0 +1,16 @@
+shapes 1
+vel 1
+orient 0
+fn 0
+ft 0
+verlet 0
+locFrame 0
+fresNormal 0
+size 40
+xshift -10
+yshift -9
+
+scalf 1e-05
+scalv 0.03
+
+

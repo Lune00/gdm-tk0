@@ -1,0 +1,4 @@
+base referer
+rect $class_m_dforce_law.html 70,98 193,125
+rect $class_network.html 8,8 98,34
+rect $class_group_relation_data.html 122,8 298,34

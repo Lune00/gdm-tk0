@@ -1,0 +1,25 @@
+#!/bin/bash
+
+
+#Compilation tk
+cd src
+make depend 
+make
+#compilation gdm_run
+
+cd ../app/gdm_run/
+make depend
+make
+
+#Copie des executables
+cd ../../
+pwd
+echo " "
+echo "--- Copie des applications gdm_run ---"
+echo " "
+cp app/gdm_run/gdm_run ../gdm_run-stab
+
+
+
+
+
