@@ -29,7 +29,7 @@ class dev_cluster : public System
  double kverlet_;
  unsigned int topXmode_ , topYmode_ , topRmode_;
  double		  topXvalue_, topYvalue_, topRvalue_;
-double grav,angle_,rotation_;
+double grav,angle_;
   unsigned int Nanalyze_;//????????????
 
 

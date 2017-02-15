@@ -2379,7 +2379,7 @@ gdm::Tensor2x2 * fnlthetaInProbe( Probe & prb, Sample &spl, Network& nwk,unsigne
 
 				if(rangt==nt) rangt--;
 				if(rangl==nl) rangl--;
-				if(rangl<0) rangl=0;
+				//if(rangl<0) rangl=0;
 
 				fnlt[rangl].py(rangt)+=interc->fn();
 				Nfnlt[rangl].py(rangt)+=1;

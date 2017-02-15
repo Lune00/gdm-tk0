@@ -845,7 +845,7 @@ void shearP_CD_A::ContactMesh()
     ofstream Mesh_(fname,ios::out);
 
 
-	std::streamsize prec =Mesh_.precision();
+	//std::streamsize prec =Mesh_.precision();
 	
 	Mesh_.precision(12);
 
