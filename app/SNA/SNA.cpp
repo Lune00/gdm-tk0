@@ -92,24 +92,17 @@ int main (int argc, char * argv[])
 		string fichcom,fichsim,fichtemps,include,token;
 		char  nomFichier [100],commande[100],princDir[100];	
 		
-		cout<<"Numero du premier fichier a traiter ?"<<endl;
 		cin>>Ndeb;
-		cout<<"Numero du dernier fichier a traiter ?"<<endl;
 		cin>>Nfin;
-		cout<<"Format numerotation 3 ou 4 ? "<<endl;
 		cin>>format;
-		cout<<"Periode de traitement ? "<<endl;
 		cin>>period;
-		cout<<"Fichier sim ?"<<endl;
 		cin>>fichsim;
-		cout<<"Fichier de commande ?"<<endl;
 		cin>>fichcom;
-		cout<<"Fichier de temps ?"<<endl;
 		cin>>fichtemps;
-		cout<<"Nom du dossier principal a creer ?"<<endl;
 		cin>>princDir;
-		
-		sprintf(commande,"mkdir %s",princDir);
+		cout<<"Numeros du premier et dernier fichier a traiter :"<<Ndeb<<"-"<<Nfin<<endl;
+		cout<<"Nom du dossier principal a creer :"<<princDir<<endl;
+		sprintf(commande,"mkdir -p %s",princDir);
 		system( commande);
 		/*cout<<"Moyenne temporelle a effectuer ? (y/n)"<<endl;
 		cin>>token;
@@ -173,7 +166,6 @@ int main (int argc, char * argv[])
 				t.push_back(temp2);
 			}
 		}
-		cout<<fichtemps<<endl;
 
 		cout<<" --- lecture fichier temps ok "<<endl;
 		
@@ -183,6 +175,8 @@ int main (int argc, char * argv[])
 		sprintf(nomFichier,"spl_nwk_%.3d.his",Ndeb);
 		else if (format==4)
 		sprintf(nomFichier,"spl_nwk_%.4d.his",Ndeb);
+		else if (format==5)
+		sprintf(nomFichier,"spl_nwk_%.5d.his",Ndeb);
 		else
 		{
 			cout<<" Bad format = "<<format<<endl;
@@ -221,8 +215,8 @@ int main (int argc, char * argv[])
 			mySimu->sysA()->plugRef();
 			mySimu->sysA()->analyse(t[i],1,1);
 			
-			ofstream time("time.txt",ios::app);
-			time<<t[i]<<endl;time.close();
+			//ofstream time("time.txt",ios::app);
+			//time<<t[i]<<endl;time.close();
 			
 				
 			cout<<"**********************************************"<<endl;

@@ -6,6 +6,8 @@ void shearP_CD_A::plugRef()
 	
 }
 
+
+
 void shearP_CD_A::read_parameters(istream & is)
 {
 	string token,temp;
