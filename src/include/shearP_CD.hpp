@@ -10,8 +10,6 @@
 #include "system.hpp"
 
 
-
-
 class shearP_CD : public System
 {
 
@@ -21,18 +19,19 @@ class shearP_CD : public System
  bool boundariesAuto_;
  bool pressY_;
  bool firstUse_;
-bool changeGroup_;
-bool shearRate_;
+ bool changeGroup_;
+ bool shearRate_;
+ double shearRate_init;
  double dverlet_;
-    bool symetrical_;
+ bool symetrical_;
+ bool reverse_;
  bool useSuper_; 
  double dsuperList_;
  double dsuperListP_;
- double bandwidth_;
+ double bandwidth_; // normalement associée a sample, mais permet l'entrée utilisateur
  unsigned int topXmode_ , topYmode_ ;
  double		  topXvalue_, topYvalue_;
- 
-  unsigned int Nanalyze_;//????????????
+ unsigned int Nanalyze_;
 
 
  protected:
@@ -47,15 +46,11 @@ bool shearRate_;
   void share();
   int  check();
   void stress_strain();
-
-//void little_analyse(double);
-  
-  //void analyze(double);
-  //void write_analyze(FILE *,double);------dans l'analyseur
+  void SetUnity();
 
   ~shearP_CD() { }
-   shearP_CD(Sample* spl, Network* nwk, GroupRelationData * grpRel) : System(spl,nwk,grpRel) { }
-   shearP_CD() : System() { }
+    shearP_CD(Sample* spl, Network* nwk, GroupRelationData * grpRel) : System(spl,nwk,grpRel) {  AllFalse(); }
+    shearP_CD() : System() { AllFalse(); }
    
    vector<unsigned int> & ltopPlate()       { return topPlate_; }
    vector<unsigned int>   ltopPlate() const { return topPlate_; }
@@ -65,9 +60,6 @@ bool shearRate_;
 	
    void defineTopPlate();
    void defineTopPlate2();
-   
-   //unsigned int & Nanalyze()          { return Nanalyze_; }
-   //unsigned int   Nanalyze()    const { return Nanalyze_; }
   
    string & Unit()       { return Unit_;}
    string   Unit() const { return Unit_;}
@@ -86,6 +78,19 @@ bool shearRate_;
    double & topYvalue()          { return topYvalue_; }
    double   topYvalue()    const { return topYvalue_; }
 
+    
+    void AllFalse()
+    {
+        topPlate_.clear();
+        Unit_ = "default";
+		topXmode_ = 1;
+		topYmode_ = 0;
+        symetrical_=false;
+        reverse_ =false;
+        bandwidth_=0.;
+  
+    }
+    
    
 };
 

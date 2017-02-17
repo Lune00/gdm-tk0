@@ -263,7 +263,7 @@ void dof::plugBody( body2d * bod)
 {
 	this->lctrlBodies().push_back( bod);
 	bod->bodyDof()=this;
-	//m_+=bod->mass();
+	m_+=bod->mass();
 }
 void dof::affect(unsigned int x,unsigned int y,unsigned int rot,double xval, double yval, double rotval)
 {

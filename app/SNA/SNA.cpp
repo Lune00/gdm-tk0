@@ -81,7 +81,7 @@ int main (int argc, char * argv[])
 		
 		mySimu->sysA()->analyse(10.,1,1);
 		
-		write_mgpost("mgp.out.001",*mySimu->spl(),*mySimu->nwk(),0,0);
+//		write_mgpost("mgp.out.001",*mySimu->spl(),*mySimu->nwk(),0,0);
 	//	mySimu->sysA()->writePS("visuSNA.ps");
 	}
 	else
@@ -101,23 +101,9 @@ int main (int argc, char * argv[])
 		cin>>fichtemps;
 		cin>>princDir;
 		cout<<"Numeros du premier et dernier fichier a traiter :"<<Ndeb<<"-"<<Nfin<<endl;
-		cout<<"Nom du dossier principal a creer :"<<princDir<<endl;
+		cout<<"Nom du dossier principal a creer : "<<princDir<<endl;
 		sprintf(commande,"mkdir -p %s",princDir);
 		system( commande);
-		/*cout<<"Moyenne temporelle a effectuer ? (y/n)"<<endl;
-		cin>>token;
-		if( token=="y")
-		{
-			//parametre a lire tdebut tfin
-			//grandeur scalaire a evaluer : q,p,q/p,a,an,at,al,
-			//grandeur vectorielle a evaluer : pdf, Xu, correlation force taille ??
-			
-		}
-		else
-		{
-			cout<<"Pas de moyenne temporelle"<<endl;
-		}
-		*/
 		
 		Simulation * mySimu= new Simulation();
 		
@@ -200,26 +186,18 @@ int main (int argc, char * argv[])
 			sprintf(nomFichier,"spl_nwk/spl_nwk_%.3d.his",i);
 			else if (format==4)
 			sprintf(nomFichier,"spl_nwk/spl_nwk_%.4d.his",i);
+			else if (format==5)
+			sprintf(nomFichier,"spl_nwk/spl_nwk_%.5d.his",i);
 
 			cout<<endl<<endl<<"************ Chargement  :  "<<nomFichier<<endl;
 						
-			//spl.includeFrom()=include;
-			
 			mySimu->load_history(nomFichier);
 			mySimu->algo()->algoFill();
-			
-			//mySimu->spl()->updateBoundaries();
-			//mySimu->spl()->radiusExtrema();
-			//mySimu->spl()->definePeriodicityCV(true);
 			
 			mySimu->sysA()->plugRef();
 			mySimu->sysA()->analyse(t[i],1,1);
 			
-			//ofstream time("time.txt",ios::app);
-			//time<<t[i]<<endl;time.close();
-			
-				
-			cout<<"**********************************************"<<endl;
+			cout<<"*o*o*o****************************************"<<endl;
 		}
 		
 	}

@@ -310,7 +310,7 @@ void Biaxial_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	}
 	else if(calcompact && (divisionh==1) && (divisionl==1))
 	{
-		sys_->spl()->updateBoundaries2();
+		sys_->spl()->updateBoundaries();
 		
 		double xmin=sys_->spl()->xmin();
 		double xmax=sys_->spl()->xmax();
@@ -361,7 +361,7 @@ void Biaxial_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	}	
 	else if (calcompact && (nsi==nsf))
 	{
-		sys_->spl()->updateBoundaries2();
+		sys_->spl()->updateBoundaries();
 		
 		double xmin=sys_->spl()->xmin();
 		double xmax=sys_->spl()->xmax();
@@ -4520,7 +4520,7 @@ void Biaxial_A::writePS2( const char * fname)
 				
 		ofstream ps(fname);
 
-		this->sys()->spl()->updateBoundaries2(); 		//Ajouter le 25/11/2011 	
+		this->sys()->spl()->updateBoundaries(); 		//Ajouter le 25/11/2011 	
 		double height= sys_->spl()->ymax()-sys_->spl()->ymin();
 		double width = sys_->spl()->xmax()-sys_->spl()->xmin();
 		double xoffset=5.;
@@ -4994,7 +4994,7 @@ double Biaxial_A::compactness(double &ratio)
 	double R, d, alpha, area;
 	unsigned int Nb;
 	
-	sys_->spl()->updateBoundaries2();
+	sys_->spl()->updateBoundaries();
 	h = sys_->spl()->ymax()-sys_->spl()->ymin();
 	w = sys_->spl()->xmax()-sys_->spl()->xmin();
 	h*=ratio;
@@ -5214,7 +5214,7 @@ void Biaxial_A::heterogeneity(unsigned int Ni,unsigned int Nf)
 	double dmoy=0.;
 	unsigned int Nb;
 	
-	sys_->spl()->updateBoundaries2();
+	sys_->spl()->updateBoundaries();
 	xmin=sys_->spl()->xmin();
 	xmax=sys_->spl()->xmax();
 	ymin=sys_->spl()->ymin();

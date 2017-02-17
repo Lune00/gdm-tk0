@@ -383,61 +383,17 @@ void shearP_CD_A::initAnalyse( )
 	rmax=sys_->spl()->rmax();
 	//Ecriture des dimensions de la probe:
 	
-	char name_probe[50],name_domain[50];
-    cout<<string(100,'*')<<endl;
 	cout<<"Probe position :"<<totalProbe_R.x()<<" "<<totalProbe_R.y()<<endl;
 	cout<<string(100,'*')<<endl;
-    system("mkdir -p ContactMesh ");
 	
-    sprintf(name_probe,"ContactMesh/probeGDM.pm");
-    sprintf(name_domain,"ContactMesh/dimprobe.pm");
-	
-	ofstream dom_os(name_domain);
-	
-	dom_os << p_xmin <<" "<<p_ymin <<" "<< p_xmax-p_xmin<< " "<<p_ymax-p_ymax<<endl << 
-	        p_xmin <<" "<<p_ymax <<" "<< p_xmax-p_xmin<< " "<<p_ymax-p_ymax<<endl;
-	
-	dom_os.close();
-	
-    ofstream probe_os(name_probe);
-	
-	probe_os.precision(9);
-
-	probe_os <<
-	
-	xc <<endl<<
-	yc <<endl<<
-	p_xmin <<endl<<
-	p_xmax <<endl<<
-	p_ymin <<endl<<
-	p_ymax <<endl<<
-	p_ymax-p_ymin <<endl<<
-	p_xmax-p_xmin <<endl<<
-	rmax<<endl;
-	
-	
-	probe_os.close();
-
-
-	//ca_.plug(&totalProbe_,sys_->spl(),sys_->nwk() );
-
 	Vinit_=totalProbe_.area();
 	
-	system("mkdir Analyse");
-	system("mkdir Analyse/Anisotropies");
-
-
-	ofstream monitoring("Analyse/monitoring.txt",ios::out);
-	monitoring.close();
-	ofstream analyse("Analyse/analyse.txt",ios::out);
-	analyse.close();
-
+	system("mkdir -p Analyse");
+	system("mkdir -p Analyse/Anisotropies");
 
 	ofstream strain("Analyse/strain.txt",ios::out);
 	strain.close();	
 	
-    if ( ContactMesh_ ) ContactMesh();
-    
 	if(calcinout)
 	{
 	ofstream inout("Analyse/inout_time.txt",ios::out);
@@ -594,7 +550,7 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 //	
 
 //cout<<"		ngap1 "<<ngap1()->id() <<" ngap2 "<<ngap2()->id() <<endl;
-	cout<<"		Nombre d'interaction = "<<sys_->nwk()->linter().size()<<endl;
+	cout<<"		Nombre d'interactions = "<<sys_->nwk()->linter().size()<<endl;
 	cout<<"		Nombre de contacts   = "<<sys_->nwk()->clist().size()<<endl;
 
 	/*if( calcforcesA)
@@ -846,12 +802,6 @@ void shearP_CD_A::ContactMesh()
 	sprintf(fname,"ContactMesh/contact%05d.dat",Nanalyze());
     ofstream Mesh_(fname,ios::out);
 
-
-	std::streamsize prec =Mesh_.precision();
-	
-	Mesh_.precision(12);
-
-    
     for(unsigned i=0 ; i!=sys_->nwk()->clist().size() ; ++i)
     {
 

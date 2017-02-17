@@ -115,13 +115,16 @@ void Sample::removeBody(body2d * rm)
 				itspl++;
 		}
 	}
-	
+
+//Assigne la masse a chaque particule à partir de la densité.
 void Sample::fill(double density)
 {
 	for (unsigned int i=0;i<lbody_.size();++i)
 		lbody_[i]->Fill(density);
 }
 
+
+//Calcule xmin,xmax,ymin,ymax de l'échantillon
 void Sample::updateBoundaries()
 {
 	unsigned int N = lbody_.size();
@@ -132,7 +135,7 @@ void Sample::updateBoundaries()
 	}
 
 	double val;
-    cout<<"update boundaries()"<<endl;
+    //cout<<"update boundaries()"<<endl;
 	xmin_ = lbody_[0]->x();
 	xmax_ = lbody_[0]->x();
 	ymin_ = lbody_[0]->ymin();
@@ -142,34 +145,6 @@ void Sample::updateBoundaries()
 	{
 		xmin_ = xmin_ > (val = lbody_[i]->xmin()) ? val : xmin_;
 		xmax_ = xmax_ < (val = lbody_[i]->xmin()) ? val : xmax_;
-		ymin_ = ymin_ > (val = lbody_[i]->ymin()) ? val : ymin_;
-		ymax_ = ymax_ < (val = lbody_[i]->ymax()) ? val : ymax_;
-	}
-}
-
-void Sample::updateBoundaries2()
-{
-	unsigned int N = lbody_.size();
-//	unsigned int M =lctrl().size();
-	unsigned int M =4;
-	
-	if(N == 0) 
-	{
-		xmin_ = xmax_ = ymin_ = ymax_ = 0.0;
-		return;
-	}
-
-	double val;
-
-	xmin_ = lbody_[M]->xmin();
-	xmax_ = lbody_[M]->xmax();
-	ymin_ = lbody_[M]->ymin();
-	ymax_ = lbody_[M]->ymax();
-
-	for (unsigned int i=M+1 ; i<N ; i++)
-	{
-		xmin_ = xmin_ > (val = lbody_[i]->xmin()) ? val : xmin_;
-		xmax_ = xmax_ < (val = lbody_[i]->xmax()) ? val : xmax_;
 		ymin_ = ymin_ > (val = lbody_[i]->ymin()) ? val : ymin_;
 		ymax_ = ymax_ < (val = lbody_[i]->ymax()) ? val : ymax_;
 	}
@@ -201,62 +176,24 @@ void Sample::radiusExtrema( unsigned int start) //updateRadii()
 	rmoy_/=(double) (N);
 }
 
-// special !!!
-void Sample::definePeriodicityCV(bool periodic)
+
+
+void Sample::definePeriodicity(double bandwidth)
 {
-	/*
-	double Xmin=1000.,Xmax=0.;
-		
-	if (periodic)
-	{
-		if( body(0)->y() < 1e-40 )  body(0)->y()=0.;
-		unsigned int i=1;
-		while ( true )
-		{
-			if( body(i)->y() < 1e-40 )  body(i)->y()=0.;
-			
-			if (1.00001*body(0)->y() >= body(i)->y())
-			 ++i;
-			else
-				break;
-		}
-cout<<" i periode = "<<i<<endl;
-		for( unsigned int j=0;j<i;j++)
-		{
-			if( body(j)->xmin() < Xmin ) Xmin=body(j)->xmin();
-			if( body(j)->xmax() > Xmax ) Xmax=body(j)->xmax();
-		}
+    
+    if( bandwidth < 1. ) bandwidth = 2 * rmax_;
+   
 		
 		isMonoPeriodic_ = true;
-		leftBoundary_   = Xmin; //vr l'info est dans spl (xmin xmax)
-		rightBoundary_  = Xmax;
-		boundWidth_     = rightBoundary() - leftBoundary();
-		//bandWidth_      = 4.0 * rmax(); //vr ! l'utilisateur doit pouvoir choisir
-	}
-	*/
-	
-	
-	
-	if (periodic)
-	{
-		isMonoPeriodic_ = true;
-		leftBoundary_   = xmin_; //vr l'info est dans spl (xmin xmax)
+		leftBoundary_   = xmin_;
 		rightBoundary_  = xmax_;
-		boundWidth_     = rightBoundary() - leftBoundary();
-		//bandWidth_      = 4.0 * rmax(); //vr ! l'utilisateur doit pouvoir choisir
-	}
-	
-	cout << endl << "---\t " << leftBoundary_ << " " << rightBoundary_ << " " << boundWidth_ << " " << bandWidth_ << " " 
-		 << rmax_ << endl << endl;
-	cout << endl << "---\t " << xmin_ << " " << xmax_ << " " << boundWidth() << " " << bandWidth() << " " 
-		 << rmax() << endl << endl;
-	
-	
-	//exit(1);
+		boundWidth_     = (rightBoundary() - leftBoundary());
+        bandWidth_      = bandwidth ;
+
+
 }
 
-
-
+//Remet a jour les bandes périodiques
 void Sample::updateBands()
 {
 	unsigned int N = lbody_.size();
@@ -359,24 +296,3 @@ void Sample::swapBodies(unsigned int a,unsigned int b)
 	lbody_[a] = body(b);
 	lbody_[b] = tmp;
 }
-/*
-double Sample::compactness()
-{
-	double compact=0;
-	double height;
-	double width;
-	
-	this->updateBoundaries2();
-	height = this->ymax()-this->ymin();
-	width = this->xmax()-this->xmin();
-	
-	for (unsigned int i=4; i<lbody().size();i++)
-	{
-		compact+=body(i)->Area();
-	}
-	cout<<"Area total : "<<compact<<endl;
-	cout<<height<<endl;
-	cout<<width<<endl;
-	compact/=(height*width);
-	return compact;
-}*/
