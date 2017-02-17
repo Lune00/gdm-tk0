@@ -153,7 +153,6 @@ public:
 	void analyse(double, unsigned int, unsigned int);
 	void read_parameters(istream &);
 	void plugRef();
-    void ContactMesh();
 
 	
 	//void plug( shearP_CD * sys_in) {sys=sys_in;}
@@ -220,16 +219,12 @@ public:
 	void partialNormalForceStress(unsigned int);
 
 	void profiles(bool , bool);
-	int  granulopdf(unsigned int,bool,int,bool,unsigned int, unsigned int );
 	int  pdfforce(bool,int,bool,unsigned int, unsigned int);//fn?  nbin normalized?
 	int  pdflength(int,bool,unsigned int, unsigned int);//  nbin normalized?
 	void normalForceInOut(int );
 	
 	void Ptheta( unsigned int,unsigned int,unsigned int);
-	void forcesCorrelation(unsigned int );
 	void granuloSpeed(unsigned int );
-	
-	void rfd( unsigned int, unsigned int);
 	
 	void removeBody( body2d* );
 	void removeRattlers( );
@@ -239,7 +234,7 @@ public:
 	unsigned int granuloStress( unsigned int );//Nbin
 	unsigned int granuloStress2( unsigned int ,unsigned int,unsigned int );//Nevent per size classes
 	unsigned int granuloStress3( unsigned int );//Nbin sliding histo
-	
+	void followparticles();	
 	void writePS(const char * fname);
 	//void filterGap();
 

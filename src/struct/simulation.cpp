@@ -62,10 +62,10 @@ void Simulation::speak()
       return;
     case 1:  
     default:
-	cout << "Step: " << ns_ << " (" << 100.0*(double)ns_/(double)(nsf_-nsi_) << " %)" << endl;
+	cout <<  "Step: " << ns_ << " (" << std::setprecision(3)<< 100.0*(double)ns_/(double)(nsf_-nsi_) << " %)" << endl;
 	cout << "Time: " << time_ << endl;
       return;
-    } 
+    }
 }
 
 void Simulation::read_data(const char* name)
@@ -295,7 +295,7 @@ void Simulation::run()
 
 		if (ns_%nHist_  == 0)
 		{
-			cout<<" simuRun : ecriture "<<numFileHist_<<endl;
+			cout<<"Ecriture "<<numFileHist_<<endl;
 			
 			history_write(numFileHist_, *spl_, *nwk_, *grpRel_, twoFilesHist_, historyNetwork_, compactHist_);
 			ofstream time("time.txt",ios::app);

@@ -26,7 +26,6 @@ void shearP_CD_A::read_parameters(istream & is)
 				is >> temp;
 			}
 		}
-        else if (token == "ContactMesh_") ContactMesh_ = true;
 		else if (token == "ZoomSample") is >> zoom_;
 		else if(token== "Sample") displaySample=true;
 		else if(token== "Force") displayForce=true;
@@ -476,19 +475,22 @@ void shearP_CD_A::initAnalyse( )
 		
 	if (displaySample || displayForce)
 	{
-		system("mkdir Analyse/PS1");
+		system("mkdir -p Analyse/PS1");
 	}
-	
+		
 }
 
 void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 {
-	cout<<"--------------shearP_CD_A::analyze() t= "<<t<<" ---------"<<endl;
+	cout<<"------oooo><ooo-----shearP_CD_A::analyze() t= "<<t<<" ---------"<<endl;
 	
 	char fname[100];
 	
 	
 	time=t;
+    
+    
+    followparticles();
 
 	if (calcz)  Z(calczp,Nbingranulo,granulo);
 	if (calcPtheta) Ptheta( NbinPT, mobperiod, mobwidth);
@@ -515,25 +517,9 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	if (calcforcesAC)	forces_AC(NbinFA,plotFA);
 	if (calcSprofile ) 	 profiles(calcSprofile,calcSFprofile);
 	if (calcgranulostress) granuloStress3( Nbingranulo);//,perG,wG);
-    if ( ContactMesh_ ) ContactMesh();
     
-	if (calcgap){
-       
-        Gap();
-    }
-    
+	if (calcgap) Gap();
 	if (calcdef) def();
- 
-
-	if (calcFC) forcesCorrelation( Nbincor_);
-
-	//if (calcfracdim) BmultifractalBC();//NboxCounting();//BboxCounting();//fractalDimension( );//fractalDensity();
-	if (calcrfd) rfd( Np,Nd);
-	if (calcgranulopdf) granulopdf(Nq_,true,NbinFN,normpdf,perF,wF);
-	
-	 
-	
-	//if (visu) writePS("Visudyn.ps");
 	
 	if (displaySample || displayForce)
 	{
@@ -541,36 +527,8 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 		writePS(fname);
 	}
 
-/*	ca_.check();
-	double ztemp=ca_.Z();
-	cout<<" Z ca "<<ztemp<<endl;
-	for (unsigned int i=0;i<10;++i)
-		cout<<i<<" "<<ca_.Npi(i)<<endl;*/
-
-//	
-
-//cout<<"		ngap1 "<<ngap1()->id() <<" ngap2 "<<ngap2()->id() <<endl;
 	cout<<"		Nombre d'interactions = "<<sys_->nwk()->linter().size()<<endl;
 	cout<<"		Nombre de contacts   = "<<sys_->nwk()->clist().size()<<endl;
-
-	/*if( calcforcesA)
-	{
-		ofstream FA_out("Analyse/Anisotropy.txt",ios::app);
-		FA_out<<time<<" "<<epsxy<<" "<<a()<<" "<<an()<<" "<<at()<<" "<<al()<<" "<<.5*( a()+an()+at() )<<" "<<qop_<<endl;
-		FA_out.close();
-
-		ofstream DPM_out("Analyse/DPM.txt",ios::app);
-		DPM_out<<time<<" "<<epsxy<<" "<<da_<<" "<<dn_<<" "<<dt_<<" "<<dl_<<" "<<ds_<<endl;
-		DPM_out.close();
-	}
-*/
-
-	
-
-	ofstream an("Analyse/analyse.txt",ios::app);
-
-	an.setf( ios::scientific);
-	an<<time<<" "<<epsp<<" "<<epsq<<" "<<epsxy<<" "<<sf_<<" "<<Z_<<" "<<ratlers_<<endl;
 	
 	
 	Nanalyze() ++;
@@ -638,7 +596,6 @@ void shearP_CD_A::Ptheta(unsigned int Nbin , unsigned int period, unsigned int w
 	
 	fnmoy_=fnmoy;
 	lmoy_=lmoy;
-	//cout<<"Nctot = "<<Nctot<<endl;
 
 	pointSet fn,ft,ld,p;
 
@@ -653,9 +610,6 @@ void shearP_CD_A::Ptheta(unsigned int Nbin , unsigned int period, unsigned int w
 
 	}
 
-	//p.circularise(M_PI,width);
-	//ft.circularise(M_PI,width);
-	//ft.yAbs();
 	
 	if( NctotT!=0)
 	{
@@ -666,13 +620,7 @@ void shearP_CD_A::Ptheta(unsigned int Nbin , unsigned int period, unsigned int w
 		ftm.yNormalise(fnmoy);
 		ftm.write("Analyse/angDistrib/FTtheta_MOD.txt");
 	}   
-	/*pointSet pm  = p.mobileMean(  period,width);
-	pointSet fnm = fn.mobileMean( period,width);
-	pointSet ldm = ld.mobileMean( period,width);
-	
-	pm.circularise(M_PI,width);
-	fnm.circularise(M_PI,width);
-	ldm.circularise(M_PI,width);*/
+
 	
 	p.circularise(M_PI,width);
 	fn.circularise(M_PI,width);
@@ -757,97 +705,6 @@ void shearP_CD_A::Ptheta(unsigned int Nbin , unsigned int period, unsigned int w
 }
 
 
-void shearP_CD_A::ContactMesh()
-{
-    char fname[50];
-        char name_spl[50];
-    
-    
-    // Ecriture variables particules dans un autre fichier pour post traitement fortran
-    /////////////////////////
-    system("mkdir -p ContactMesh ");
-   
-    sprintf(name_spl,"ContactMesh/spl_%05d.his",Nanalyze());
-    
-    
-    ofstream datafile__(name_spl);
-	
-	datafile__.precision(10);
-    
-    //AJOUETER CONDITION DANS WRITEM D ENLEVER LES DOFS!!!
-    
-    for (long int i = 0; i!=sys_->spl()->lbody().size(); i++)
-	 {
-        if (sys_->spl()->body(i)->type() == _type_disk && sys_->spl()->body(i)->bodyDof()==NULL)
-        {
-           
-			 datafile__
-			 <<sys_->spl()->body(i)->sizeVerlet()<<" "
-			 <<sys_->spl()->body(i)->x()<<" "
-			 <<sys_->spl()->body(i)->y()<<" "
-			 <<sys_->spl()->body(i)->rot()<<" "
-			 <<sys_->spl()->body(i)->vx()<<" "
-			 <<sys_->spl()->body(i)->vy()<<" "
-			 <<sys_->spl()->body(i)->vrot()<<" "
-			 << sys_->ldof(1)->leftBody()->vx()<<" "
-			 << sys_->ldof(1)->leftBody()->vy()<<" "
-			 <<endl;
-			 
-        }
-    }
-    
-    datafile__.close();
-    
-    
-	sprintf(fname,"ContactMesh/contact%05d.dat",Nanalyze());
-    ofstream Mesh_(fname,ios::out);
-
-    for(unsigned i=0 ; i!=sys_->nwk()->clist().size() ; ++i)
-    {
-
-		//Enleve les contacts avec les parois: ?
-		if(sys_->nwk()->inter(sys_->nwk()->clist(i))->type()==0)
-		{
-		
-        //if(sys_->nwk()->inter(i)->type()==0)
-        // if(sys_->nwk()->inter(i)->type()==0 && sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->bodyDof()==NULL &&
-       // sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->bodyDof()==NULL)
-        
-		
-		
-            Mesh_
-            << sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->id()      << " "
-            << sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->id()     << " "
-            << sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->x()       << " "
-            << sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->y()       << " "
-            << sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->x()      << " "
-            << sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->y()      << " "
-            << sys_->nwk()->inter(sys_->nwk()->clist(i))->x()                << " "
-            << sys_->nwk()->inter(sys_->nwk()->clist(i))->y()                << " "
-            << sys_->nwk()->inter(sys_->nwk()->clist(i))->nx()               << " "
-            << sys_->nwk()->inter(sys_->nwk()->clist(i))->ny()               << " "
-            << sys_->nwk()->inter(sys_->nwk()->clist(i))->fn()               << " "
-            << sys_->nwk()->inter(sys_->nwk()->clist(i))->ft()     			 <<endl;
-        }
-    }
-    
-    Mesh_.close();
-    
-	//Mesh_.precision(prec);
-    
-    ofstream Hout("Analyse/hauteur.txt",ios::app);
-	
-	Hout.precision(10);
-	
-    Hout<< time <<" "<< sys_->ldof(1)->leftBody()->y() - sys_->ldof(0)->leftBody()->y() <<" "<< sys_->ldof(1)->leftBody()->vy()<<" "<< sys_->ldof(1)->leftBody()->vx()<<endl;
-	
-    Hout.close();
-    
-    
-}
-
-
-
 void shearP_CD_A::Gap()
 {
 
@@ -883,78 +740,52 @@ void shearP_CD_A::Gap()
 		}
 	}
 	gapout.close();
-   
-	//gapmoy_/=(double) (Ngap);
-   
-	//gapmoy_/= sys_->spl()->rmin();
-     
-    
-	//cout<<"	Gap : ngap1 "<<ngap1_->id()<<" "<<ngap2_->id()<<endl;
-	   
-	//ofstream monitoring("Analyse/monitoring.txt",ios::app);
-	//monitoring<<time<<" "<<epsp<<" "<<epsxy<<" "<<gaprmin<<" "<<gaprmax<<" "<<gapmoy_<<endl;
-	//monitoring.close();
-    
-
 }
 
 
 void shearP_CD_A::def()
 {
-	if(sys_->nwk()->linter().empty()) return;
-	
-	if ( fabs(partref->x() - X0)>.8* sys_->spl()->boundWidth()) 
-	{
-		X00-=sys_->spl()->boundWidth();
-		X0-=sys_->spl()->boundWidth();
-	}
-	
-	//if ( (partref->x() - X0)/sys_->spl()->boundWidth() 
-	
-	//defXY=log(1.+(partref->x()-X0)/X0);
-	//double defv=log( 1. + (totalProbe_.area()-volinit)/volinit );
+    if(sys_->nwk()->linter().empty()) return;
+    
+    if ( fabs(partref->x() - X0)>.5* sys_->spl()->boundWidth())
+    {
+        cout<<"*****"<<endl;
+        cout<<".Period completed."<<endl;
+        cout<<"*****"<<endl;
+        X00+=sys_->spl()->boundWidth();
+    }
+    
+    //On calcule la déformation totale a partir d'une reférence initiale: epsxy
+    //Volume variation
+    dvov_=(totalProbe_.area()-Vinit_)/Vinit_;
 
-	/*if( partref != NULL) 
-	{
-		cout<<" prx = "<<partref->x()<<" pry = "<<partref->y()<<endl;
-		cout<<" x0 = "<<X0<<" y0 = "<<Y0<<endl;
-		cout<<" x00 = "<<X00<<" y00 = "<<Y00<<endl;
-	}
-	*/
-	
-	
-	//Volume variation
-	dvov_=(totalProbe_.area()-Vinit_)/Vinit_;
-	
-	//Strain Tensor
-	double defx = ( partref->x() - X00)/sys_->spl()->boundWidth();
-	strain.xx() += 0.;//( partref->x() - X0)/w0;//(partref->x()-X00);
-	strain.xy() += ( partref->x() - X0)/(partref->y()-Y00);
-	strain.yx() += 0.;//( partref->y() - Y0)/(w0);
-	strain.yy() += ( partref->y() - Y0)/(partref->y()-Y00);
-
-	X0=partref->x();
-	Y0=partref->y();
-
-	strain.eigenValues();
-	
-	cout<<" strain dpm = "<<strain.majorDirection()<<endl;
-	//strain.print();
-
-	epsp=strain.l1()+strain.l2();
-	epsq=max(strain.l1(),strain.l2())-min(strain.l1(),strain.l2());
-	epsxy=strain.xy();
-	cout<<" epsp = "<<epsp<<" epsq = "<<epsq<<" espxy = "<<epsxy<<endl;
-
-	ofstream str("Analyse/strain.txt",ios::app);
-	str<<time<<" "<<strain.xy()<<" "<<strain.yy()<<" "<<max(strain.l1(),strain.l2())<<
-		" "<<min(strain.l1(),strain.l2())<<" "<<
-		epsp<<" "<<epsq<<" "<<asin(epsp/epsq)<<" "<<defx<<" "<<dvov_<<endl;
-	str.close();
-	
-	
-
+    
+    //Strain Tensor : en petite déformation, calcul par incrément (faux)
+    
+    double defx = ( partref->x() - X0)/sys_->spl()->boundWidth();
+    strain.xx() += defx ;//0.;//( partref->x() - X0)/w0;//(partref->x()-X00); A test
+    strain.xy() += ( partref->x() - X0)/(partref->y()-Y00);
+    strain.yx() += 0.;//( partref->y() - Y0)/(w0);
+    strain.yy() += ( partref->y() - Y0)/(partref->y()-Y00);
+    
+    ofstream str("Analyse/strain.txt",ios::app);
+    
+    X0=partref->x();
+    Y0=partref->y();
+    
+    strain.eigenValues();
+    
+    epsp=strain.l1()+strain.l2();
+    epsq=max(strain.l1(),strain.l2())-min(strain.l1(),strain.l2());
+    epsxy=-(partref->x() - X00)/(partref->y()-Y00);
+    cout<<" epsp = "<<epsp<<" epsq = "<<epsq<<" espxy = "<<epsxy<<endl;
+    
+    str<<time<<" "<<epsxy<<" "<<epsp<<" "<<epsq<<" "<<endl;
+    
+    str.close();
+    
 }
+
 
 void shearP_CD_A::SF()
 {
@@ -966,8 +797,11 @@ void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 {
 	unsigned int Nprobe = Nprb_;//floor( .5*( totalProbe_.h2() - totalProbe_.h1() ) / sys_->spl()->rmax() );
 	double ampProbe=( totalProbe_.h2() - totalProbe_.h1() ) / (double) (Nprobe);
-	cout<<"Profile = "<<Nprobe<<flush;
-
+    
+	cout<<".Profile number of probes = "<<Nprobe<<endl;
+    cout<<".Profile amplitude of probes/<d> = "<< ampProbe/(2. * sys_->spl()->rmoy())<<endl;
+    
+	
 	vector < heightProbe *> lprobe(Nprobe);
 
 
@@ -979,6 +813,7 @@ void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 
 	if(Solfrac)
 	{
+        cout<<".Solid fraction Profile "<<flush;
 		vector <double> SF(Nprobe,0.);
 
 		for ( unsigned int i=0;i<Nprobe;++i)
@@ -997,7 +832,7 @@ void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 
 	if( Speed)
 	{
-		cout<<" Speed "<<flush;
+		cout<<".Speed Profile "<<flush;
 		vector <double> XS(Nprobe,0.);
 		vector <double> YS(Nprobe,0.);
 	//cout<<" taille lpr "<<lprobe.size()<<" taille XS "<<XS.size()<<endl;
@@ -1023,8 +858,6 @@ void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 		Sinst.close();
 
 	}
-	cout<<"	OK "<<endl;
-
 }
 
 
@@ -1550,6 +1383,8 @@ void shearP_CD_A::forces_AC(int Nbin ,bool plot)
 	delete L;
 
 }
+
+//Rajouter calcul tenseur de contraintes avec les composantes propres de l'écoulement (xy,yy)
 void shearP_CD_A::globalStress()
 {
 	cout<<"	Globalstress : ";
@@ -1567,7 +1402,7 @@ void shearP_CD_A::globalStress()
 		qop_ = q_/pressure_;
 		pressure_defined=true;
 		ds_=S->majorDirection();
-		cout<<" direction "<<ds_/M_PI*180.<<" q/p = "<<qop_;
+		cout<<" direction = "<<ds_/M_PI*180.<<" q/p = "<<qop_;
 		ofstream GS_out("Analyse/stress.txt",ios::app);
 		GS_out<<time<<" "<<max(s1,s2)<<" "<<min(s1,s2)<<" "<<pressure_<<" "<<q_<<" "<<qop_<<" "<<ds_<<endl;
 		GS_out.close();
@@ -2252,8 +2087,6 @@ unsigned int shearP_CD_A::granuloStress(unsigned int Nbinstress )
 		QP.clear();
 	}
 
-
-	cout<<" OK"<<endl;
 	return 1;
 }
 
@@ -2431,27 +2264,7 @@ unsigned int shearP_CD_A::granuloStress2(unsigned int Nc ,unsigned int period, u
 		gran<<rglob.set(i)<<" "<<granulo.set(i)<<endl;
 	}
 	gran.close();
-//	gc.write("gc.txt");
-	/*ofstream output ( "stressgranulomoy.txt" , ios::out | ios::trunc);
-	if ( ! output ) cout<<"erreur creation de stressgranulomoy"<<endl;
 
-	else
-	{
-		output.setf( ios::scientific);
-		for (unsigned int i=0;i<Nbinstress;++i)
-		{
-
-		}
-	}
-	output.close();
-
-	for( unsigned int i=0;i<Nbinstress;++i)
-	{
-
-	}
-*/
-
-	cout<<" OK"<<endl;
 	return 1;
 }
 
@@ -2798,668 +2611,6 @@ int shearP_CD_A::pdflength(int nbin,bool normalize, unsigned int period, unsigne
 	return 1;
 }
 
-int shearP_CD_A::granulopdf(unsigned int Nq,bool fn,int nbin,bool normalize, unsigned int period, unsigned int width) // A coupler avec la classe SET
-{
-	//cout<<" debut pdf"<<endl;
-
-	cout<<"	granuloPDF  : WARNING --- pdffn must be well parametrized and called "<<endl ;
-	//determination des dx
-	//number of mass quartiles Nq
-	double ampdx=1./(double) (Nq);
-	unsigned int N=1; 
-	pointSet df,dm;
-	double ftemp;
-	double r;
-
-	for( unsigned int i=0; i < sys_->spl()->lbody().size();++i)
-	{
-		if(totalProbe_.containCenter(sys_->spl()->body(i))  )
-		{	
-			r= sys_->spl()->body(i)->sizeVerlet();
-			dm.add( r, r*r);
-		}
-	}
-
-	dm.increasingXSort();
-	dm.yCumul();
-	dm.yNormalise(dm.ysum());
-
-	for( unsigned int i=0; i < sys_->nwk()->linter().size();++i)
-	{
-		if( fn ) ftemp=sys_->nwk()->inter(i)->fn();
-		else     ftemp=sys_->nwk()->inter(i)->ft();
-
-		if(ftemp!=0.)
-		{
-			if( totalProbe_.containCenter(sys_->nwk()->inter(i)->first()) )
-				df.add( sys_->nwk()->inter(i)->first()->sizeVerlet(), ftemp);
-
-			if( totalProbe_.containCenter(sys_->nwk()->inter(i)->second()) )
-				df.add( sys_->nwk()->inter(i)->second()->sizeVerlet(), ftemp);
-		}		
-	}
-
-
-	df.increasingXSort();
-
-	DataSet f;
-	unsigned int i=0,j=0;
-	double dlim=0;
-
-	char dir[50],fichier[50];
-	sprintf(dir,"./granuloPDF");		
-	mkdir (dir, S_IRUSR | S_IWUSR | S_IXUSR |
-		S_IRGRP |           S_IXGRP |
-		S_IROTH |           S_IXOTH  );
-
-	while ( N <= Nq)
-	{
-		while ( dm.py(i)< N*ampdx)
-		{
-			++i;
-		}
-		dlim=dm.px(i);
-
-
-		f.setClear(); 
-		while( df.px(j)<= dlim && j<df.psetSize())
-		{
-			f.add( df.py(j));
-			++j;
-		}
-		//cout<<" N= "<<N<<" dlim = "<<dlim<<" dm.py(i) = "<<dm.py(i)<<" Nev= "<<f.setSize()<<endl;
-
-		if (f.setSize() ==0)
-			{cout<<" no forces "<<endl; return 0;}
-		f.extractValues();
-
-		if( normalize ) 
-			f.Normalize( f.mean() );
-
-
-		if( fn )
-			sprintf(fichier,"%s/pdffn%d.txt",dir,N);
-
-		else
-			sprintf(fichier,"%s/pdfft%d.txt",dir,N);
-
-		
-
-		pointSet pdf = f.Rich_PDF(nbin);
-		pdf.write(fichier);
-		
-		
-		if( fn )
-			sprintf(fichier,"%s/pdffn_mob%d.txt",dir,N);
-
-		else
-			sprintf(fichier,"%s/pdfft_mob%d.txt",dir,N);
-
-		pointSet pdfm = pdf.mobileMean(period, width);
-		pdfm.write(fichier);
-
-		++N;
-	}
-	cout<<"	OK "<<endl;	
-
-	return 1;
-}
-
-void shearP_CD_A::forcesCorrelation(unsigned int Nbincor )
-{
-	if ( sys_->nwk()->clist().empty()) return ;
-	cout<<"	forcesCorrelations  : "<<endl ;
-	DataSet f1,d1,d2;
-	double fn,ft,r1,r2;
-	unsigned int id1,id2,Nbin=100;
-	unsigned int Nb= sys_->spl()->lbody().size();
-
-	sys_->spl()->radiusExtrema(0);
-	double rmin=sys_->spl()->rmin();
-	double rmax=sys_->spl()->rmax();
-
-	vector<double> fnmax(Nb,0.);
-	vector<double> fnmin(Nb,10000.);
-	vector<double> ftot(Nb,0.);//Force totale apps a chaque particules
-	vector<double> ftotS(Nb,0.);//somme Force forte 
-	vector<double> ftotW(Nb,0.);//somme force faible
-	vector< unsigned int > NC(Nb,0);//Nombre de contact par particule
-	vector< bool > activate(Nb,false);
-
-	pointSet fsum,fdiff,fdtot,fmaxd;
-	inter2d * inter;
-	DataSet l,ld,fl,fr,r,rt,lt,flt,frt,R2,R1,fsl,fwl,sl,wl;
-	DataSet ltemp,ftemp;
-	pointSet fnl,fnoll,R;
-	
-	vector<DataSet > fnrteta(Nbincor);
-	vector<DataSet > fnlteta(Nbincor);
-	vector<DataSet > nlteta(Nbincor);
-	vector<DataSet > nrteta(Nbincor);
-	
-	vector<DataSet > ftrteta(Nbincor);
-	vector<DataSet > ftlteta(Nbincor);
-	vector<DataSet > tlteta(Nbincor);
-	vector<DataSet > trteta(Nbincor);
-	
-	double theta,amp=M_PI/(double) (Nbincor);
-	unsigned int rang;
-	
-	
-	for( unsigned int i=0;i< sys_->nwk()->clist().size();++i)
-	{
-		inter=sys_->nwk()->inter(sys_->nwk()->clist(i));
-		if( inter->fn() != 0.) 
-		{
-			id1=inter->first()->id();
-			id2=inter->second()->id();
-			r1= inter->first()->sizeVerlet();
-			r2= inter->second()->sizeVerlet();
-			
-			fn= inter->fn();
-			ft= fabs(inter->ft());
-						
-			fnmax[id1]= max( fnmax[id1],fn);
-			fnmax[id2]= max( fnmax[id2],fn);
-			fnmin[id1]= min( fnmin[id1],fn);
-			fnmin[id2]= min( fnmin[id2],fn);
-			ftot[id1]+= fn;
-			ftot[id2]+= fn;
-			NC[id1]+=1;
-			NC[id2]+=1;
-			activate[id1]=true;
-			activate[id2]=true;
-
-			fsum .add( r1+r2 , fn);
-			fdiff.add( max(r1,r2)-min(r1,r2),fn);
-			
-			ld.add( max(r1,r2) - min(r1,r2));
-			l.add( r1+r2);
-			
-			
-			fl.add( fn);
-			if(fn> fnmoy_)
-			{
-				fsl.add(fn);
-				sl.add(r1+r2);
-			}
-			else 
-			{
-				fwl.add(fn);
-				wl.add(r1+r2);
-			}			
-			
-			
-			fnl.add(r1+r2,fn);
-			
-			fnoll.add(r1+r2,fn/(r1+r2));// l,fn/l
-			if (r1+r2<lmoy_)
-			{
-				ltemp.add(r1+r2);
-				ftemp.add(fn);
-			}
-			
-			R1.add(r1);
-			R2.add(r2);
-			R.add(r1,r2);
-			r.add(r1);
-			fr.add(fn);
-			r.add(r2);
-			fr.add(fn);
-			//correlations angulaires
-			theta=acos( inter->nx());
-			if(inter->ny()< 0.) theta = M_PI - theta;
-			rang=(unsigned int) floor( theta/amp );
-			if(rang==Nbincor) rang--;
-			//cout<<rang<<" "<<amp/M_PI*180<<" "<<theta/M_PI*180<<endl;
-			
-			fnrteta[rang].add(fn);
-			fnrteta[rang].add(fn);
-			nrteta[rang].add(r1);
-			nrteta[rang].add(r2);
-			
-			fnlteta[rang].add(fn);			
-			nlteta[rang].add(r1+r2);
-			
-
-			if (ft!=0.)
-			{
-				//cout<<"ft non nul"<<endl;
-				lt.add(r1+r2);
-				flt.add( ft );
-				rt.add( r1 );
-				rt.add( r2 );
-				frt.add( ft );
-				frt.add( ft );
-				
-				ftrteta[rang].add(ft);
-				ftrteta[rang].add(ft);
-				trteta[rang].add(r1);
-				trteta[rang].add(r2);
-
-				ftlteta[rang].add(ft);			
-				tlteta[rang].add(r1+r2);
-			}
-
-		}
-	}
-	
-	//faire correlation entre f l en fonction de theta
-	double lcl = l.linearCorrelation( & fl);
-	double lcr = r.linearCorrelation( & fr);
-	double lcld= ld.linearCorrelation( & fl);
-	
-	double lclt = lt.linearCorrelation( & flt);
-	double lcrt = rt.linearCorrelation( & frt);
-	
-	double lcRR = R1.linearCorrelation(& R2);
-	//double lcfltemp=ltemp.linearCorrelation( &ftemp);
-	//double lcldt= ld.linearCorrelation( & fl);
-	
-	double lclfs = sl.linearCorrelation( & fsl);
-	double lclfw = wl.linearCorrelation( & fwl);
-	
-	
-	
-	fsum.extractValues();
-	fnmoy_=fsum.ymean();
-	
-	ofstream lc("Analyse/linearCor.txt",ios::app);
-	lc<<time<<" "<<epsxy<<" "<<r.mean() <<" "<<l.mean()<<" "<<lcr<<" "<<lcl<<" "<<lcld<<" "<<lclt<<" "<<lcrt<<" "<<lcRR<<" "<<lclfs<<" "<<lclfw<<endl;
-	
-	fnl.decreasingXSort();
-	fnl.xNormalise(sys_->spl()->rmax());
-	fnl.yNormalise(fnmoy_);
-
-	fnl.write("Analyse/forceCorr/fnlbrut.txt");
-	R.write("Analyse/forceCorr/r1r2_brut.txt");
-
-	pointSet histfnl=(fnl.histoBinVar(Nbincor)).mobileMean(1,3);
-	histfnl.write("Analyse/forceCorr/fnl_rmax.txt");
-		
-	
-	fnoll.decreasingXSort();
-	fnoll.write("Analyse/forceCorr/fnollbrut.txt");
-	fnoll.xNormalise(sys_->spl()->rmax());
-	//fnoll.yNormalise(fnmoy_);
-	
-	((fnl.histoBinVar(Nbincor)).mobileMean(1,3)).write("Analyse/forceCorr/fnoll_rmax.txt");
-	
-	
-	ld.setClear();
-	r.setClear();
-	fr.setClear();
-	fl.setClear();
-	flt.setClear();
-	rt.setClear();
-	frt.setClear();
-	//rajouter la supp
-	cout<<"ecriture"<<endl;
-	vector< double > corfnl(Nbincor,0);
-	vector< double > corfnr(Nbincor,0);
-	vector< double > corftl(Nbincor,0);
-	vector< double > corftr(Nbincor,0);
-	
-	ofstream lcangle("Analyse/forceCorr/lcnorm.txt",ios::out);
-	for(unsigned int i=0;i<Nbincor;++i)
-	{
-		corfnl[i]=nlteta[i].linearCorrelation( &fnlteta[i]);
-		corfnr[i]=nrteta[i].linearCorrelation( &fnrteta[i]);
-		
-		lcangle<<(i+.5)*amp<<" "<<corfnl[i]<<" "<<lcl<<" "<<corfnr[i]<<" "<<lcr<<endl;
-
-	}
-	
-	if(lt.setSize()!=0)
-	{
-	
-	ofstream lcangle("Analyse/forceCorr/lctan.txt",ios::out);	
-		for(unsigned int i=0;i<Nbincor;++i)
-		{
-			corftl[i]=tlteta[i].linearCorrelation( &ftlteta[i]);
-			corftr[i]=trteta[i].linearCorrelation( &ftrteta[i]);
-			lcangle<<(i+.5)*amp<<" "<<corftl[i]<<" "<<lclt<<" "<<corftr[i]<<" "<<lclt<<endl;
-			
-		}
-	}
-
-	l.setClear();
-	lt.setClear();
-
-	for (unsigned int i=0;i<Nb;++i)
-	{
-		if( activate[i] && ftot[i]!=0.)
-		{
-			fdtot.add( sys_->spl()->body(i)->sizeVerlet(), ftot[i]/(double) (NC[i]) );//Force moyenne en fonction de la taille
-		}
-	}
-
-	fdtot.extractValues();
-	sumforce_defined=true;
-
-	if( sumforce_defined)
-	{
-		FSGTM_.clear();
-		for (unsigned int i=0;i<Nb;++i)
-		{
-			if( ftot[i]> fdtot.ymean())
-				FSGTM_.push_back(true);
-			else 
-				FSGTM_.push_back(false);
-		}
-	}
-
-	fsum. decreasingXSort();
-	fdiff.decreasingXSort();
-	fdtot.decreasingXSort();
-
-	
-	cout<<" fnmoy= "<<fnmoy_<<endl;
-
-//	pointSet diff= fdiff.histoBinVar(40);
-	pointSet diff= fdiff.slidingHisto(50,.05);
-	diff.write("Analyse/forceCorr/lddiff.txt");
-
-//	pointSet sum = fsum.histoBinVar(200,.05);
-	pointSet sum = fsum.slidingHisto(50,.05);
-	sum.yNormalise( fsum.ymean() );
-	sum.xNormalise( fdtot.xmean());
-	sum.write("Analyse/forceCorr/ldsumm.txt");
-
-
-	//fdtot.yNormalise( fdtot.ymean());
-//  pointSet htot= fdtot.histoBinVar(Nbin,.05);
-	pointSet htot= fdtot.slidingHisto(Nbin,.05);
-//	pointSet  mean= htot.mobileMean(1,3);
-	htot.write("Analyse/forceCorr/ftotdSW.txt");
-
-//	htot.yNormalise( fdtot.ymean());
-//	htot.write("forceCorr/ftotdSW_yNorm.txt");
-
-	htot.xoffSet(-rmin);
-	htot.xNormalise( rmax-rmin);
-	htot.yNormalise( fdtot.ymean() );
-	htot.write("Analyse/forceCorr/ftotdSW_xyadim.txt");
-
-	//Somme des forces faibles et fortes
-	// decomposition additive
-	vector< unsigned int > NCS(Nb,0);
-	vector< unsigned int > NCW(Nb,0);
-
-	for( unsigned int i=0;i< sys_->nwk()->clist().size();++i)
-	{
-		inter=sys_->nwk()->inter(sys_->nwk()->clist(i));
-		if( inter->fn() != 0.) 
-		{
-			id1=inter->first()->id();
-			id2=inter->second()->id();
-			fn= inter->fn();
-
-			if( fn >= fnmoy_)
-			{
-				ftotS[id1]+= fn;
-				ftotS[id2]+= fn;
-				NCS[id1]+=1;
-				NCS[id2]+=1;
-			}
-			else
-			{
-				ftotW[id1]+= fn;
-				ftotW[id2]+= fn;
-				NCW[id1]+=1;
-				NCW[id2]+=1;
-			}
-		}
-	}
-
-/*	ofstream out("inert.txt",ios::out);
-	for (unsigned int i=0;i<Nb;++i)
-	{
-		double v= sqrt(sys_->spl()->body(i)->vx()*sys_->spl()->body(i)->vx()+
-			sys_->spl()->body(i)->vy()*sys_->spl()->body(i)->vy());
-		double f= sqrt(sys_->spl()->body(i)->fx()*sys_->spl()->body(i)->fx()+
-			sys_->spl()->body(i)->fy()*sys_->spl()->body(i)->fy());
-		out<<i<<" "<<sys_->spl()->body(i)->sizeVerlet()<<" "<<sys_->spl()->body(i)->mass()*v<<" "<<f<<endl;
-	}*/
-
-	pointSet fdtotS,fdtotW,fs,fw;
-	for (unsigned int i=0;i<Nb;++i)
-	{
-		if( activate[i] )
-		{
-			fdtotS.add( sys_->spl()->body(i)->sizeVerlet(), ftotS[i]/(double) (NC[i]) );//Force partie forte de la force moyenne en fonction de la taille
-			fdtotW.add( sys_->spl()->body(i)->sizeVerlet(), ftotW[i]/(double) (NC[i]) );//Force partie faible de la force moyenne en fonction de la taille
-
-			if( NCS[i]!=0) fs.add( sys_->spl()->body(i)->sizeVerlet(), ftotS[i]/(double) (NCS[i]));//Force forte moyenne en fonction de la taille
-			if( NCW[i]!=0) fw.add( sys_->spl()->body(i)->sizeVerlet(), ftotW[i]/(double) (NCW[i]));//Force faible moyenne en fonction de la taille
-			//cout<<NCS[i]<<" "<<NCW[i]<<" "<<NC[i]<<endl;
-		}
-		//cout<<ftot[i]<<" "<<ftotS[i]+ftotW[i]<<endl;
-	}
-
-	fdtotS.extractValues();
-	fdtotW.extractValues();
-
-	fs.extractValues();
-	fw.extractValues();
-
-	fdtotS.decreasingXSort();
-	fdtotW.decreasingXSort();
-
-//	pointSet S= fdtotS.histoBinVar(Nbin,.05);
-	pointSet S= fdtotS.slidingHisto(Nbin,.05);
-	//pointSet Smean=S.mobileMean(1,3);
-	//S->yNormalise( fdtotS.ymean());
-	//S->write("ftotdS.txt");
-	S.write("Analyse/forceCorr/ftotdS.txt");
-
-//	pointSet W= fdtotW.histoBinVar(Nbin,.05);
-	pointSet W= fdtotW.slidingHisto(Nbin,.05);
-	//pointSet Wmean=W.mobileMean(1,3);
-	//W->yNormalise( fdtotW.ymean());
-	//W->write("ftotdW.txt");
-	W.write("Analyse/forceCorr/ftotdW.txt");
-
-	S.yNormalise( fdtot.ymean());
-	S.xoffSet(-rmin);
-	S.xNormalise( rmax-rmin);
-	S.write("Analyse/forceCorr/ftotdS_xyadim.txt");
-	if( exportDistribution ) 
-	{
-		fdtotW.xoffSet(-rmin);
-		fdtotW.xNormalise( rmax-rmin);
-		fdtotW.write("Analyse/forceCorr/ftotdW_brut.txt");
-	}
-
-	W.yNormalise( fdtot.ymean());
-	W.xoffSet(-rmin);
-	W.xNormalise( rmax-rmin);
-	W.write("Analyse/forceCorr/ftotdW_xyadim.txt");
-	if( exportDistribution ) 
-	{
-		fdtotS.xoffSet(-rmin);
-		fdtotS.xNormalise( rmax-rmin);
-		fdtotS.write("Analyse/forceCorr/ftotdS_brut.txt");
-	}
-
-	pointSet st=fs.slidingHisto(Nbin,.05);
-	pointSet we=fw.slidingHisto(Nbin,.05);
-
-	st.yNormalise( fs.ymean());
-	st.xoffSet(-rmin);
-	st.xNormalise( rmax-rmin);
-	st.write("Analyse/forceCorr/fs_adim.txt");
-
-	we.yNormalise( fw.ymean());
-	we.xoffSet(-rmin);
-	we.xNormalise( rmax-rmin);
-	we.write("Analyse/forceCorr/fw_adim.txt");
-
-	//double f1d1=f1.linearCorrelation(& d1);
-	//double f1d2=f1.linearCorrelation(& d2);
-	
-	//correlations
-
-		//pointSet fmind(0);
-/*	ofstream out("FC2.txt", ios::out);
-	for( unsigned int i=0;i< Nb;++i)
-		{	//if (i<50) cout<<i<<" "<<fnmax[i]<<" "<<fnmin[i]<<endl;
-	fmaxd.add(0.,0.);
-	if( fnmax[i]!=0.)
-	{
-
-		fmaxd.add( sys_->spl()->body(i)->sizeVerlet(),fnmax[i] );
-		out<<sys_->spl()->body(i)->sizeVerlet()<<" "<<fnmax[i]<<" "<<fnmin[i]<<endl;
-
-	}
-
-	if( fnmin[i]!=10000.)
-	{
-			//	cout<<"min non nul"<<endl;
-			//fmind.add( sys_->spl()->body(i)->sizeVerlet(),fnmin[i] );
-	}
-
-}
-out.close();*/
-	pointSet hist= fmaxd.histoBin( 20);
-		//fmind.histoBin( 20);
-hist.write("Analyse/forceCorr/FCmean.txt");
-
-return ;
-	//cout<<" r1= "<<f1d1<<" r2= "<<f1d2<<endl;
-}
-
-
-void shearP_CD_A::rfd( unsigned int Npoint, unsigned int Nrmean)
-{
-	//double rmax = sys_->spl()->rmax();
-	double rmean = sys_->spl()->rmoy();
-	double P  = sys_->spl()->boundWidth();
-	double ll= sys_->spl()->xmin() ;
-	double rl= sys_->spl()->xmax() ;
-	double band = Nrmean*rmean*1.1;
-
-	unsigned int Nbod=0;
-	cout<<"rmean " <<rmean<<" P/rmean = "<<.5* P/rmean<<endl;
-	cout<<" ll "<<ll<<" "<<rl<<" "<<endl;
-	heightProbe lim(totalProbe_.h1() + band, totalProbe_.h2() - band ,P);
-
-	vector <body2d*> inlimit;
-	vector <body2d*> inlimitP;
-
-
-	for (unsigned int i=0; i<sys_->spl()->lbody().size();++i)
-	{
-		if ( lim.containCenter( sys_->spl()->body(i) ) )
-		{ 
-			inlimit.push_back(sys_->spl()->body(i));
-			++Nbod;
-		}
-	}
-
-	for (unsigned int i=0; i<sys_->spl()->lbody().size();++i)
-	{
-
-		if( sys_->spl()->body(i)->x() < ll + band )
-		{
-			inlimitP.push_back(sys_->spl()->body(i)->duplicate());
-			inlimitP.back()->x()+=P;
-			//cout<<" per G ";
-		}
-
-		if( sys_->spl()->body(i)->x() > rl - band)
-		{
-			inlimitP.push_back(sys_->spl()->body(i)->duplicate());
-			inlimitP.back()->x()-=P;
-			//cout<<" per D ";
-		}
-			//cout<<endl;
-	}
-	//Nbod=inlimit.size();
-	double dx,dy,d;
-	unsigned int rang;
-
-	double amp=Nrmean*rmean/(double) Npoint;
-	//double amp=.1*rmean;
-	vector<unsigned int > N(Npoint,0); 
-	cout<<" NBOD = "<<Nbod<<endl;
-
-	for( unsigned int i=0 ; i< Nbod ;++i)
-	{
-		double xi= inlimit[i]->x();
-		double yi= inlimit[i]->y();
-		unsigned int idi = inlimit[i]->id();
-		//cout<<idi<<endl;
-		for( unsigned int j = 0 ; j< sys_->spl()->lbody().size() ;++j)
-		{	
-			if( idi==j) 
-			{
-				continue;
-			}
-			dx= xi - sys_->spl()->body(j)->x();
-			dy= yi - sys_->spl()->body(j)->y();
-			d=sqrt(dx*dx+dy*dy);
-
-			rang=(unsigned int) floor( d/amp );
-
-			//cout<<"j "<<j<<" d "<<d<<" rg "<<rang<<endl;
-			if( rang > Npoint)
-			{
-				//cout<<"rang " <<rang<<endl;
-				continue;
-			}	
-			else
-			{
-
-				N[rang]++;
-			}
-		}
-	//	cout<<"fin norm"<<endl;
-
-		for( unsigned int j = 0 ; j< inlimitP.size();++j)
-		{
-			if( idi == inlimitP[j]->id()) continue;
-			//cout<<inlimitP[j]->id()<<endl;
-			dx=xi - inlimitP[j]->x();
-			dy=yi - inlimitP[j]->y();
-			d=sqrt(dx*dx+dy*dy);
-
-			rang=(unsigned int) floor( d/amp );
-			if( rang > Npoint)
-			{
-				//cout<<"rang " <<rang<<endl;
-				continue;
-			}	
-			else
-			{
-				N[rang]++;
-			}
-		}
-	}
-
-	double meandensity= (double) (Nbod)/lim.area();
-	vector<double> density(Npoint);
-	double r;
-	density[0]= N[0]/Nbod/( M_PI*amp*amp);
-	for( unsigned int i=1;i<Npoint;++i)
-	{	
-		r=(i+1.)*amp;
-		density[i] = (double) (N[i])/(double)( Nbod);
-		density[i]/=( M_PI*(2.*r*amp+ amp*amp ));
-
-	//	cout<<r/rmean<<" "<<N[i]<<" "<<density[i]<<" "<<meandensity<<endl;
-	}
-
-	ofstream rfd("rfd.txt",ios::out);
-	for( unsigned int i=0;i<Npoint;++i)
-	{	
-		r=(i+1)*amp;
-		rfd<<.5*r/rmean<<" "<<density[i]/meandensity<<endl;
-	}
-
-
-}
-
 
 void shearP_CD_A::removeBody(body2d * rm)
 {
@@ -3556,7 +2707,7 @@ void shearP_CD_A::removeBody(body2d * rm)
 
 void shearP_CD_A::writePS( const char * fname)
 {
-	cout<<" WARNING : writePS running only with disk shaped body"<<endl;
+	//cout<<" WARNING : writePS running only with disk shaped body"<<endl;
 	ofstream ps(fname);
 	
 	//cout << endl << "---\t " << sys_->spl()->xmin() << " " << sys_->spl()->xmax() << " " << sys_->spl()->boundWidth() << endl << endl; 
@@ -3843,4 +2994,20 @@ void shearP_CD_A::writePS( const char * fname)
 }
 
 
+void shearP_CD_A::followparticles()
+{
 
+    cout<<".Followparticles"<<endl;
+    
+    unsigned int idref = 60 ;
+    
+    ofstream follow_("Analyse/particules.txt",ios::app);
+	
+	follow_.precision(10);
+    
+    for (unsigned int i=0; i<sys_->spl()->lbody().size();++i)
+	{
+        if(sys_->spl()->body(i)->id()==idref) follow_<< sys_->spl()->body(i)->sizeVerlet()<<" "<< sys_->spl()->body(i)->vx()<< " "<< sys_->spl()->body(i)->vy()<<endl;
+        
+    }
+}
