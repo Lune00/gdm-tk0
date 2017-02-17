@@ -328,8 +328,7 @@ void shearP_CD_A::read_parameters(istream & is)
 void shearP_CD_A::initAnalyse( ) 
 {
     
-    cout<<"VERSION ZERO !!!! "<< endl;
-	cout<<"--------------shearP_CD_A::init()-----------"<<endl;
+	cout<<"-----oooo---shearP_CD_A::init()----oooo----"<<endl;
 
 	//Particule de reference pour le calcul des deformations
 	partref=sys_->ldof(1)->leftBody();
@@ -790,7 +789,7 @@ void shearP_CD_A::def()
 void shearP_CD_A::SF()
 {
 	sf()=solidFraction(totalProbe_,*sys_->spl(), *sys_->nwk());
-	cout<<"	SF : "<<sf()<<endl;
+	cout<<".Solid Fraction = "<<sf()<<endl;
 }
 
 void shearP_CD_A::profiles(bool Speed, bool Solfrac)

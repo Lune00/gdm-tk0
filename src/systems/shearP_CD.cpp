@@ -206,9 +206,9 @@ void shearP_CD::init()
     
 	cout<<scientific<<".Speed of topPlate : "<<topXvalue_<<endl;
         
-        cout<<scientific<<".Mass of topPlate : "<<Mparoi<<endl;
+    cout<<scientific<<".Mass of topPlate : "<<Mparoi<<endl;
 		
-	cout<<".Nombre de pas pour l'essais pour 50% de Xdef = "<<spl_->boundWidth()*.5/topXvalue_<<endl;
+	cout<<".Nombre de pas (pas de temps 0.0001) pour l'essais pour 100% de Xdef = "<<spl_->boundWidth()/(topXvalue_*0.0001)<<endl;
 		
 }
 
