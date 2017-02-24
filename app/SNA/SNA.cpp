@@ -21,7 +21,7 @@ int main (int argc, char * argv[])
 	
 	if ( argv[1]!=0)
 	{
-		
+	cout<<"Premiere option"<<endl;	
 		Simulation * mySimu= new Simulation();
 		mySimu->read_data(argv[1]);
 		
@@ -104,9 +104,46 @@ int main (int argc, char * argv[])
 		cout<<"Nom du dossier principal a creer : "<<princDir<<endl;
 		sprintf(commande,"mkdir -p %s",princDir);
 		system( commande);
+		cout<<"Nom du fichier temps à charger :"<<fichtemps<<endl;	
+
+		//lecture du fichier time
+		vector <double> t;
+		double temp1,temp2;
+		ifstream time(fichtemps);
+		string line;
+		if(!time.is_open())
+		{
+			cerr << "Fichier de temps manquant  " << time << endl;
+			//return 0;
+		}
+		else
+		{
+			cout<<"Lecture du fichier "<<fichtemps.c_str()<<endl;
+			
+			while(time)
+			{
+				time>> temp1 >>temp2;
+				if(time.eof()) break;
+				t.push_back(temp2);
+			}
+		}
+		time.close();
+		
 		
 		Simulation * mySimu= new Simulation();
-		
+		//On réécrit le fichier temps:
+
+		ofstream timereset(fichtemps);
+		unsigned int indice=0;
+		if(timereset.is_open()){
+			for(std::vector<double>::iterator it = t.begin();it != t.end();++it){
+				timereset<<indice<<" "<<*it<<endl;
+				indice++;
+			}
+		}
+		timereset.close();
+
+
 		//Lecture des parametres syteme dans fichier Sim
 		//Le spl et nwk sont normalement vide... a remplir par la suite
 		mySimu->read_data(fichsim.c_str());
@@ -133,26 +170,6 @@ int main (int argc, char * argv[])
 		}
 		cout<<" --- lecture fichier de commande ok "<<endl;
 		
-		//lecture du fichier time
-		vector <double> t;
-		double temp1,temp2;
-		ifstream time(fichtemps.c_str());
-		if(!time)
-		{
-			cerr << "Fichier de temps manquant  " << time << endl;
-			//return 0;
-		}
-		else
-		{
-			
-			while(time )
-			{
-				time>> temp1 >>temp2;
-				//cout<<temp2<<" ";
-				t.push_back(temp2);
-			}
-		}
-
 		cout<<" --- lecture fichier temps ok "<<endl;
 		
 	//	ofstream analyze("Analyze.txt",ios::out);
