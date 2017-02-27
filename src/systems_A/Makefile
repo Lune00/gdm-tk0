@@ -2,8 +2,7 @@ INC_PATH  = ../include
 LIB_PATH  = ../../lib
 AN_PATH   = ../analyse
 
-CC      = g++
-CFLAGS  = -O3 -Wall -Wno-write-strings -I$(INC_PATH) -g
+include ../../Makefile.in
 
 SRC = system_A.cpp shearP_CD_A.cpp biaxial_A.cpp brazilian_A.cpp
 

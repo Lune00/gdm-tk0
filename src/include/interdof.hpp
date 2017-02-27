@@ -20,7 +20,7 @@ class interdof
 	double vbranchx_;
 	double vbranchy_;
 	double vbranch_;
-	System * sys_;
+//	System * sys_;
   
   public:
   

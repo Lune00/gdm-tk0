@@ -2414,16 +2414,17 @@ int shearP_CD_A::pdfforce(bool fn,int nbin,bool normalize, unsigned int period, 
 {
 	
 	
-	char * fichier,*fichierbrut;
+	char  fichier[100];
+	char  fichierbrut[100];
 	if( fn )
 	{
-		fichier="Analyse/pdf/pdffn.txt";
-		fichierbrut = "Analyse/pdf/fn_brut.txt";
+		sprintf(fichier,"Analyse/pdf/pdffn.txt");
+		sprintf( fichierbrut,"Analyse/pdf/fn_brut.txt");
 	}
 	else
 	{
-		fichier="Analyse/pdf/pdfft.txt";
-		fichierbrut = "Analyse/pdf/ft_brut.txt";
+		sprintf(fichier,"Analyse/pdf/pdfft.txt");
+		sprintf(fichierbrut,"Analyse/pdf/ft_brut.txt");
 	}
 
 	/*ofstream out (fichier,ios::out);
@@ -2472,38 +2473,35 @@ int shearP_CD_A::pdfforce(bool fn,int nbin,bool normalize, unsigned int period, 
 		
 	pointSet pdf0 = f.Rich_PDF( nbin );//nombre de classe 
 	if( fn )
-		fichier="Analyse/pdf/pdffnrich.txt";
+		sprintf(fichier,"Analyse/pdf/pdffnrich.txt");
 	else
-		fichier="Analyse/pdf/pdfftrich.txt";
+		sprintf(fichier,"Analyse/pdf/pdfftrich.txt");
 	pdf0.write(fichier);
 	
 	
 	pointSet pdf = f.kernelPdf( nbin,.05);
 	if( fn )
-		fichier="Analyse/pdf/pdffnker.txt";
+		sprintf(fichier,"Analyse/pdf/pdffnker.txt");
 	else
-		fichier="Analyse/pdf/pdfftker.txt";
+		sprintf(fichier,"Analyse/pdf/pdfftker.txt");
 	pdf.write(fichier);
 	
 	if( fn )
-		fichier="Analyse/pdf/pdffn_kermob.txt";
+		sprintf(fichier,"Analyse/pdf/pdffn_kermob.txt");
 	else
-		fichier="Analyse/pdf/pdfft_kermob.txt";
+		sprintf(fichier,"Analyse/pdf/pdfft_kermob.txt");
 	pointSet pdfm = pdf.mobileMean(period, width);
 	pdfm.write(fichier);
 
 
 	pointSet pdfs = (f.slidingPdf( nbin) ).mobileMean(period,width);
 	if( fn )
-		fichier="Analyse/pdf/pdffnslid.txt";
+		sprintf(fichier,"Analyse/pdf/pdffnslid.txt");
 	else
-		fichier="Analyse/pdf/pdfftslid.txt";
+		sprintf(fichier,"Analyse/pdf/pdfftslid.txt");
 	pdfs.write(fichier);
 
-	
-	
 
-	cout<<"	OK "<<endl;
 	return 1;
 }
 
@@ -2511,7 +2509,7 @@ int shearP_CD_A::pdflength(int nbin,bool normalize, unsigned int period, unsigne
 {
 	cout<<"	PDF L : "<<flush ;
 	
-	char * fichier,*fichierbrut;
+	const char * fichier,*fichierbrut;
 	
 	fichier="Analyse/pdf/pdfL.txt";
 	fichierbrut = "Analyse/pdf/L_brut.txt";

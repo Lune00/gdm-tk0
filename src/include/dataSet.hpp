@@ -33,6 +33,7 @@ public:
 	void add(double);
 	void write(ostream&, unsigned int n);
 	void write(char * );
+	void write(const char *);
 
 	void read(istream&);
 	void addRead(istream&);

@@ -2,9 +2,7 @@ DATA_PACK = analyze
 INC_PATH  = ../include
 LIB_PATH  = ../../lib
 
-
-CC      = g++
-CFLAGS  = -Wall -O3 -I$(INC_PATH) -g
+include ../../Makefile.in
 
 SRC = tensor.cpp stress.cpp\
       pointSet.cpp dataSet.cpp\

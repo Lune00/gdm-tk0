@@ -1,7 +1,7 @@
 #ifndef _pointSet_hpp
 #define _pointSet_hpp
 
-
+#include <string>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -96,7 +96,8 @@ public:
 	//void histoEvents( unsigned int );//Nevents per Bin
 	//Si le y est nul, on calcule le pdf des x;
 	
-	void  write ( char * file);
+	void  write (const char * file);
+	void  write (std::string file);
 
 	dtk::point   pset( unsigned int i )  const { return this->pset_[i];}
 

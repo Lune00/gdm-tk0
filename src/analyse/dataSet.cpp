@@ -1,5 +1,14 @@
 #include "dataSet.hpp"
 
+void DataSet::write(const char * file)
+{
+	ofstream out(file,ios::out);
+	for( unsigned int i=0; i< set_.size();++i)
+	{
+		out<<set_[i]<<endl;
+	}
+	out.close();
+}
 void DataSet::write(char * file)
 {
 	ofstream out(file,ios::out);

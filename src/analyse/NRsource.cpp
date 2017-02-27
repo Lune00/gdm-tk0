@@ -14,7 +14,7 @@
 #define EPS2 3.0e-7 
 #define FPMIN 1.0e-30 
 
-using namespace std;
+//using namespace std;
 double ran1(long *idum)
 {
 	long j;

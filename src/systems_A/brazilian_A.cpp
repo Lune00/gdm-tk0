@@ -2107,18 +2107,19 @@ unsigned int brazilian_A::granuloStress3(unsigned int Nbinstress )
 
 int brazilian_A::pdfforce(bool fn,int nbin,bool normalize, unsigned int period, unsigned int width) // A coupler avec la classe SET
 {
-	char * fichier,*fichierbrut;
+	char fichier[100];
+	char fichierbrut[100];
 	cout<<"	PDF  : " ;
 	
 	if( fn )
 	{
-		fichier="Analyse/pdf/pdffn.txt";
-		fichierbrut = "Analyse/pdf/fn_brut.txt";
+		sprintf(fichier,"Analyse/pdf/pdffn.txt");
+		sprintf(fichierbrut , "Analyse/pdf/fn_brut.txt");
 	}
 	else
 	{
-		fichier="Analyse/pdf/pdfft.txt";
-		fichierbrut = "Analyse/pdf/ft_brut.txt";
+		sprintf(fichier,"Analyse/pdf/pdfft.txt");
+		sprintf(fichierbrut , "Analyse/pdf/ft_brut.txt");
 	}
 	
 	DataSet f;
@@ -2164,9 +2165,9 @@ int brazilian_A::pdfforce(bool fn,int nbin,bool normalize, unsigned int period, 
 	f.DecreasingSort();
 	
 	if(fn)
-		fichier="Analyse/pdf/pdffn.txt";
+		sprintf(fichier,"Analyse/pdf/pdffn.txt");
 	else
-		fichier="Analyse/pdf/pdfft.txt";
+		sprintf(fichier,"Analyse/pdf/pdfft.txt");
 	
 	f.write(fichier);
 	

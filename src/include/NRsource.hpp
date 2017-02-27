@@ -5,9 +5,6 @@
 #include <stdio.h>
 
 
-
-using namespace std;
-
 double ran1(long *);
 double betai(double , double , double );
 double betacf(double, double, double );

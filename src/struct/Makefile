@@ -1,8 +1,7 @@
 INC_PATH  = ../include
 LIB_PATH  = ../../lib
 
-CC      = g++
-CFLAGS  = -O3 -Wall -I$(INC_PATH) -g
+include ../../Makefile.in
 
 SRC = sample.cpp network.cpp \
       simulation.cpp \
