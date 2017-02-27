@@ -101,7 +101,7 @@ int main (int argc, char * argv[])
 		cin>>fichtemps;
 		cin>>princDir;
 		cout<<"Numeros du premier et dernier fichier a traiter :"<<Ndeb<<"-"<<Nfin<<endl;
-		cout<<"Nom du dossier principal a creer : "<<princDir<<endl;
+		cout<<"Nom du dossier principal où stocker les fichiers d'analyse : "<<princDir<<endl;
 		sprintf(commande,"mkdir -p %s",princDir);
 		system( commande);
 		cout<<"Nom du fichier temps à charger :"<<fichtemps<<endl;	
@@ -191,6 +191,7 @@ int main (int argc, char * argv[])
 		//mySimu->load_history(nomFichier );
 		//mySimu->algo()->algoFill();
 		
+//		std::string dirAna(princDir);
 	
 		
 		mySimu->sys()->init();
@@ -209,8 +210,9 @@ int main (int argc, char * argv[])
 			cout<<endl<<endl<<"************ Chargement  :  "<<nomFichier<<endl;
 						
 			mySimu->load_history(nomFichier);
+			cout<<"load_history() done"<<endl;
 			mySimu->algo()->algoFill();
-			
+			cout<<"algoFill() done"<<endl;	
 			mySimu->sysA()->plugRef();
 			mySimu->sysA()->analyse(t[i],1,1);
 			

@@ -322,7 +322,11 @@ void shearP_CD_A::read_parameters(istream & is)
 }
 
 
-
+void shearP_CD_A::setFolder(std::string dir)
+{
+	princDir_=dir;
+	cout<<princDir_<<endl;
+}	
 
 
 void shearP_CD_A::initAnalyse( ) 
@@ -798,7 +802,7 @@ void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 	double ampProbe=( totalProbe_.h2() - totalProbe_.h1() ) / (double) (Nprobe);
     
 	cout<<".Profile number of probes = "<<Nprobe<<endl;
-    cout<<".Profile amplitude of probes/<d> = "<< ampProbe/(2. * sys_->spl()->rmoy())<<endl;
+	cout<<".Profile amplitude of probes/<d> = "<< ampProbe/(2. * sys_->spl()->rmoy())<<endl;
     
 	
 	vector < heightProbe *> lprobe(Nprobe);
@@ -831,7 +835,7 @@ void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 
 	if( Speed)
 	{
-		cout<<".Speed Profile "<<flush;
+		cout<<".Speed Profile "<<endl;
 		vector <double> XS(Nprobe,0.);
 		vector <double> YS(Nprobe,0.);
 	//cout<<" taille lpr "<<lprobe.size()<<" taille XS "<<XS.size()<<endl;
@@ -839,11 +843,11 @@ void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 		speedProfile( lprobe  , XS , YS , *sys_->spl()  );
 
 
-		ofstream Sprofile ( "SProfile.txt" , ios::out|ios::app );
+		ofstream Sprofile ( "Analyse/SProfile.txt" , ios::out|ios::app );
 		if ( ! Sprofile ) cout<<"erreur creation de Sprofile"<<endl;
 
 
-		ofstream Sinst ( "SPinst.txt" , ios::out );
+		ofstream Sinst ( "Analyse/SPinst.txt" , ios::out );
 		if ( ! Sprofile ) cout<<"erreur creation de SPint"<<endl;
 
 

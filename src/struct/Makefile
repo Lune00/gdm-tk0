@@ -2,7 +2,7 @@ INC_PATH  = ../include
 LIB_PATH  = ../../lib
 
 CC      = g++
-CFLAGS  = -O3 -Wall -I$(INC_PATH)
+CFLAGS  = -O3 -Wall -I$(INC_PATH) -g
 
 SRC = sample.cpp network.cpp \
       simulation.cpp \

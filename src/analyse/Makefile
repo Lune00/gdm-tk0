@@ -4,7 +4,7 @@ LIB_PATH  = ../../lib
 
 
 CC      = g++
-CFLAGS  = -Wall -O3 -I$(INC_PATH)
+CFLAGS  = -Wall -O3 -I$(INC_PATH) -g
 
 SRC = tensor.cpp stress.cpp\
       pointSet.cpp dataSet.cpp\

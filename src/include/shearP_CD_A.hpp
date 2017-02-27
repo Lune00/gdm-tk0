@@ -8,7 +8,7 @@
 #include <fstream>
 //#include "dir.h"
 
-
+#include<string>
 #include "shearP_CD.hpp"
 
 #include "connectivity_A.hpp"
@@ -59,7 +59,7 @@ protected:
 	double X00,Y00;
 	double Vinit_,dvov_;
 	
-
+	std::string princDir_;
 	
 	gdm::Tensor2x2  strain;
 	double epsp,epsq;
@@ -142,14 +142,14 @@ protected:
 	
 	
 	///////////
-    bool ContactMesh_;
+	bool ContactMesh_;
 	bool displaySample;
 	bool displayForce;
 	double zoom_;
 
 public:
-	
-    void initAnalyse( );
+	void setFolder(std::string);
+	void initAnalyse( );
 	void analyse(double, unsigned int, unsigned int);
 	void read_parameters(istream &);
 	void plugRef();

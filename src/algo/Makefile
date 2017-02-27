@@ -2,7 +2,7 @@ INC_PATH  = ../include
 LIB_PATH  = ../../lib
 
 CC      = g++
-CFLAGS  = -O3 -Wall -Werror -I$(INC_PATH)
+CFLAGS  = -O3 -Wall -Werror -I$(INC_PATH) -g
 
 SRC = algo.cpp \
       CDalgo.cpp
