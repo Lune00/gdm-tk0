@@ -83,12 +83,11 @@ class shearP_CD : public System
     {
         topPlate_.clear();
         Unit_ = "default";
-		topXmode_ = 1;
-		topYmode_ = 0;
+	topXmode_ = 1;
+	topYmode_ = 0;
         symetrical_=false;
         reverse_ =false;
         bandwidth_=0.;
-  
     }
     
    

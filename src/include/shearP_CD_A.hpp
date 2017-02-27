@@ -160,7 +160,7 @@ public:
 	void allFalse() {calcsf=calcFabric=calcz=calczp=calcfn=calcft=calcSprofile=calcFC=calczg=
 		calcSFprofile=calcglobalstress=calcgranulostress=normpdf=calcforcesA=calcPtheta=calcfracdim=granulo=calcrfd=
 		removeR=growR=calcgranulopdf=pressure_defined=sumforce_defined=removeVisu=exportDistribution=calcl=visu=
-		calcpartialLengthstress=calcpartiaNormalForcestress=displaySample=displayForce=ContactMesh_=false;
+		calcpartialLengthstress=calcinout=calcpartiaNormalForcestress=displaySample=displayForce=ContactMesh_=false;
 		calcgap=calcdef=true;
 	fnmoy_=1.;
 	Nanalyze_ = 0;
