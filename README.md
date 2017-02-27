@@ -1,4 +1,2 @@
 # gdm-tk0
-je suis dans une nouvelle branche
-je suis dans une nouvelle branche
-Cette version du programme doit être stable
+Code compule avec la version du compilateur g++ : 4.2.1
