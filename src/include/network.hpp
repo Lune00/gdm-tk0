@@ -54,7 +54,7 @@ public:
  // vector<interdof*> & linterdof() {return linterdof_;}
   
   vector<inter2d*> &  linter() { return linter_; } 
-  
+  int getSizeClist() const {return clist_.size();} 
   inter2d* inter(unsigned int k)   { return linter_[k]; }
   
   void read(istream &);

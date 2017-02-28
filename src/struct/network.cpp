@@ -14,9 +14,9 @@ void Network::associate(Sample & spl)
 // attention spl doit deja exister
 void Network::read(istream & is/*, Sample & spl*/)
 {
-    
-    cout<<"Read network : "<<endl;
-    
+
+	cout<<"Read network : "<<endl;
+
 	string token;
 	unsigned int n = 0;
 	unsigned int Id1, Id2;
@@ -36,8 +36,8 @@ void Network::read(istream & is/*, Sample & spl*/)
 		else if (token == "}") break;		
 		else
 		{
-            
-            
+
+
 			o_o = inter2d::factory(token);
 			if (o_o != 0)
 			{
@@ -45,24 +45,18 @@ void Network::read(istream & is/*, Sample & spl*/)
 				linter_[n]->read(is,&Id1,&Id2);
 				iNum_.push_back(Id1);
 				jNum_.push_back(Id2);
-				
-               // cout<<linter_.back()->rang()<<endl;
-               // clist_.push_back(n);
-                
-				if( linter_.back()->rang() > 0)
-				{
-                    cout<<o_o->fn()<<" "<<Id2<<endl;
-					clist_.push_back(n);
-				}
+				//cout<<o_o->fn()<<" "<<Id2<<endl;
+				clist_.push_back(n);
 				++n;
 			}
 		}
 
 		is >> token;
 	}
-    
-    
-    cout<<"Nombre de contacts chargé = "<<n<<endl;
+
+
+	cout<<"Nombre de contacts chargé = "<<n<<endl;
+	cout<<"Taille de clist_ = "<<clist_.size()<<endl;
 }
 void Network::write(const char * fname)
 {
@@ -79,7 +73,7 @@ void Network::write(ostream & os)
 	os << "dverlet " << dverlet_ << endl;
 	if (useSuperList_)
 		os << "dsuperList " << dsuperList_ << endl;
-		double fn;
+	double fn;
 	for (unsigned int i=0;i<linter_.size();++i)
 	{
 		fn=0.;
@@ -97,12 +91,12 @@ void Network::speak()
 	switch(speakLevel_)
 	{
 		case 0:
-		return;
+			return;
 
 		default:
-		cout << "Number of potential interactions: " << linter_.size() << endl;
-		cout << flush;
-		return;
+			cout << "Number of potential interactions: " << linter_.size() << endl;
+			cout << flush;
+			return;
 	}
 }
 // Stock all the forces (in memory)
@@ -116,12 +110,12 @@ void Network::stock(vector<fsafe>& fs)
 		fs.push_back(fsafe(linter_[k]));
 	}
 	/*
-	for (unsigned int k=0 ; k < clist_.size() ; ++k)
-	{
-		linter_[clist_[k]]->current()=0;
-		fs.push_back(fsafe(linter_[clist_[k]]));
-	}
-*/
+	   for (unsigned int k=0 ; k < clist_.size() ; ++k)
+	   {
+	   linter_[clist_[k]]->current()=0;
+	   fs.push_back(fsafe(linter_[clist_[k]]));
+	   }
+	 */
 
 	//	cout<<"-----------fin stockage: "<<fs.size()<<" interactions stockee------------"<<endl;
 }
@@ -153,13 +147,13 @@ void Network::retrieve(vector<fsafe> & fs)
 
 	while( NdkdkNew < Nnew && linter_[NdkdkNew]->type() != _type_dkdkP   )
 	{ 
-	//cout<<linter_[NdkdkNew]->type()<<endl;
+		//cout<<linter_[NdkdkNew]->type()<<endl;
 		++NdkdkNew;
 	}
 	// cout<<" NdkdkNew "<<NdkdkNew<<endl;
 	while( NdkdkOld < Nold && fs[NdkdkOld].type() != _type_dkdkP) 
 	{
-	//cout<<fs[NdkdkOld].type()<<endl;
+		//cout<<fs[NdkdkOld].type()<<endl;
 		++NdkdkOld;
 	}
 	++NdkdkNew;
@@ -167,309 +161,309 @@ void Network::retrieve(vector<fsafe> & fs)
 	//cout<<" Nold "<<Nold<<" Nnew= "<<Nnew<<endl;
 	//cout<<" NdkdkOld = "<<NdkdkOld<<" NdkdkNew "<<NdkdkNew<<endl; //Plus un pour la taille du tableau
 	/*for (unsigned j=min(NdkdkNew,NdkdkOld)-10;j<max(Nnew,Nold);++j)
-	{
-		if(j<Nnew)
-			cout<<" New : first "<<linter_[j]->lexifirst()->id()<<"  second "<<linter_[j]->lexisecond()->id();
+	  {
+	  if(j<Nnew)
+	  cout<<" New : first "<<linter_[j]->lexifirst()->id()<<"  second "<<linter_[j]->lexisecond()->id();
 
-		if(j<Nold)
-			cout<<"---- Old : first "<<fs[j].first()->id()<<"  second "<<fs[j].second()->id();
-		cout<<" j = "<<j;
-		if (j==NdkdkNew) cout<<" == NdkdkNew ";
-		if (j==NdkdkOld) cout<<" == NdkdkOld ";
-		cout<<endl;
-		}*/
+	  if(j<Nold)
+	  cout<<"---- Old : first "<<fs[j].first()->id()<<"  second "<<fs[j].second()->id();
+	  cout<<" j = "<<j;
+	  if (j==NdkdkNew) cout<<" == NdkdkNew ";
+	  if (j==NdkdkOld) cout<<" == NdkdkOld ";
+	  cout<<endl;
+	  }*/
 
-			for (unsigned int k=0 ; k < Nnew ; ++k)
-		{	
+	for (unsigned int k=0 ; k < Nnew ; ++k)
+	{	
 
-			if( i == NdkdkOld && k<NdkdkNew ) k = NdkdkNew;
-			if( k == NdkdkNew && i<NdkdkOld ) i = NdkdkOld;
+		if( i == NdkdkOld && k<NdkdkNew ) k = NdkdkNew;
+		if( k == NdkdkNew && i<NdkdkOld ) i = NdkdkOld;
 
-			while( i < Nold && fs[i].first()->id() < linter_[k]->lexifirst()->id()) ++i;
-			if( i == NdkdkOld && k<NdkdkNew) continue;
-			if (i == Nold) break;
+		while( i < Nold && fs[i].first()->id() < linter_[k]->lexifirst()->id()) ++i;
+		if( i == NdkdkOld && k<NdkdkNew) continue;
+		if (i == Nold) break;
 
-			while( i < Nold
+		while( i < Nold
 				&& fs[i].first()->id()  == linter_[k]->lexifirst()->id()  
 				&& fs[i].second()->id() <  linter_[k]->lexisecond()->id()) ++i;
-			if( i == NdkdkOld && k<NdkdkNew) continue;
-			if (i == Nold) break;
+		if( i == NdkdkOld && k<NdkdkNew) continue;
+		if (i == Nold) break;
 
 		/*	if (fs[i].type() != linter_[k]->type() ) 
 			{
-				cout<<"type different "<< linter_[k]->lexifirst()->id() <<" et "<< linter_[k]->lexisecond()->id()<<endl;
-				cout<<" 	type safe"<<fs[i].type()<<" linter.type "<<linter_[k]->type()<<endl;
-				}*/
+			cout<<"type different "<< linter_[k]->lexifirst()->id() <<" et "<< linter_[k]->lexisecond()->id()<<endl;
+			cout<<" 	type safe"<<fs[i].type()<<" linter.type "<<linter_[k]->type()<<endl;
+			}*/
 
-			if(    fs[i].first()->id()  == linter_[k]->lexifirst()->id() 
+		if(    fs[i].first()->id()  == linter_[k]->lexifirst()->id() 
 				&& fs[i].second()->id() == linter_[k]->lexisecond()->id()	)
-				{
-					//linter_[k]->rang() = fs[i].rang();
-					linter_[k]->current()=0;
-					linter_[k]->fn() = fs[i].fn();
-					linter_[k]->ft() = fs[i].ft();
-					
+		{
+			//linter_[k]->rang() = fs[i].rang();
+			linter_[k]->current()=0;
+			linter_[k]->fn() = fs[i].fn();
+			linter_[k]->ft() = fs[i].ft();
 
-					if( fs[i].rang()==2)
-					{
-					 //   cout<<"retrieve double"<<endl;
-						linter_[k]->rang()=2;
-						linter_[k]->current()=1;
-						linter_[k]->fn()=fs[i].fn2();
-						linter_[k]->ft()=fs[i].ft2();
-						linter_[k]->current()=0;
+
+			if( fs[i].rang()==2)
+			{
+				//   cout<<"retrieve double"<<endl;
+				linter_[k]->rang()=2;
+				linter_[k]->current()=1;
+				linter_[k]->fn()=fs[i].fn2();
+				linter_[k]->ft()=fs[i].ft2();
+				linter_[k]->current()=0;
 
 				//	cout<<" interaction double retrouvee entre "<< linter_[k]->lexifirst()->id() <<" et "<< linter_[k]->lexisecond()->id()<<" ";
 				//	cout<<" fn1= "<<linter_[k]->fn()<<" ft1= "<<linter_[k]->ft()<<endl;
 				//	linter_[k]->current()=1;
 				//	cout<<" fn2= "<<linter_[k]->fn()<<" ft2= "<<linter_[k]->ft()<<endl;
 				//	linter_[k]->current()=0;
-					}
+			}
 			/*	if(linter_[k]->lexifirst()->id()<100 )//&& linter_[k]->lexifirst()->id()>2
-					{
-						cout<<" interaction simple retrouvee entre "<< linter_[k]->lexifirst()->id() <<" et "<< linter_[k]->lexisecond()->id()<<" ";
-						cout<<" type safe "<<fs[i].type()<<" type inter "<<linter_[k]->type();
-						cout<<" fn1= "<<linter_[k]->fn()<<" ft1= "<<linter_[k]->ft()<<endl;
-					}
-			*/
-		//if(k>min(NdkdkNew,NdkdkOld)-10)
-					++i;
-				}
-			//else cout<<" interaction non retrouvee"<<endl;
-
-			}
-		}
-
-
-		void Network::buildSuperList(Sample * spl,  GroupRelationData * grpRel)
-		{
-			superList_.clear();//Reset le list des pairs particules 
-
-			unsigned int N=spl->lbody().size();
-			unsigned int i,j;
-
-			struct particle_pair O___O;
-			for (i=0 ; i<N ; ++i)
-			{
-				for (j=i+1 ; j<N ; ++j)
 				{
-					if (grpRel->act(spl->body(i)->grp(), spl->body(j)->grp()))
-					{
-						if (near(spl->body(i), spl->body(j), dsuperList_))
-						{
-							O___O.i = spl->body(i);
-							O___O.j = spl->body(j);
-							superList_.push_back(O___O);
-						}
-					}
+				cout<<" interaction simple retrouvee entre "<< linter_[k]->lexifirst()->id() <<" et "<< linter_[k]->lexisecond()->id()<<" ";
+				cout<<" type safe "<<fs[i].type()<<" type inter "<<linter_[k]->type();
+				cout<<" fn1= "<<linter_[k]->fn()<<" ft1= "<<linter_[k]->ft()<<endl;
+				}
+			 */
+			//if(k>min(NdkdkNew,NdkdkOld)-10)
+			++i;
+		}
+		//else cout<<" interaction non retrouvee"<<endl;
+
+	}
+}
+
+
+void Network::buildSuperList(Sample * spl,  GroupRelationData * grpRel)
+{
+	superList_.clear();//Reset le list des pairs particules 
+
+	unsigned int N=spl->lbody().size();
+	unsigned int i,j;
+
+	struct particle_pair O___O;
+	for (i=0 ; i<N ; ++i)
+	{
+		for (j=i+1 ; j<N ; ++j)
+		{
+			if (grpRel->act(spl->body(i)->grp(), spl->body(j)->grp()))
+			{
+				if (near(spl->body(i), spl->body(j), dsuperList_))
+				{
+					O___O.i = spl->body(i);
+					O___O.j = spl->body(j);
+					superList_.push_back(O___O);
 				}
 			}
 		}
+	}
+}
 
 // Build the list of potential periodics interactions
-		void Network::buildSuperListP(Sample* spl, GroupRelationData* grpRel)
+void Network::buildSuperListP(Sample* spl, GroupRelationData* grpRel)
+{
+	//Il faut s'assurer que la largeur de bande est au moins egale a la dsuperlistP
+	superListP_.clear();
+	unsigned int NL =spl->leftband().size();
+	unsigned int NR =spl->rightband().size();
+	double P = spl->rightBoundary() - spl->leftBoundary();
+	unsigned int i,j;
+	unsigned int r,l;
+
+	body2d* ghost;
+	struct particle_pair O___O;
+	for (i = 0 ; i < NR ; ++i)
+	{
+		for (j = 0 ; j < NL ; ++j)
 		{
-//Il faut s'assurer que la largeur de bande est au moins egale a la dsuperlistP
-			superListP_.clear();
-			unsigned int NL =spl->leftband().size();
-			unsigned int NR =spl->rightband().size();
-			double P = spl->rightBoundary() - spl->leftBoundary();
-			unsigned int i,j;
-			unsigned int r,l;
+			r = spl->rightband(i);
+			l = spl->leftband(j);
 
-			body2d* ghost;
-			struct particle_pair O___O;
-			for (i = 0 ; i < NR ; ++i)
+			if (grpRel->act(spl->body(r)->grp(), spl->body(l)->grp()))
 			{
-				for (j = 0 ; j < NL ; ++j)
+				ghost = spl->body(l)->duplicate();
+				ghost->x() += P;
+
+				//if (near(spl->body(r), ghost, dVerletVar(min( ghost->sizeVerlet(),spl->body(r)->sizeVerlet())) ))
+				if (near(spl->body(r), ghost, dsuperListP_ ))
 				{
-					r = spl->rightband(i);
-					l = spl->leftband(j);
-
-					if (grpRel->act(spl->body(r)->grp(), spl->body(l)->grp()))
-					{
-						ghost = spl->body(l)->duplicate();
-						ghost->x() += P;
-
-		//if (near(spl->body(r), ghost, dVerletVar(min( ghost->sizeVerlet(),spl->body(r)->sizeVerlet())) ))
-						if (near(spl->body(r), ghost, dsuperListP_ ))
-						{
-							O___O.i = spl->body(r);
-							O___O.j = spl->body(l);
-							superListP_.push_back(O___O);
-						}
-
-						delete ghost;
-					}
+					O___O.i = spl->body(r);
+					O___O.j = spl->body(l);
+					superListP_.push_back(O___O);
 				}
+
+				delete ghost;
 			}
 		}
+	}
+}
 
 
 // Build the list of potential interactions
-		void Network::verlet(Sample * spl, GroupRelationData * grpRel)
+void Network::verlet(Sample * spl, GroupRelationData * grpRel)
+{
+	purge(linter_);
+	linter_.clear();// linter_ declaree en tant que donnee membre
+
+	if (useSuperList_)
+	{
+		unsigned int k;
+		unsigned int N = superList_.size();
+		inter2d* o_o;
+
+		for (k=0 ; k<N ; ++k)
 		{
-			purge(linter_);
-			linter_.clear();// linter_ declaree en tant que donnee membre
-
-			if (useSuperList_)
+			if (grpRel->act(superList_[k].i->grp(), superList_[k].j->grp()))
 			{
-				unsigned int k;
-				unsigned int N = superList_.size();
-				inter2d* o_o;
-
-				for (k=0 ; k<N ; ++k)
+				if (near(superList_[k].i, superList_[k].j, dverlet_))
 				{
-					if (grpRel->act(superList_[k].i->grp(), superList_[k].j->grp()))
+					o_o = inter2d::factory(superList_[k].i, superList_[k].j);
+					if(o_o != 0) 
 					{
-						if (near(superList_[k].i, superList_[k].j, dverlet_))
-						{
-							o_o = inter2d::factory(superList_[k].i, superList_[k].j);
-							if(o_o != 0) 
-							{
-								linter_.push_back(o_o);
-							}
-						}
+						linter_.push_back(o_o);
 					}
 				}
 			}
-			else
-			{
-				unsigned int N=spl->lbody().size();
-				unsigned int i,j;
-				inter2d* o_o;
-
-				for (i=0 ; i<N ; ++i)
-				{
-					for (j=i+1 ; j<N ; ++j)
-					{
-						if (grpRel->act(spl->body(i)->grp(), spl->body(j)->grp()))
-						{
-							if (near(spl->body(i), spl->body(j), dverlet_))
-							{
-								o_o = inter2d::factory(spl->body(i), spl->body(j));
-								if(o_o != 0) 
-								{
-									linter_.push_back(o_o);
-								}
-							}
-						}
-					}
-				}
-
-			}
-
 		}
+	}
+	else
+	{
+		unsigned int N=spl->lbody().size();
+		unsigned int i,j;
+		inter2d* o_o;
+
+		for (i=0 ; i<N ; ++i)
+		{
+			for (j=i+1 ; j<N ; ++j)
+			{
+				if (grpRel->act(spl->body(i)->grp(), spl->body(j)->grp()))
+				{
+					if (near(spl->body(i), spl->body(j), dverlet_))
+					{
+						o_o = inter2d::factory(spl->body(i), spl->body(j));
+						if(o_o != 0) 
+						{
+							linter_.push_back(o_o);
+						}
+					}
+				}
+			}
+		}
+
+	}
+
+}
 
 // EN TRAVAUX !!!!!
 /*
-		void Network::verlet(Sample* spl, GroupRelationData* grpRel, Grid* grd)
-		{
-			purge(linter_);
-			linter_.clear();
+   void Network::verlet(Sample* spl, GroupRelationData* grpRel, Grid* grd)
+   {
+   purge(linter_);
+   linter_.clear();
 
-			unsigned int N=spl->lbody().size();
-			unsigned int i,j;
-			unsigned int n,contentSize;
+   unsigned int N=spl->lbody().size();
+   unsigned int i,j;
+   unsigned int n,contentSize;
 
-			inter2d* link;
-			SampleBox* particleBox,Box;
+   inter2d* link;
+   SampleBox* particleBox,Box;
 
-			for (i=0 ; i<N ; ++i)
-			{
-				Box = spl->body(i)->box();
-				while((Box = grd->next_box(particleBox)) != 0)
-				{
-					contentSize = Box->content().size();
-					for(n = 0 ; n < contentSize ; ++n)
-					{
-						j=Box->content(n);
+   for (i=0 ; i<N ; ++i)
+   {
+   Box = spl->body(i)->box();
+   while((Box = grd->next_box(particleBox)) != 0)
+   {
+   contentSize = Box->content().size();
+   for(n = 0 ; n < contentSize ; ++n)
+   {
+   j=Box->content(n);
 
-						if (grpRel->act(spl->body(i)->grp(), spl->body(j)->grp()))
-						{
-							if (near(spl->body(i), spl->body(j), dverlet_))
-							{
-								link = inter2d::factory(spl->body(i), spl->body(j));
-								if(link != 0) 
-								{
-									link->Frame(); // indispendsable ???
-									linter_.push_back(link);
-								}
-							}
-						}        
-					}
-				}
-			}
+   if (grpRel->act(spl->body(i)->grp(), spl->body(j)->grp()))
+   {
+   if (near(spl->body(i), spl->body(j), dverlet_))
+   {
+   link = inter2d::factory(spl->body(i), spl->body(j));
+   if(link != 0) 
+   {
+   link->Frame(); // indispendsable ???
+   linter_.push_back(link);
+   }
+   }
+   }        
+   }
+   }
+   }
 
-		}
-*/
+   }
+ */
 
 // Build the list of potential periodics interactions
-		void Network::verletP(Sample* spl, GroupRelationData* grpRel)
+void Network::verletP(Sample* spl, GroupRelationData* grpRel)
+{
+	unsigned int NL =spl->leftband().size();
+	unsigned int NR =spl->rightband().size();
+	double P = spl->rightBoundary() - spl->leftBoundary();
+	unsigned int i,j;
+	unsigned int r,l;
+
+	inter2d* o_o;
+	body2d* ghost;
+
+	if (useSuperList_)
+	{
+		unsigned int k;
+		unsigned int N = superListP_.size();
+		inter2d* o_o;
+
+		for (k=0 ; k<N ; ++k)
 		{
-			unsigned int NL =spl->leftband().size();
-			unsigned int NR =spl->rightband().size();
-			double P = spl->rightBoundary() - spl->leftBoundary();
-			unsigned int i,j;
-			unsigned int r,l;
-
-			inter2d* o_o;
-			body2d* ghost;
-
-			if (useSuperList_)
+			if (grpRel->act(superListP_[k].i->grp(), superListP_[k].j->grp()))
 			{
-				unsigned int k;
-				unsigned int N = superListP_.size();
-				inter2d* o_o;
+				ghost = superListP_[k].j->duplicate();
+				ghost->x() += P;
 
-				for (k=0 ; k<N ; ++k)
+				if (near(superListP_[k].i, ghost, dverlet_))
 				{
-					if (grpRel->act(superListP_[k].i->grp(), superListP_[k].j->grp()))
+					o_o = inter2d::factoryP(superListP_[k].i, superListP_[k].j,P);
+					if(o_o != 0) 
 					{
-						ghost = superListP_[k].j->duplicate();
-						ghost->x() += P;
-
-						if (near(superListP_[k].i, ghost, dverlet_))
-						{
-							o_o = inter2d::factoryP(superListP_[k].i, superListP_[k].j,P);
-							if(o_o != 0) 
-							{
-								linter_.push_back(o_o);
-							}
-						}
-						delete ghost;
+						linter_.push_back(o_o);
 					}
 				}
-
+				delete ghost;
 			}
-			else
+		}
+
+	}
+	else
+	{
+		for (i = 0 ; i < NR ; ++i)
+		{
+			for (j = 0 ; j < NL ; ++j)
 			{
-				for (i = 0 ; i < NR ; ++i)
+				r = spl->rightband(i);
+				l = spl->leftband(j);
+
+				if (grpRel->act(spl->body(r)->grp(), spl->body(l)->grp()))
 				{
-					for (j = 0 ; j < NL ; ++j)
+					ghost = spl->body(l)->duplicate();
+					ghost->x() += P;
+
+					if (near(spl->body(r), ghost, dverlet_ ))
 					{
-						r = spl->rightband(i);
-						l = spl->leftband(j);
-
-						if (grpRel->act(spl->body(r)->grp(), spl->body(l)->grp()))
+						o_o = inter2d::factoryP(spl->body(r), spl->body(l), P);
+						if(o_o != 0) 
 						{
-							ghost = spl->body(l)->duplicate();
-							ghost->x() += P;
-
-							if (near(spl->body(r), ghost, dverlet_ ))
-							{
-								o_o = inter2d::factoryP(spl->body(r), spl->body(l), P);
-								if(o_o != 0) 
-								{
-				//link->Frame(); // indispendsable ???
-									linter_.push_back(o_o);
-								}
-							}
-
-							delete ghost;
+							//link->Frame(); // indispendsable ???
+							linter_.push_back(o_o);
 						}
 					}
+
+					delete ghost;
 				}
 			}
 		}
+	}
+}
 

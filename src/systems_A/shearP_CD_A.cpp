@@ -530,10 +530,9 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 		writePS(fname);
 	}
 
-	cout<<"		Nombre d'interactions = "<<sys_->nwk()->linter().size()<<endl;
-	cout<<"		Nombre de contacts   = "<<sys_->nwk()->clist().size()<<endl;
+	cout<<"		Nombre de contacts = "<<sys_->nwk()->linter().size()<<endl;
 	
-	
+cout<<" Taille de clist_(system_A) = "<<sys_->nwk()->getSizeClist()<<endl;	
 	Nanalyze() ++;
 
 
