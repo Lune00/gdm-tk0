@@ -1,0 +1,5 @@
+*.o
+lib/*
+app/SNA/SNA
+app/gdm_run/gdm_run
+
