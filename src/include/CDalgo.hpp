@@ -28,8 +28,8 @@ class CDalgo : public Algo
 	unsigned int  nver_;    //!< Number of iterations between two update of the neighbor list
 	unsigned int  nsuper_;    //!< Number of iterations between two update of the super neighbor list
 	double        epsf_;    //!< Relative precision with respect to average normal force
-	
-public:
+
+	public:
 
 
 	CDalgo(Sample* spl, Network* nwk, System* sys, GroupData* grpDat, GroupRelationData* grpRel) 
@@ -59,38 +59,38 @@ public:
 
 	void speak();
 
-//! Initialize the computation
+	//! Initialize the computation
 	void stand();
 
-//! Take care of contacts and forces
+	//! Take care of contacts and forces
 	void look();
 
-//! Increment time, Update Verlet list
+	//! Increment time, Update Verlet list
 	void hand(unsigned int);
 
-//! Update the contact list, local frames and relative velocities
+	//! Update the contact list, local frames and relative velocities
 	void contact();
 
-//! Compute force resultants
+	//! Compute force resultants
 	void fres();
 
-//! Update positions and velocities for one step
+	//! Update positions and velocities for one step
 	void step();
-	
-//! Vérivier la condition résistance des contacts
+
+	//! Vérivier la condition résistance des contacts
 	void resistance();
-	
-//
+
+	//
 	unsigned int contactStatut( inter2d *);
 
 	unsigned int (CDalgo::*iterFunc) ();
 
-//! Gauss-Seidel Iteractions with contact, friction, and rolling friction
+	//! Gauss-Seidel Iteractions with contact, friction, and rolling friction
 	unsigned int iter_0 (); 
 
-//! Gauss-Seidel Iteractions with Moreau's criteria (sup)
+	//! Gauss-Seidel Iteractions with Moreau's criteria (sup)
 	unsigned int iter_1 (); 
-	
+
 	// Une etude speciale
 	unsigned int iter_2 (); 
 
