@@ -85,7 +85,8 @@ public:
 		time.close();
 	}
 
-	virtual ~Simulation() { }
+  // virtual ~Simulation() { }
+        ~Simulation() { }
 
 	void read_data(const char* fname);
 	void save_data(const char* fname);

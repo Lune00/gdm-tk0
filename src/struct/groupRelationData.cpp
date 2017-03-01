@@ -1,20 +1,25 @@
 #include "groupRelationData.hpp"
 
-GroupRelationData::GroupRelationData() { npar_ = 0 ; ngrp_ = 0; fragmentation_=false; frag_ = 0 ;}
+GroupRelationData::GroupRelationData() { 
+  cerr << "DBG Constructeur 1" << endl ;
+npar_ = 0 ; ngrp_ = 0; fragmentation_=false; frag_ = 0 ;}
 
 GroupRelationData::GroupRelationData(unsigned int ngrp) : ngrp_(ngrp)
 { 
+  cerr << "DBG Constructeur 2" << endl ;
   npar_ = 0;
   initActivator();
 }
 
 GroupRelationData::~GroupRelationData() 
 {
+  cerr << "DBG EEEEEEEEEEEEEEEEEEEEEEE" << endl ;
   // Free memory for the action table
   if (act_ != 0)
     {
     for(unsigned int i=0 ; i<ngrp_ ; ++i)
       {
+	cerr << "DBG FFFFFFFFFFFFFFFFFFF" << endl ;
       delete [] act_[i];
       }
     delete [] act_;

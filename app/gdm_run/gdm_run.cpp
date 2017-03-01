@@ -7,6 +7,8 @@ int main(int argc,char **argv)
 	mySimu->init();
 	mySimu->run();
 
+	delete mySimu ;
+
 	return 0;
 }
 
