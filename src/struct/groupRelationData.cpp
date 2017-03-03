@@ -13,13 +13,11 @@ GroupRelationData::GroupRelationData(unsigned int ngrp) : ngrp_(ngrp)
 
 GroupRelationData::~GroupRelationData() 
 {
-  cerr << "DBG EEEEEEEEEEEEEEEEEEEEEEE" << endl ;
   // Free memory for the action table
   if (act_ != 0)
     {
     for(unsigned int i=0 ; i<ngrp_ ; ++i)
       {
-	cerr << "DBG FFFFFFFFFFFFFFFFFFF" << endl ;
       delete [] act_[i];
       }
     delete [] act_;
@@ -39,6 +37,8 @@ GroupRelationData::~GroupRelationData()
       lpar_[p] = 0;
       }
     }
+
+  cerr<<"Desctructeur groupRelationData sortie."<<endl;
 }
 
 bool GroupRelationData::act(unsigned int g1, unsigned int g2) const

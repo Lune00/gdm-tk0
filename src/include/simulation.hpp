@@ -89,12 +89,15 @@ class Simulation
 		~Simulation() 
 		{
 			delete algo_; 
+			cerr<<"algo deleted."<<endl;
 			delete sys_ ;
+			cerr<<"sys deleted."<<endl;
 			delete nwk_;
+			cerr<<"nwk deleted."<<endl;
 			delete grpDat_;
 			delete grpRel_;
 			delete sysA_;
-			delete sys_;
+			cerr<<"sysA deleted."<<endl;
 		}
 
 		void read_data(const char* fname);

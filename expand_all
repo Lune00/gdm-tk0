@@ -1,7 +1,7 @@
 #!/bin/bash
 
-PATH1=/Users/schuhmacher/bin/
 
+PATH1=/Users/schuhmacher/bin/
 
 #Compilation sources
 cd src

@@ -309,6 +309,7 @@ void Simulation::run()
         
 		}
 	}
+	cerr<<"La simulation est terminee."<<endl;
 }
 
 void Simulation::load_history(const char * fname )
