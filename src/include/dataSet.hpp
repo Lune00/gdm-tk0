@@ -109,7 +109,7 @@ public:
 		else return 0;
 	}
 
-	DataSet::DataSet operator + (DataSet a)
+	DataSet operator + (DataSet a)
 	{
 		DataSet temp;
 

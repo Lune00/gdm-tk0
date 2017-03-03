@@ -37,7 +37,7 @@ void Biaxial_dof::init()
 	{  
 // Check the type of first four bodies
 	for (unsigned int i=0;i<4;++i) 
-		if (typeid(*(spl_->body(i))) != typeid(rline))
+		if ((*(spl_->body(i))).type() != _type_rline)
 		gdm::fatal("@Biaxial_dof::init, the first four bodies must be rlines!");
 	spl_->radiusExtrema(4);
 	cout<<" biax dof init "<<endl;

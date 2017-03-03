@@ -159,7 +159,7 @@ public:
 		return ( (unsigned int) floor ( 10*u) +1 );
 	}
 	
-	pointSet::pointSet operator + (pointSet a)
+	pointSet operator + (pointSet a)
 	{
 		pointSet temp;
 

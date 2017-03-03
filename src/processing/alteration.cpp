@@ -39,7 +39,8 @@ void insert_polyg_in_disk(Sample& spl, unsigned int nVertexMin, unsigned int nVe
 
 	for(unsigned int i=0 ; i<spl.lbody().size();++i)
 	{
-		if(typeid(*(spl.body(i))) == typeid(disk))
+		if ( (*spl.body(i)).type() == _type_disk) 
+		//if(typeid(*(spl.body(i))) == typeid(disk))
 		{
 			string s("polyg");
 			B = body2d::factory(s);
@@ -61,7 +62,8 @@ void insert_regular_polyg_in_disk(Sample& spl, unsigned int nVertex)
 
 	for(unsigned int i=0 ; i<spl.lbody().size();++i)
 	{
-		if(typeid(*(spl.body(i))) == typeid(disk))
+	//	if(typeid(*(spl.body(i))) == typeid(disk))
+		if ( (*spl.body(i)).type() == _type_disk) 
 		{
 			string s("polyg");
 			B = body2d::factory(s);
@@ -100,7 +102,8 @@ void insert_polyg_in_disk_CEGEO(Sample& spl, unsigned int nVertexMin, unsigned i
 
 	for(unsigned int i=0 ; i<spl.lbody().size();++i)
 	{
-		if(typeid(*(spl.body(i))) == typeid(disk))
+		if ( (*spl.body(i)).type() == _type_disk) 
+	//	if(typeid(*(spl.body(i))) == typeid(disk))
 		{
 			string s("polyg");
 			B = body2d::factory(s);
@@ -168,7 +171,8 @@ void insert_polyg_in_disk_CEGEO(Sample& spl, unsigned int nVertexMin, unsigned i
 	
 	for(unsigned int i=0 ; i<spl.lbody().size();++i)
 	{
-		if(typeid(*(spl.body(i))) == typeid(polyg))
+		if ( (*spl.body(i)).type() == _type_polyg) 
+//		if(typeid(*(spl.body(i))) == typeid(polyg))
 		{
 		 (dynamic_cast<polyg*>(spl.body(i)))->convexify();
 		cout<<" convexify OK : body "<<i<<endl;
@@ -339,7 +343,7 @@ vector <dof*> insert_cluster_in_disk(Sample& spl, unsigned int nDisk,double rati
 		//Random number calculus
 		randomRot=rand()/(double) RAND_MAX*2.*M_PI;		
 		
-		if(typeid(*(spl.body(i))) == typeid(disk) && spl.body(i)->bodyDof()==NULL)
+		if((*spl.body(i)).type() == _type_disk && spl.body(i)->bodyDof()==NULL)
 		{
 			//cout<<"mutation corps "<<i<<endl;
 			ldof.push_back( mutate_cluster_baptiste( spl.body(i),spl,3,ratio) );
