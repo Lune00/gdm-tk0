@@ -311,7 +311,7 @@ void Simulation::run()
 		}
 
 
-		if(ns_ == nperturb_)
+		if(ns_ == nperturb_ && perturbation_ == true)
 		{
 		  sys_->perturbation();
 		}
