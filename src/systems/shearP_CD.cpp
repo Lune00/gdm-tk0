@@ -450,3 +450,8 @@ void shearP_CD::SetUnity()
 		}
 	}
 }
+
+void shearP_CD::perturbation(){
+cout<<"Je perturbe dans un cisaillement periodique"<<endl;
+}
+

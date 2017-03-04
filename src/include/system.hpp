@@ -35,8 +35,8 @@ class System
 		virtual void share() = 0;
 		virtual int  check() = 0;
 		virtual void stress_strain() = 0; 
-
-		virtual ~System() {cerr<<"System Destructor called"<<endl; }
+		virtual void perturbation() {} ;
+		virtual ~System() {}
 		System(Sample* spl, Network* nwk, GroupRelationData * grpRel) : spl_(spl), nwk_(nwk), grpRel_(grpRel) { }
 		System() { 
 			spl_ = NULL;

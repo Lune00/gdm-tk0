@@ -111,6 +111,7 @@ void Simulation::read_data(const char* name)
         else if (token == "numFileHist")    datafile >> numFileHist_;
         else if (token == "twoFilesHist")   twoFilesHist_ = true;
         else if (token == "compactHist")    compactHist_ = true;
+        else if (token == "perturbation")    {perturbation_ = true;datafile >> nperturb_;}
         else if (token == "}")              break;
         else cerr << "@Simulation::read_data, Unknown parameter: " << token << endl;
         
@@ -308,6 +309,13 @@ void Simulation::run()
             
         
 		}
+
+
+		if(ns_ == nperturb_)
+		{
+		  sys_->perturbation();
+		}
+
 	}
 	cerr<<"La simulation est terminee."<<endl;
 }

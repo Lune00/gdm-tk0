@@ -47,7 +47,7 @@ class shearP_CD : public System
   int  check();
   void stress_strain();
   void SetUnity();
-
+  void perturbation();
   ~shearP_CD() {cerr<<"ShearP_CD destructeur."<<endl; }
     shearP_CD(Sample* spl, Network* nwk, GroupRelationData * grpRel) : System(spl,nwk,grpRel) {  AllFalse(); }
     shearP_CD() : System() { AllFalse(); }

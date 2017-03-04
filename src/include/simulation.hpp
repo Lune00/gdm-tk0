@@ -45,6 +45,7 @@ class Simulation
 		bool twoFilesHist_;
 		bool historyNetwork_;
 		bool compactHist_;
+		bool perturbation_;
 		unsigned int nHist_;
 		unsigned int numFileHist_;
 		unsigned int nAnalyse_;
@@ -53,6 +54,7 @@ class Simulation
 		unsigned int  nsf_;     //!< Final step number
 		unsigned int  ns_;      //!< Current step number
 		double        time_;    //!< Cumulative time
+		unsigned int nperturb_; // time at which a perturbation can occur
 
 	public:
 
@@ -76,10 +78,12 @@ class Simulation
 			doAnalyse_      = false;
 			compactHist_    = false;
 
+			perturbation_ = false;
 			ns_  = 0;
 			nsi_ = 0;
 			nsf_ = 0;
 			time_ = 0.0;
+			nperturb_ = 0;
 
 			ofstream time("time.txt",ios::out);
 			time.close();
@@ -104,6 +108,7 @@ class Simulation
 		void save_data(const char* fname);
 		void load_history ( const char * fname);
 
+		void perturb(); // perturbation du systeme
 		void init();
 		void run();
 		void speak();
