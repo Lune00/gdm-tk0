@@ -150,6 +150,7 @@ class shearP_CD_A : public System_A
 		void analyse(double, unsigned int, unsigned int);
 		void read_parameters(istream &);
 		void plugRef();
+		void printSystem();
 
 
 		//void plug( shearP_CD * sys_in) {sys=sys_in;}
