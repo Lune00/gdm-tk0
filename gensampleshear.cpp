@@ -68,13 +68,13 @@ int main(){
   double const r1 = 0.001 ;
   double const r2 = 2 * r1 ;
   double const rmean = 0.5 * ( r1 + r2 ) ;
-  double const R = 0.5 ; // R=rparoi/rmean
+  double const R = 2.3 ; // R=rparoi/rmean
   double const u = 0. ; // lw = 2*rparoi + u * paroi
   double const rparoi = R * rmean ;
   double const lw = (1. + u ) * ( 2 * rparoi );
 
-  unsigned int nfree = 500 ;
-  unsigned int nslice = 20 ;
+  unsigned int nfree = 1000 ;
+  unsigned int nslice = 30 ;
 
 
   if(nfree == 0) {cout<<" Entrez un nombre de particules différent de 0."<<endl; return 0 ; }
@@ -134,10 +134,10 @@ int main(){
   }
 
   //Avoid overlaping 
-  ymax += 2 * r2 ;
-  ymin -= 2 * r2 ;
-  xmin -= 2 * r2 ;
-  xmax += 2 * r2 ;
+  ymax += 2 * rparoi ;
+  ymin -= 2 * rparoi ;
+  xmin -= 2 * rparoi ;
+  xmax += 2 * rparoi ;
 
   cout<<"xmax = "<<xmax<<endl;
   cout<<"ymax = "<<ymax<<endl;
