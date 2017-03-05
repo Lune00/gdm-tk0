@@ -36,7 +36,7 @@ class Particule{
 Particule::Particule()
 {
   type_ = "disk"; 
-  group_ = 1 ; 
+  group_ = 0 ; 
   x_ = 0. ;
   y_ = 0. ;
   r_ = 0. ;
@@ -67,15 +67,15 @@ int main(){
   double const r2 = 2 * r1 ;
   double const rmean = 0.5 * ( r1 + r2 ) ;
   double const rparoi = 0.5 * rmean ;
-  unsigned int nfree = 100 ;
-  unsigned int nslice = 10 ;
+  unsigned int nfree = 500 ;
+  unsigned int nslice = 20 ;
   double rugosite = 0.5 ;
-  double lw = r1 ;
+  double lw = 5 * r1 ;
   // Smooth disorder
 
 
-if(nfree == 0) {cout<<" Entrez un nombre de particules différent de 0."<<endl; return 0 ; }
-if(nslice ==0) {cout<<" Le paramètre nslice a une valeur non acceptable."<<endl; return 0; }
+  if(nfree == 0) {cout<<" Entrez un nombre de particules différent de 0."<<endl; return 0 ; }
+  if(nslice ==0) {cout<<" Le paramètre nslice a une valeur non acceptable."<<endl; return 0; }
 
   std::vector<Particule> sample(nfree);
   std::vector<Particule> paroi1;
@@ -126,14 +126,14 @@ if(nslice ==0) {cout<<" Le paramètre nslice a une valeur non acceptable."<<endl
   }
 
   //Avoid overlaping 
-  ymax += r2 ;
-  ymin -= r2 ;
+  ymax += 2 * r2 ;
+  ymin -= 2 * r2 ;
 
   cout<<"xmax = "<<xmax<<endl;
   cout<<"ymax = "<<ymax<<endl;
 
   double lx = xmax - xmin ;
-  unsigned int nparoi = ceil( lx / ( 2 * r2 )) + 3;
+  unsigned int nparoi = ceil( lx / ( 2 * rparoi )) + 5;
 
   cout<<"Nombre de particules composant la paroi : "<<nparoi<<endl;
 
@@ -147,27 +147,32 @@ if(nslice ==0) {cout<<" Le paramètre nslice a une valeur non acceptable."<<endl
   for(std::vector<Particule>::iterator it = paroi2.begin() ; it!= paroi2.end(); it++){
     it->setr( rparoi );
   }
-  
+
   // Paroi inferieure 
+  k = 0 ;
+  cout<<"lw = "<<lw<<endl;
   for(std::vector<Particule>::iterator it = paroi1.begin() ; it!= paroi1.end(); it++){
     double x,y;
-    x = xmin + k * rparoi + lw ;
+    x = xmin + k * 2 * rparoi + lw ;
     y = ymin;
     it->setx(x);
     it->sety(y);
+    k++;
   }
+  k = 0 ;
   // Paori supérieure
   for(std::vector<Particule>::iterator it = paroi2.begin() ; it!= paroi2.end(); it++){
     double x,y;
-    x = xmin + k * rparoi + lw ;
+    x = xmin + k * 2 * rparoi + lw ;
     y = ymax;
     it->setx(x);
     it->sety(y);
+    k++;
   }
-
   //Ecrture du fichier packing0.spl
 
   ofstream myFile ("packing0.spl",ios::out);
+  myFile<<"Sample{"<<endl;
   myFile<<"Cluster{"<<endl;
   for(std::vector<Particule>::iterator it = paroi1.begin() ; it!= paroi1.end(); it++){
     myFile<<it->gettype()<<" "<<it->getgroup()<<" "<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
@@ -180,6 +185,7 @@ if(nslice ==0) {cout<<" Le paramètre nslice a une valeur non acceptable."<<endl
   for(std::vector<Particule>::iterator it = paroi2.begin() ; it!= paroi2.end(); it++){
     myFile<<it->gettype()<<" "<<it->getgroup()<<" "<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
   }
+  myFile<<"}"<<endl;
   myFile<<"}"<<endl;
   myFile.close();
   return 0;
