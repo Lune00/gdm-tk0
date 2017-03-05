@@ -16,6 +16,11 @@ void shearP_CD::read_parameters(istream & is)
     else if (token == "boundariesAuto")       boundariesAuto_ = true;
     else if (token == "dverlet")			  is >> dverlet_;
     else if (token == "symetrical")			  symetrical_ =true;
+    else if (token == "gravite")
+    {
+      gravite_ =true;
+      is >> multig_;
+    }
     else if (token == "ChangeGroup")		  changeGroup_=true;
     else if (token == "dsuperlist")
     {
@@ -76,7 +81,17 @@ void shearP_CD::init()
 
   //Rajouter gravite dans les options
   //gravite value
-  double gx=0,gy=0.;
+  double gx, gy ;
+  if(gravite_)
+  {
+    gx = 0. ;
+    gy = -9.81 * multig_ ;
+  }
+  else
+  {
+    gx = 0. ;
+    gy = 0. ;
+  }
 
   //Calcul rmin_, rmax_ et rmoy_ de l'échantillon
   spl_->radiusExtrema(0);
@@ -188,7 +203,8 @@ void shearP_CD::init()
   }
   spl_->updateBands();//Id based
 
-  cout<<endl<<".Taille bande périodique (d)="<<spl_->boundWidth()/(spl_->rmin()+spl_->rmax())<<endl;
+  cout<<endl<<".Taille zone périodique (d)="<<spl_->boundWidth()/(spl_->rmin()+spl_->rmax())<<endl;
+  cout<<".Taille des bandes periodiques (d) : "<<spl_->bandWidth()/(spl_->rmin()+spl_->rmax())<<endl;
   cout<<scientific<<"Rmin = "<<spl_->rmin()<<" Rmax ="<<spl_->rmax()<<endl;
   cout<<"Rmax/Rmin = "<<spl_->rmax()/spl_->rmin()<<endl;
 

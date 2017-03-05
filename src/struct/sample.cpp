@@ -188,7 +188,7 @@ void Sample::definePeriodicity(double bandwidth)
 		leftBoundary_   = xmin_;
 		rightBoundary_  = xmax_;
 		boundWidth_     = (rightBoundary() - leftBoundary());
-        bandWidth_      = bandwidth ;
+		bandWidth_      = bandwidth * rmax_ ;
 
 
 }
