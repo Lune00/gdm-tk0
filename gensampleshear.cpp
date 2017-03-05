@@ -63,19 +63,27 @@ double powerlaw(double r1, double r2){
 
 int main(){
 
+
+  //Paramètres echantillon et de la rugosite de la paroi
   double const r1 = 0.001 ;
   double const r2 = 2 * r1 ;
   double const rmean = 0.5 * ( r1 + r2 ) ;
-  double const rparoi = 0.5 * rmean ;
+  double const R = 0.5 ; // R=rparoi/rmean
+  double const u = 0. ; // lw = 2*rparoi + u * paroi
+  double const rparoi = R * rmean ;
+  double const lw = (1. + u ) * ( 2 * rparoi );
+
   unsigned int nfree = 500 ;
   unsigned int nslice = 20 ;
-  double rugosite = 0.5 ;
-  double lw = 5 * r1 ;
-  // Smooth disorder
 
 
   if(nfree == 0) {cout<<" Entrez un nombre de particules différent de 0."<<endl; return 0 ; }
   if(nslice ==0) {cout<<" Le paramètre nslice a une valeur non acceptable."<<endl; return 0; }
+  if(u < 0. || u * 2 * rparoi > 2 * r1) {cout<<"L'espacement entre particules de la paroi est trop grand (trous) ou trop faible (overlaping)."<<endl; return 0;}
+
+  cout<<u * 2 * rparoi <<" "<< 2 * r1<<endl;
+  cout<<"Rugosite apparente R : "<<R<<endl;
+  cout<<"Espacement entre particules de la paroi lw : "<< u <<endl;
 
   std::vector<Particule> sample(nfree);
   std::vector<Particule> paroi1;
@@ -128,12 +136,14 @@ int main(){
   //Avoid overlaping 
   ymax += 2 * r2 ;
   ymin -= 2 * r2 ;
+  xmin -= 2 * r2 ;
+  xmax += 2 * r2 ;
 
   cout<<"xmax = "<<xmax<<endl;
   cout<<"ymax = "<<ymax<<endl;
 
   double lx = xmax - xmin ;
-  unsigned int nparoi = ceil( lx / ( 2 * rparoi )) + 5;
+  unsigned int nparoi = ceil( lx / ( lw )) + 2;
 
   cout<<"Nombre de particules composant la paroi : "<<nparoi<<endl;
 
@@ -153,7 +163,14 @@ int main(){
   cout<<"lw = "<<lw<<endl;
   for(std::vector<Particule>::iterator it = paroi1.begin() ; it!= paroi1.end(); it++){
     double x,y;
-    x = xmin + k * 2 * rparoi + lw ;
+    if( it == paroi1.begin() )
+    {
+      x = xmin + k * 2 * rparoi ;
+    }
+    else
+    {
+      x = xmin + k * lw ; // ( 2 * rparoi + lw ) ;
+    }
     y = ymin;
     it->setx(x);
     it->sety(y);
@@ -163,7 +180,15 @@ int main(){
   // Paori supérieure
   for(std::vector<Particule>::iterator it = paroi2.begin() ; it!= paroi2.end(); it++){
     double x,y;
-    x = xmin + k * 2 * rparoi + lw ;
+    if( it == paroi2.begin() )
+    {
+      x = xmin + k * 2 * rparoi ;
+    }
+    else
+    {
+      x = xmin + k * lw ; //( 2 * rparoi + u ) ;
+    }
+
     y = ymax;
     it->setx(x);
     it->sety(y);
@@ -188,5 +213,19 @@ int main(){
   myFile<<"}"<<endl;
   myFile<<"}"<<endl;
   myFile.close();
+
+  ofstream plotsample("sample-gnuplot.txt");
+
+  for(std::vector<Particule>::iterator it = paroi1.begin() ; it!= paroi1.end(); it++){
+    plotsample<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
+  }
+
+  for(std::vector<Particule>::iterator it = sample.begin() ; it!= sample.end(); it++){
+    plotsample<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
+  }
+  for(std::vector<Particule>::iterator it = paroi2.begin() ; it!= paroi2.end(); it++){
+    plotsample<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
+  }
+  plotsample.close();
   return 0;
 }
