@@ -81,9 +81,9 @@ int main(){
   if(nslice ==0) {cout<<" Le paramètre nslice a une valeur non acceptable."<<endl; return 0; }
   if(u < 0. || u * 2 * rparoi > 2 * r1) {cout<<"L'espacement entre particules de la paroi est trop grand (trous) ou trop faible (overlaping)."<<endl; return 0;}
 
-  cout<<u * 2 * rparoi <<" "<< 2 * r1<<endl;
   cout<<"Rugosite apparente R : "<<R<<endl;
   cout<<"Espacement entre particules de la paroi lw : "<< u <<endl;
+  cout<<"Angle de rugosite : "<<asin( lw / ( (2 * rmean) * ( 1 + R ) ) ) * 180. / M_PI <<" °"<<endl;
 
   std::vector<Particule> sample(nfree);
   std::vector<Particule> paroi1;
@@ -160,7 +160,6 @@ int main(){
 
   // Paroi inferieure 
   k = 0 ;
-  cout<<"lw = "<<lw<<endl;
   for(std::vector<Particule>::iterator it = paroi1.begin() ; it!= paroi1.end(); it++){
     double x,y;
     if( it == paroi1.begin() )
