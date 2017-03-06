@@ -114,7 +114,7 @@ int main (int argc, char * argv[])
 		if(!time.is_open())
 		{
 			cerr << "Fichier de temps manquant  " << time << endl;
-			//return 0;
+			return 0;
 		}
 		else
 		{
@@ -131,8 +131,8 @@ int main (int argc, char * argv[])
 		
 		
 		Simulation * mySimu= new Simulation();
-		//On réécrit le fichier temps:
 
+		//On réécrit le fichier temps:
 		ofstream timereset(fichtemps);
 		unsigned int indice=0;
 		if(timereset.is_open()){
@@ -210,13 +210,13 @@ int main (int argc, char * argv[])
 			cout<<endl<<endl<<"************ Chargement  :  "<<nomFichier<<endl;
 						
 			mySimu->load_history(nomFichier);
-			cout<<"load_history() done"<<endl;
+		//	cout<<"load_history() done"<<endl;
 			mySimu->algo()->algoFill();
-			cout<<"algoFill() done"<<endl;	
+		//	cout<<"algoFill() done"<<endl;	
 			mySimu->sysA()->plugRef();
 			mySimu->sysA()->analyse(t[i],1,1);
 			
-			cout<<"*o*o*o****************************************"<<endl;
+			cout<<"*o*0ro*************0******^r******0********1**"<<endl;
 		}
 		
 	}
