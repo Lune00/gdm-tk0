@@ -99,7 +99,9 @@ class Simulation
 			delete nwk_;
 			cerr<<"nwk deleted."<<endl;
 			delete grpDat_;
+			cerr<<"grpDat deleted."<<endl;
 			delete grpRel_;
+			cerr<<"grpRel deleted."<<endl;
 			delete sysA_;
 			cerr<<"sysA deleted."<<endl;
 		}

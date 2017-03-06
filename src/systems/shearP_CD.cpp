@@ -165,7 +165,7 @@ void shearP_CD::init()
   }
 
   //Imposer shear rate : H particule plus haute - particule plus basse
-  if (shearRate_ && symetrical_)
+  if (shearRate_)
   {
     //Store initial shearRate
     cout<<".Imposed shear rate : "<<topXvalue_<<endl;
@@ -181,7 +181,7 @@ void shearP_CD::init()
   if(symetrical_)
   {
     cout<<".Imposed symetrical shear rate: "<<topXvalue_<<endl;
-    topXvalue_ *= ldof(1)->mcy()-ldof(0)->mcy();
+    //topXvalue_ *= ldof(1)->mcy()-ldof(0)->mcy();
     topXvalue_ *= 0.5;
 
     ldof(1)->affect(topXmode_, topYmode_, _VELOCITY, topXvalue_, topYvalue_, 0.);

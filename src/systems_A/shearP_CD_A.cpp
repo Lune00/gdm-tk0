@@ -758,7 +758,6 @@ void shearP_CD_A::def()
   epsp_ = 0. ;
   epsq_ = 0. ;
 
-  cerr << "AAAAAAAAAAAAAA:"<<epsp_<<" "<<epsq_<<" "<<epsxy_<<endl;
   if(sys_->nwk()->linter().empty()) return;
 
   if ( fabs(partref->x() - X0)>.5* sys_->spl()->boundWidth())
@@ -782,12 +781,17 @@ void shearP_CD_A::def()
   strain.yx() += 0.;//( partref->y() - Y0)/(w0);
   strain.yy() += ( partref->y() - Y0)/(partref->y()-Y00);
 
+  instantStrain.xx() = defx ;//0.;//( partref->x() - X0)/w0;//(partref->x()-X00); A test
+  instantStrain.xy() = ( partref->x() - X0)/(partref->y()-Y00);
+  instantStrain.yx() = 0.;//( partref->y() - Y0)/(w0);
+  instantStrain.yy() = ( partref->y() - Y0)/(partref->y()-Y00);
   ofstream str("Analyse/strain.txt",ios::app);
 
   X0=partref->x();
   Y0=partref->y();
 
   strain.eigenValues();
+  instantStrain.eigenValues();
 
   epsp_ = strain.l1()+strain.l2();
   epsq_ = max(strain.l1(),strain.l2())-min(strain.l1(),strain.l2());
@@ -796,7 +800,12 @@ void shearP_CD_A::def()
   cout<<" epsq = "<<epsq_<<endl;
   cout<<" espxy = "<<epsxy_<<endl;
 
-  str<<time<<" "<<epsxy_<<" "<<epsp_<<" "<<epsq_<<" "<<endl;
+
+  cout<<"Calcul des deformations."<<endl;
+  epsxyAdd_ += instantStrain.xy();
+  epsxyHencky_ += log(1.+instantStrain.xy());
+
+  str<<time<<" "<<epsxy_<<" "<<epsp_<<" "<<epsq_<<" "<<epsxyAdd_<<" "<<epsxyHencky_<<" "<<strain.xy()<<endl;
 
   str.close();
 
