@@ -68,10 +68,10 @@ int main(){
   double const r1 = 0.001 ;
   double const r2 = 2 * r1 ;
   double const rmean = 0.5 * ( r1 + r2 ) ;
-  double const R = 2.3 ; // R=rparoi/rmean
-  double const u = 0. ; // lw = 2*rparoi + u * paroi
+  double const R = 0.15 ; // R=rparoi/rmean
+  double const u = 0.2 ; // lw = 2*rparoi + u * paroi
   double const rparoi = R * rmean ;
-  double const lw = (1. + u ) * ( 2 * rparoi );
+  double const lw = 2. * rmean ;// (1. + u ) * ( 2 * r1 );
 
   unsigned int nfree = 1000 ;
   unsigned int nslice = 30 ;
@@ -82,7 +82,7 @@ int main(){
   if(u < 0. || u * 2 * rparoi > 2 * r1) {cout<<"L'espacement entre particules de la paroi est trop grand (trous) ou trop faible (overlaping)."<<endl; return 0;}
 
   cout<<"Rugosite apparente R : "<<R<<endl;
-  cout<<"Espacement entre particules de la paroi lw : "<< u <<endl;
+  cout<<"Espacement entre particules de la paroi lw : "<< lw <<endl;
   cout<<"Angle de rugosite : "<<asin( lw / ( (2 * rmean) * ( 1 + R ) ) ) * 180. / M_PI <<" °"<<endl;
 
   std::vector<Particule> sample(nfree);
@@ -134,10 +134,10 @@ int main(){
   }
 
   //Avoid overlaping 
-  ymax += 2 * rparoi ;
-  ymin -= 2 * rparoi ;
-  xmin -= 2 * rparoi ;
-  xmax += 2 * rparoi ;
+  ymax += 2 * rmean ;
+  ymin -= 2 * rmean ;
+  xmin -= 2 * rmean ;
+  xmax += 2 * rmean ;
 
   cout<<"xmax = "<<xmax<<endl;
   cout<<"ymax = "<<ymax<<endl;
