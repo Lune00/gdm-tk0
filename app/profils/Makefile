@@ -1,4 +1,4 @@
-APP = PROFILS
+APP = profils
 INC_PATH  = ../../src/include
 SYS_PATH  = ../../src/systems
 SYS_A_PATH = ../../src/systems_A
