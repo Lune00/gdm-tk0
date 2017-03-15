@@ -26,6 +26,7 @@ protected:
 	double fx_,fy_,frot_;
 	double mass_,mom_;
 	unsigned int type_;
+	unsigned int z_; // nombre de contact, seulement pour analyse (non pour algo)
 	dof* dof_;
 
 public:
@@ -65,6 +66,7 @@ public:
 		fx_ = fy_ = frot_ = 0.0;
 		mass_ = mom_ = 1.0;
 		dof_=0;
+		z_ = 0 ;
 	}
 
 	static body2d* factory(string type);
@@ -128,6 +130,9 @@ public:
 	dof *    bodyDof() const { return dof_; }
     unsigned int & type()    { return type_;}
     unsigned int   type() const { return type_;}
+
+    unsigned int & z() {return z_;}
+    unsigned int z() const {return z_;}
 };
 
 #endif // _body2d_hpp

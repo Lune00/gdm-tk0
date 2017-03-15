@@ -497,11 +497,12 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 
 	char fname[100];
 
-
 	time=t;
 
 	printSystem();
 	followparticles();
+	cout<<"Zp"<<endl;
+	computeZparticules();
 
 	if (calcz)  Z(calczp,Nbingranulo,granulo);
 	if (calcPtheta) Ptheta( NbinPT, mobperiod, mobwidth);
@@ -2949,9 +2950,7 @@ void shearP_CD_A::writePS( const char * fname)
 			id1=sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->id();
 			id2=sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->id();
 
-			if(sys_->nwk()->inter(i)->type()==0 && 
-					sys_->spl()->body(id1)->bodyDof()==NULL &&
-					sys_->spl()->body(id2)->bodyDof()==NULL)
+			if(sys_->nwk()->inter(i)->type()==0 ) 
 			{
 				if(sys_->nwk()->inter(sys_->nwk()->clist(i))->fn()<0)
 					NEGATIVE_FN.add(sys_->nwk()->inter(sys_->nwk()->clist(i))->fn());
@@ -2979,9 +2978,7 @@ void shearP_CD_A::writePS( const char * fname)
 			id1=sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->id();
 			id2=sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->id();
 
-			if(sys_->nwk()->inter(sys_->nwk()->clist(i))->type()==0 && 
-					sys_->spl()->body(id1)->bodyDof()==NULL &&
-					sys_->spl()->body(id2)->bodyDof()==NULL)
+			if(sys_->nwk()->inter(sys_->nwk()->clist(i))->type()==0) 
 			{
 				/*
 				   ps<<0.01*(sys_->nwk()->inter(sys_->nwk()->clist(i))->fn())<<" setlinewidth coul_blue"<<endl;
@@ -3001,9 +2998,9 @@ void shearP_CD_A::writePS( const char * fname)
 					   <<sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->y()*zoom + y_offset<<" "<<"lineto stroke"<<endl;
 					 */
 				}
-				else 
+				else  if (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() > 1e-10) 
 				{
-					ps<<10.*(sys_->nwk()->inter(sys_->nwk()->clist(i))->fn()-POSITIVE_FN.min())/(POSITIVE_FN.min()+POSITIVE_FN.max())<<" setlinewidth coul_blue"<<endl;
+					ps<<18.*(sys_->nwk()->inter(sys_->nwk()->clist(i))->fn()-POSITIVE_FN.min())/(POSITIVE_FN.min()+POSITIVE_FN.max())<<" setlinewidth coul_blue"<<endl;
 					ps<<sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->x()*zoom + x_offset<<" "
 						<<sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->y()*zoom + y_offset<<" "<<"moveto"<<" "
 						<<sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->x()*zoom + x_offset<<" "
@@ -3053,3 +3050,46 @@ void shearP_CD_A::printSystem()
 	printSys<<time<<" "<<epsxy_<<" "<<" "<<vx_wall_sup/epaisseur<<" "<<epaisseur<<" "<< vx_wall_sup<<" "<<" "<<vx_wall_inf<<" "<<vy_wall_sup<<endl;
 	printSys.close();
 }
+
+void shearP_CD_A::computeZparticules()
+{
+	//const double eps = 1e-18;
+	//unsigned int Nc = sys_->nwk()->clist().size();
+	if(sys_->nwk()->clist().size()==0)return;
+	unsigned int Np = sys_->spl()->lbody().size();
+	unsigned int Nc = sys_->nwk()->clist().size();
+	vector<unsigned int> Ncpp(Np,0); // Nbr contact par particule
+	//Parcourt les contacts:
+	for (unsigned int i = 0 ; i != Nc ; i++){
+
+		int ci = sys_->nwk()->clist(i);
+		int id1 = sys_->nwk()->inter(ci)->first()->id();
+		int id2 = sys_->nwk()->inter(ci)->second()->id();
+
+		//On ecarte les forces nulles : 
+/*		if( sys_->nwk()->inter(ci)->fn()<eps)
+		{
+			Cfn++;
+		}
+		else
+		{
+		*/
+				Ncpp[id1]++;
+				Ncpp[id2]++;
+		
+	}
+	unsigned int flottant = 0 ;
+	unsigned int freeparticules = 0 ;
+	ofstream testZ("z.txt",ios::app);
+	cout<<"Ecriture z.txt"<<endl;
+	for (unsigned int i = 0 ; i != Np ; i++){
+		sys_->spl()->body(i)->z() = Ncpp[i];
+		if(sys_->spl()->body(i)->bodyDof()==NULL) freeparticules++;
+		if(sys_->spl()->body(i)->z() == 0  && sys_->spl()->body(i)->bodyDof() == NULL   ) flottant++;
+	}
+	testZ<<time<<" "<<(double)flottant/(double)freeparticules * 100.<<endl;
+	testZ.close();
+
+
+}
+
