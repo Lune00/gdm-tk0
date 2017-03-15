@@ -237,6 +237,7 @@ void Network::retrieve(vector<fsafe> & fs)
 
 void Network::buildSuperList(Sample * spl,  GroupRelationData * grpRel)
 {
+	//cerr<<"---Building SuperList"<<endl;
 	superList_.clear();//Reset le list des pairs particules 
 
 	unsigned int N=spl->lbody().size();
@@ -263,6 +264,7 @@ void Network::buildSuperList(Sample * spl,  GroupRelationData * grpRel)
 // Build the list of potential periodics interactions
 void Network::buildSuperListP(Sample* spl, GroupRelationData* grpRel)
 {
+	//cerr<<"---Building SuperlistP"<<endl;
 	//Il faut s'assurer que la largeur de bande est au moins egale a la dsuperlistP
 	superListP_.clear();
 	unsigned int NL =spl->leftband().size();
@@ -271,8 +273,11 @@ void Network::buildSuperListP(Sample* spl, GroupRelationData* grpRel)
 	unsigned int i,j;
 	unsigned int r,l;
 
-	body2d* ghost;
+	body2d* ghost=NULL;
 	struct particle_pair O___O;
+	O___O.i = NULL ;
+	O___O.j = NULL ;
+
 	for (i = 0 ; i < NR ; ++i)
 	{
 		for (j = 0 ; j < NL ; ++j)
@@ -305,12 +310,12 @@ void Network::verlet(Sample * spl, GroupRelationData * grpRel)
 {
 	purge(linter_);
 	linter_.clear();// linter_ declaree en tant que donnee membre
-
+//cerr<<"---Building verlet list"<<endl;
 	if (useSuperList_)
 	{
 		unsigned int k;
 		unsigned int N = superList_.size();
-		inter2d* o_o;
+		inter2d* o_o = NULL;
 
 		for (k=0 ; k<N ; ++k)
 		{
@@ -331,7 +336,7 @@ void Network::verlet(Sample * spl, GroupRelationData * grpRel)
 	{
 		unsigned int N=spl->lbody().size();
 		unsigned int i,j;
-		inter2d* o_o;
+		inter2d* o_o = NULL;
 
 		for (i=0 ; i<N ; ++i)
 		{
@@ -355,66 +360,23 @@ void Network::verlet(Sample * spl, GroupRelationData * grpRel)
 
 }
 
-// EN TRAVAUX !!!!!
-/*
-   void Network::verlet(Sample* spl, GroupRelationData* grpRel, Grid* grd)
-   {
-   purge(linter_);
-   linter_.clear();
-
-   unsigned int N=spl->lbody().size();
-   unsigned int i,j;
-   unsigned int n,contentSize;
-
-   inter2d* link;
-   SampleBox* particleBox,Box;
-
-   for (i=0 ; i<N ; ++i)
-   {
-   Box = spl->body(i)->box();
-   while((Box = grd->next_box(particleBox)) != 0)
-   {
-   contentSize = Box->content().size();
-   for(n = 0 ; n < contentSize ; ++n)
-   {
-   j=Box->content(n);
-
-   if (grpRel->act(spl->body(i)->grp(), spl->body(j)->grp()))
-   {
-   if (near(spl->body(i), spl->body(j), dverlet_))
-   {
-   link = inter2d::factory(spl->body(i), spl->body(j));
-   if(link != 0) 
-   {
-   link->Frame(); // indispendsable ???
-   linter_.push_back(link);
-   }
-   }
-   }        
-   }
-   }
-   }
-
-   }
- */
-
 // Build the list of potential periodics interactions
 void Network::verletP(Sample* spl, GroupRelationData* grpRel)
 {
+	//cerr<<"Building verletP"<<endl;
 	unsigned int NL =spl->leftband().size();
 	unsigned int NR =spl->rightband().size();
 	double P = spl->rightBoundary() - spl->leftBoundary();
 	unsigned int i,j;
 	unsigned int r,l;
 
-	inter2d* o_o;
-	body2d* ghost;
+	inter2d* o_o = NULL;
+	body2d* ghost = NULL;
 
 	if (useSuperList_)
 	{
 		unsigned int k;
 		unsigned int N = superListP_.size();
-		inter2d* o_o;
 
 		for (k=0 ; k<N ; ++k)
 		{
