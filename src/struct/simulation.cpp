@@ -112,14 +112,13 @@ void Simulation::read_data(const char* name)
         else if (token == "numFileHist")    datafile >> numFileHist_;
         else if (token == "twoFilesHist")   twoFilesHist_ = true;
         else if (token == "compactHist")    compactHist_ = true;
+        else if (token == "nUpdateShear")	datafile >> nUpdateShear_ ; 
         else if (token == "perturbation")    {perturbation_ = true;datafile >> nperturb_;}
         else if (token == "}")              break;
         else cerr << "@Simulation::read_data, Unknown parameter: " << token << endl;
-        
         datafile >> token;
         }
       }
-    
     if (token == "System{")
       {
       datafile >> type; 
@@ -282,7 +281,13 @@ void Simulation::run()
 		algo_->step();
 		algo_->look();
 		algo_->hand(ns_);
-		
+		if ( ns_ == nUpdateShear_ && nUpdateShear_ != 0 )
+		{
+
+			cerr<<"------------  Mise a jour du taux de cisaillement --------"<<endl;
+			((System*)sys_)->updateShear();
+
+		}
 		if ( doAnalyse_ && ns_%nAnalyse_  == 0 && ns_ >= nstartAna_ )
 		{
 			sysA_->analyse(time_,ns_,nsf_);
