@@ -12,10 +12,6 @@
 
 
 
-
-
-
-
 void profilMoyenVitesse(unsigned int Nbins)
 {
 	double vx[Nbins];
@@ -39,10 +35,11 @@ void profilMoyenVitesse(unsigned int Nbins)
 	{
 		double time, yt , vxt ;
 		unsigned int j = 0 ;
+		unsigned int tic = 0 ;
 		double tr;
 		while(is)
 		{
-			if( j % Nbins  == 0 ) j = 0 ;
+			if( j % Nbins  == 0 ){ j = 0 ; tic++ ; }
 
 			is >> time >> yt >> vxt >> tr ; 
 
@@ -52,15 +49,16 @@ void profilMoyenVitesse(unsigned int Nbins)
 			vxsquare[j] += vxt * vxt ;
 			y[j] = yt ;
 			j++;
+			if(j==0) cout<<vx[0]<<" "<<vxsquare[0]<<endl;
 		}
 
 		is.close();
 
-		for (unsigned int i = 0 ; i < Nbins ; i ++ )
+		for (unsigned int i = 0 ; i != Nbins ; i ++ )
 		{
-			vx[i]       /= (double) Nbins;
-			vxsquare[i] /= (double) Nbins;
-			vxsquare[j] -= vx[i] * vx[i] ;
+			vx[i]       /= (double) tic;
+			vxsquare[i] /= (double) tic;
+			vxsquare[i] -= vx[i] * vx[i] ;
 		}
 
 
@@ -83,7 +81,6 @@ void profilMoyenVitesse(unsigned int Nbins)
 		printSystem.close();
 		cout<<"Vitesse de la plaque supérieure : "<<v<<endl;
 
-
 		double ymin,ymax;
 		ymin = y[0] ;
 		ymax = y[Nbins-1];
@@ -91,9 +88,11 @@ void profilMoyenVitesse(unsigned int Nbins)
 		cout <<"h = "<<h<<endl;	
 		//Output : 
 		ofstream pv("profils/profvitesse.txt",ios::out);
+		pv<<"# 2y/h-1 vx/v dvx/v y vx dvx"<<endl;
 
-		for (unsigned int i = 0 ; i < Nbins ; i++ )
+		for (unsigned int i = 0 ; i != Nbins ; i++ )
 		{
+		//	cout<<i<<" "<<vxsquare[i]<<" "<<vx[i]<<" "<<endl;
 			pv << 2 * (y[i]-ymin) / h  - 1.<<" "<<vx[i]/v<<" "<<sqrt(vxsquare[i])/v<<" "<< y[i]<<" "<<vx[i]<<" "<<sqrt(vxsquare[i])<<endl;
 		}
 		pv.close();
