@@ -55,6 +55,7 @@ class Simulation
 		unsigned int  ns_;      //!< Current step number
 		double        time_;    //!< Cumulative time
 		unsigned int nperturb_; // time at which a perturbation can occur
+		unsigned int nstartAna_; // time at which we start analysis, by default its the first step
 
 	public:
 
@@ -84,6 +85,7 @@ class Simulation
 			nsf_ = 0;
 			time_ = 0.0;
 			nperturb_ = 0;
+			nstartAna_ = 0 ;
 
 			ofstream time("time.txt",ios::out);
 			time.close();

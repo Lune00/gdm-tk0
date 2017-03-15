@@ -107,6 +107,7 @@ void Simulation::read_data(const char* name)
         else if (token == "nSpeak")         datafile >> nSpeak_;
         else if (token == "nHist")          datafile >> nHist_;
         else if (token == "nAnalyse")       datafile >> nAnalyse_;
+        else if (token == "nstartAnalyse")       datafile >> nstartAna_;
         else if (token == "historyNetwork") historyNetwork_ = true;
         else if (token == "numFileHist")    datafile >> numFileHist_;
         else if (token == "twoFilesHist")   twoFilesHist_ = true;
@@ -282,7 +283,7 @@ void Simulation::run()
 		algo_->look();
 		algo_->hand(ns_);
 		
-		if ( doAnalyse_ && ns_%nAnalyse_  == 0 )
+		if ( doAnalyse_ && ns_%nAnalyse_  == 0 && ns_ >= nstartAna_ )
 		{
 			sysA_->analyse(time_,ns_,nsf_);
 		}
