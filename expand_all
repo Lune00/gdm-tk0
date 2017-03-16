@@ -3,6 +3,14 @@
 
 PATH1=/Users/schuhmacher/bin
 
+gdm=gdm_run_2D_0
+SNA=SNA_2D_0
+profils=profils
+
+echo $SNA
+
+mkdir -p lib
+
 #Compilation sources
 cd src
 make clean
@@ -22,17 +30,13 @@ echo "--- Copie des executables ---"
 echo " "
 
 echo "==================--======================="
-pwd
+echo "Copie vers : " $PATH1
+echo "Executables a copier: $gdm / $SNA / $profils "
 echo "==================--======================="
 
-echo " "
-echo " "
+cp app/gdm_run/gdm_run $PATH1/$gdm
+cp app/SNA/SNA $PATH1/$SNA
+cp app/profils/profils $PATH1/$profils
+
 echo "done"
 
-cp app/gdm_run/gdm_run $PATH1/gdm_run_2D_0
-cp app/SNA/SNA $PATH1/SNA_2D_0
-cp app/profils/profils $PATH1/profils
-#cp gdm-tk-model1-stab/app/Time_mean/Time_mean $PATH1/Time-mean_2D
-#cp gdm-tk-post-hanh/app/SNA/bougeDir $PATH1/bougeDir_2D
-#cp gdm-tk-model1-stab/app/Fusion/Fusion $PATH1/Fusion_2D
-#cp gdm-tk-post-hanh/app/PRG/PRG $PATH1/PRG_2D
