@@ -326,7 +326,7 @@ public:
 	void cluster_df();//Distribution des size des cluster
 	void cluster_volume();
 	void cluster_shape();
-	void Decompte();
+//	void Decompte();
 };
 
 #endif // _biaxial_A_h

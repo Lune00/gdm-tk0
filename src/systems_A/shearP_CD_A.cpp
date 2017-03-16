@@ -392,7 +392,6 @@ void shearP_CD_A::initAnalyse( )
 
 	system("mkdir -p Analyse");
 	system("mkdir -p Analyse/Anisotropies");
-
 	ofstream printSys("Analyse/system.txt",ios::out);
 
 	ofstream strain("Analyse/strain.txt",ios::out);
@@ -735,7 +734,6 @@ void shearP_CD_A::Gap()
 		// Si overlap de deux particules:
 		if ( d > 0. )
 		{
-
 			gapout<<d<<endl;
 			gapout<<sys_->spl()->rmin()<<endl;
 			gapmoy_+= d;
@@ -3084,4 +3082,3 @@ void shearP_CD_A::computeZparticules()
 
 
 }
-

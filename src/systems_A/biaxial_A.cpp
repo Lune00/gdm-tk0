@@ -263,7 +263,7 @@ void Biaxial_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	if( removeR) removeRattlers();
 	if( growR) growRattlers( sys_->spl()->rmin()*incR);
 
-	if (calcglobalstress) {globalStress();Decompte();}
+	if (calcglobalstress) globalStress();
 
 	if (calcfn) pdfforce(true,NbinFN,normpdf,perF,wF);
 	if (calcft) pdfforce(false,NbinFT,normpdf,perF,wF);
@@ -715,7 +715,6 @@ void Biaxial_A::initAnalyse( )
 		paroi.close();
 		
 }
-
 
 void Biaxial_A::ContactMesh()
 
@@ -1595,7 +1594,7 @@ void Biaxial_A::globalStress()
 	delete S;
 	cout<<endl;
 }
-
+/*
 void Biaxial_A::Decompte()
 {
 	double ssv1, ssv2, qopsv, sss1, sss2, qopss;
@@ -1843,7 +1842,7 @@ void Biaxial_A::Decompte()
 	DC_out<<a2ss<<"	"<<a2sv<<"	"<<afn2ss<<"	"<<afn2sv<<"	"<<aft2ss<<"	"<<aft2sv<<"	"<<al2ss<<"	"<<al2sv<<endl;
 	DC_out.close();
 }
-
+*/
 
 unsigned int Biaxial_A::Z(bool exportZP, unsigned int Nbin, bool cvd)
 {
