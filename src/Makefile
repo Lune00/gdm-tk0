@@ -4,6 +4,7 @@ PACKAGE=.
 
 SUBDIRS	= algo struct struct/Bodies2D struct/Inter2D struct/CohesionLaw analyse systems systems_A processing 
 
+
 all:
 	@@for p in $(SUBDIRS); do \
 		echo '============= building ' $(PACKAGE)/$$p; \

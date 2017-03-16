@@ -62,10 +62,10 @@ void Simulation::speak()
       return;
     case 1:  
     default:
-	cout << "Step: " << ns_ << " (" << 100.0*(double)ns_/(double)(nsf_-nsi_) << " %)" << endl;
+	cout <<  "Step: " << ns_ << " (" << std::setprecision(3)<< 100.0*(double)ns_/(double)(nsf_-nsi_) << " %)" << endl;
 	cout << "Time: " << time_ << endl;
       return;
-    } 
+    }
 }
 
 void Simulation::read_data(const char* name)
@@ -107,17 +107,18 @@ void Simulation::read_data(const char* name)
         else if (token == "nSpeak")         datafile >> nSpeak_;
         else if (token == "nHist")          datafile >> nHist_;
         else if (token == "nAnalyse")       datafile >> nAnalyse_;
+        else if (token == "nstartAnalyse")       datafile >> nstartAna_;
         else if (token == "historyNetwork") historyNetwork_ = true;
         else if (token == "numFileHist")    datafile >> numFileHist_;
         else if (token == "twoFilesHist")   twoFilesHist_ = true;
         else if (token == "compactHist")    compactHist_ = true;
+        else if (token == "nUpdateShear")	datafile >> nUpdateShear_ ; 
+        else if (token == "perturbation")    {perturbation_ = true;datafile >> nperturb_;}
         else if (token == "}")              break;
         else cerr << "@Simulation::read_data, Unknown parameter: " << token << endl;
-        
         datafile >> token;
         }
       }
-    
     if (token == "System{")
       {
       datafile >> type; 
@@ -280,8 +281,14 @@ void Simulation::run()
 		algo_->step();
 		algo_->look();
 		algo_->hand(ns_);
-		
-		if ( doAnalyse_ && ns_%nAnalyse_  == 0 )
+		if ( ns_ == nUpdateShear_ && nUpdateShear_ != 0 )
+		{
+
+			cerr<<"------------  Mise a jour du taux de cisaillement --------"<<endl;
+			((System*)sys_)->updateShear();
+
+		}
+		if ( doAnalyse_ && ns_%nAnalyse_  == 0 && ns_ >= nstartAna_ )
 		{
 			sysA_->analyse(time_,ns_,nsf_);
 		}
@@ -295,7 +302,7 @@ void Simulation::run()
 
 		if (ns_%nHist_  == 0)
 		{
-			cout<<" simuRun : ecriture "<<numFileHist_<<endl;
+			cout<<"Ecriture "<<numFileHist_<<endl;
 			
 			history_write(numFileHist_, *spl_, *nwk_, *grpRel_, twoFilesHist_, historyNetwork_, compactHist_);
 			ofstream time("time.txt",ios::app);
@@ -308,7 +315,15 @@ void Simulation::run()
             
         
 		}
+
+
+		if(ns_ == nperturb_ && perturbation_ == true)
+		{
+		  sys_->perturbation();
+		}
+
 	}
+	cerr<<"La simulation est terminee."<<endl;
 }
 
 void Simulation::load_history(const char * fname )

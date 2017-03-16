@@ -33,6 +33,7 @@ public:
 	void add(double);
 	void write(ostream&, unsigned int n);
 	void write(char * );
+	void write(const char *);
 
 	void read(istream&);
 	void addRead(istream&);
@@ -108,7 +109,7 @@ public:
 		else return 0;
 	}
 
-	DataSet::DataSet operator + (DataSet a)
+	DataSet operator + (DataSet a)
 	{
 		DataSet temp;
 

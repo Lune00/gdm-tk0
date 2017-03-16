@@ -1,8 +1,8 @@
 INC_PATH  = ../include
 LIB_PATH  = ../../lib
 
-CC      = g++
-CFLAGS  = -O3 -Wall -Werror -I$(INC_PATH)
+include ../../Makefile.in
+
 
 SRC = algo.cpp \
       CDalgo.cpp

@@ -2991,7 +2991,7 @@ gdm::Tensor2x2 * ftlthetaInProbe( Probe & prb, Sample &spl, Network& nwk,unsigne
 
 				if(rangt==nt) rangt--;
 				if(rangl==nl) rangl--;
-				if(rangl<0) rangl=0;
+				//if(rangl<0) rangl=0;
 
 				ftlt[rangl].py(rangt)+=fabs(interc->ft());
 				Nftlt[rangl].py(rangt)+=1;

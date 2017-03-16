@@ -955,7 +955,7 @@ void CDalgo::hand(unsigned int ns)
 		{
 			if ( ns % nver_ == 0  )
 			{
-				cout<<" ------ Use of superList : Update Verlet = "<<ns<<" ------ "<<endl;
+				//cout<<" ------ Use of superList : Update Verlet = "<<ns<<" ------ "<<endl;
 				//Nmaj_=0;
 
 				nwk_->stock(forcesSafe_);

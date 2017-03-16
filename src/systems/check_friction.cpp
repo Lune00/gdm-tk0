@@ -36,7 +36,7 @@ void Check_friction::init()
 	{  
 // Check the type of first four bodies
 	for (unsigned int i=0;i<2;++i) 
-		if (typeid(*(spl_->body(i))) != typeid(polyg))
+		if ((*(spl_->body(i))).type() != _type_polyg)
 		gdm::fatal("@Check_friction::init, the first four bodies must be polyg!");
 	//spl_->radiusExtrema(4);
 	

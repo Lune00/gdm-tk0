@@ -21,7 +21,7 @@ int main (int argc, char * argv[])
 	
 	if ( argv[1]!=0)
 	{
-		
+	cout<<"Premiere option"<<endl;	
 		Simulation * mySimu= new Simulation();
 		mySimu->read_data(argv[1]);
 		
@@ -81,7 +81,7 @@ int main (int argc, char * argv[])
 		
 		mySimu->sysA()->analyse(10.,1,1);
 		
-		write_mgpost("mgp.out.001",*mySimu->spl(),*mySimu->nwk(),0,0);
+//		write_mgpost("mgp.out.001",*mySimu->spl(),*mySimu->nwk(),0,0);
 	//	mySimu->sysA()->writePS("visuSNA.ps");
 	}
 	else
@@ -92,42 +92,58 @@ int main (int argc, char * argv[])
 		string fichcom,fichsim,fichtemps,include,token;
 		char  nomFichier [100],commande[100],princDir[100];	
 		
-		cout<<"Numero du premier fichier a traiter ?"<<endl;
 		cin>>Ndeb;
-		cout<<"Numero du dernier fichier a traiter ?"<<endl;
 		cin>>Nfin;
-		cout<<"Format numerotation 3 ou 4 ? "<<endl;
 		cin>>format;
-		cout<<"Periode de traitement ? "<<endl;
 		cin>>period;
-		cout<<"Fichier sim ?"<<endl;
 		cin>>fichsim;
-		cout<<"Fichier de commande ?"<<endl;
 		cin>>fichcom;
-		cout<<"Fichier de temps ?"<<endl;
 		cin>>fichtemps;
-		cout<<"Nom du dossier principal a creer ?"<<endl;
 		cin>>princDir;
-		
-		sprintf(commande,"mkdir %s",princDir);
+		cout<<"Numeros du premier et dernier fichier a traiter :"<<Ndeb<<"-"<<Nfin<<endl;
+		cout<<"Nom du dossier principal où stocker les fichiers d'analyse : "<<princDir<<endl;
+		sprintf(commande,"mkdir -p %s",princDir);
 		system( commande);
-		/*cout<<"Moyenne temporelle a effectuer ? (y/n)"<<endl;
-		cin>>token;
-		if( token=="y")
+		cout<<"Nom du fichier temps à charger :"<<fichtemps<<endl;	
+
+		//lecture du fichier time
+		vector <double> t;
+		double temp1,temp2;
+		ifstream time(fichtemps);
+		string line;
+		if(!time.is_open())
 		{
-			//parametre a lire tdebut tfin
-			//grandeur scalaire a evaluer : q,p,q/p,a,an,at,al,
-			//grandeur vectorielle a evaluer : pdf, Xu, correlation force taille ??
-			
+			cerr << "Fichier de temps manquant  " << time << endl;
+			return 0;
 		}
 		else
 		{
-			cout<<"Pas de moyenne temporelle"<<endl;
+			cout<<"Lecture du fichier "<<fichtemps.c_str()<<endl;
+			
+			while(time)
+			{
+				time>> temp1 >>temp2;
+				if(time.eof()) break;
+				t.push_back(temp2);
+			}
 		}
-		*/
+		time.close();
+		
 		
 		Simulation * mySimu= new Simulation();
-		
+
+		//On réécrit le fichier temps:
+		ofstream timereset(fichtemps);
+		unsigned int indice=0;
+		if(timereset.is_open()){
+			for(std::vector<double>::iterator it = t.begin();it != t.end();++it){
+				timereset<<indice<<" "<<*it<<endl;
+				indice++;
+			}
+		}
+		timereset.close();
+
+
 		//Lecture des parametres syteme dans fichier Sim
 		//Le spl et nwk sont normalement vide... a remplir par la suite
 		mySimu->read_data(fichsim.c_str());
@@ -154,27 +170,6 @@ int main (int argc, char * argv[])
 		}
 		cout<<" --- lecture fichier de commande ok "<<endl;
 		
-		//lecture du fichier time
-		vector <double> t;
-		double temp1,temp2;
-		ifstream time(fichtemps.c_str());
-		if(!time)
-		{
-			cerr << "Fichier de temps manquant  " << time << endl;
-			//return 0;
-		}
-		else
-		{
-			
-			while(time )
-			{
-				time>> temp1 >>temp2;
-				//cout<<temp2<<" ";
-				t.push_back(temp2);
-			}
-		}
-		cout<<fichtemps<<endl;
-
 		cout<<" --- lecture fichier temps ok "<<endl;
 		
 	//	ofstream analyze("Analyze.txt",ios::out);
@@ -183,6 +178,8 @@ int main (int argc, char * argv[])
 		sprintf(nomFichier,"spl_nwk_%.3d.his",Ndeb);
 		else if (format==4)
 		sprintf(nomFichier,"spl_nwk_%.4d.his",Ndeb);
+		else if (format==5)
+		sprintf(nomFichier,"spl_nwk_%.5d.his",Ndeb);
 		else
 		{
 			cout<<" Bad format = "<<format<<endl;
@@ -194,6 +191,7 @@ int main (int argc, char * argv[])
 		//mySimu->load_history(nomFichier );
 		//mySimu->algo()->algoFill();
 		
+//		std::string dirAna(princDir);
 	
 		
 		mySimu->sys()->init();
@@ -206,26 +204,19 @@ int main (int argc, char * argv[])
 			sprintf(nomFichier,"spl_nwk/spl_nwk_%.3d.his",i);
 			else if (format==4)
 			sprintf(nomFichier,"spl_nwk/spl_nwk_%.4d.his",i);
+			else if (format==5)
+			sprintf(nomFichier,"spl_nwk/spl_nwk_%.5d.his",i);
 
 			cout<<endl<<endl<<"************ Chargement  :  "<<nomFichier<<endl;
 						
-			//spl.includeFrom()=include;
-			
 			mySimu->load_history(nomFichier);
+		//	cout<<"load_history() done"<<endl;
 			mySimu->algo()->algoFill();
-			
-			//mySimu->spl()->updateBoundaries();
-			//mySimu->spl()->radiusExtrema();
-			//mySimu->spl()->definePeriodicityCV(true);
-			
+		//	cout<<"algoFill() done"<<endl;	
 			mySimu->sysA()->plugRef();
 			mySimu->sysA()->analyse(t[i],1,1);
 			
-			ofstream time("time.txt",ios::app);
-			time<<t[i]<<endl;time.close();
-			
-				
-			cout<<"**********************************************"<<endl;
+			cout<<"*o*0ro*************0******^r******0********1**"<<endl;
 		}
 		
 	}

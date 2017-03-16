@@ -2,7 +2,7 @@
 
 PACKAGE=.
 
-SUBDIRS	= gdm_run SNA 
+SUBDIRS	= gdm_run SNA profils 
 
 all:
 	@@for p in $(SUBDIRS); do \

@@ -310,7 +310,7 @@ void Biaxial_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	}
 	else if(calcompact && (divisionh==1) && (divisionl==1))
 	{
-		sys_->spl()->updateBoundaries2();
+		sys_->spl()->updateBoundaries();
 		
 		double xmin=sys_->spl()->xmin();
 		double xmax=sys_->spl()->xmax();
@@ -361,7 +361,7 @@ void Biaxial_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	}	
 	else if (calcompact && (nsi==nsf))
 	{
-		sys_->spl()->updateBoundaries2();
+		sys_->spl()->updateBoundaries();
 		
 		double xmin=sys_->spl()->xmin();
 		double xmax=sys_->spl()->xmax();
@@ -1610,7 +1610,10 @@ void Biaxial_A::Decompte()
 		ssv2=Ssv->l2();
 		qopsv=( max(ssv1,ssv2)-min(ssv1,ssv2) )/pressure_;
 	}
-	
+	else
+	{
+		qopsv=0.;
+	}
 	//qopss
 	gdm::Tensor2x2 * Sss = StressInProbe_ss(prb_, *(sys_)->spl(),*(sys_)->nwk());	
 	if (Sss != NULL ) 
@@ -1620,6 +1623,10 @@ void Biaxial_A::Decompte()
 		sss2=Sss->l2();
 		qopss=( max(sss1,sss2)-min(sss1,sss2) )/pressure_;
 	}
+	else
+	{
+		qopss=0.;
+	}
 	
 	afnss=aftss=alnss=altss=0;
 	gdm::Tensor2x2 * Fss = FabricInProbe_ss(prb_, *(sys_)->spl(),*(sys_)->nwk() );	
@@ -1627,6 +1634,10 @@ void Biaxial_A::Decompte()
 	{
 		Fss->eigenValues();
 		ass=2.*(max(Fss->l2(),Fss->l1())- min(Fss->l2(),Fss->l1()));
+	}
+	else
+	{
+		ass=0.;
 	}
 	delete Fss;
 
@@ -1636,6 +1647,10 @@ void Biaxial_A::Decompte()
 	{
 		Fsv->eigenValues();
 		asv=2.*(max(Fsv->l2(),Fsv->l1())- min(Fsv->l2(),Fsv->l1()) );
+	}
+	else
+	{
+		asv=0.;
 	}
 	delete Fsv;
 
@@ -1731,12 +1746,19 @@ void Biaxial_A::Decompte()
 	delete Ltsv;
 
 	afn2ss=afn2sv=aft2ss=aft2sv=al2ss=al2sv=0;
+	a2ss=0.;
+	a2sv=0.;
+
 	gdm::Tensor2x2 * F2ss = Fabric2InProbe_ss(prb_, *(sys_)->spl(),*(sys_)->nwk() );
 	
 	if (F2ss != NULL ) 
 	{
 		F2ss->eigenValues();
 		a2ss=2.*(max(F2ss->l2(),F2ss->l1())- min(F2ss->l2(),F2ss->l1()) );
+	}
+	else
+	{
+		a2ss=0.;
 	}
 	delete F2ss;
 	cout<<"a2ss:="<<a2ss;
@@ -3121,7 +3143,7 @@ unsigned int Biaxial_A::granuloStress3(unsigned int Nbinstress )
 
 int Biaxial_A::pdfforce(bool fn,int nbin,bool normalize, unsigned int period, unsigned int width) // A coupler avec la classe SET
 {
-	char * fichier;
+	char fichier[100];
 	cout<<"	PDF  : " ;
 	if (sys_->spl()->body(4)->type()==!0)
 	{	
@@ -3195,37 +3217,36 @@ int Biaxial_A::pdfforce(bool fn,int nbin,bool normalize, unsigned int period, un
 	pointSet pdfd = fd.kernelPdf( nbin,.01);
 	
 	if(fn)
-		fichier="Analyse/pdf/pdffn.txt";
+		sprintf(fichier,"Analyse/pdf/pdffn.txt");
 	else
-		fichier="Analyse/pdf/pdfft.txt";
+		sprintf(fichier,"Analyse/pdf/pdfft.txt");
 	
 	pdf.write(fichier);
 
 	if( fn )
-		fichier="Analyse/pdf/pdffn_mob.txt";
+		sprintf(fichier,"Analyse/pdf/pdffn_mob.txt");
 	else
-		fichier="Analyse/pdf/pdfft_mob.txt";
+		sprintf(fichier,"Analyse/pdf/pdfft_mob.txt");
 	pdf.periodic()=false;
 	pointSet pdfm = pdf.mobileMean2(period, width);
 	pdfm.write(fichier);
 
 	if( fn )
-		fichier="Analyse/pdf/pdffns_mob.txt";
+		sprintf(fichier,"Analyse/pdf/pdffns_mob.txt");
 	else
-		fichier="Analyse/pdf/pdffts_mob.txt";
+		sprintf(fichier,"Analyse/pdf/pdffts_mob.txt");
 	pdfs.periodic()=false;
 	pointSet pdfsm = pdfs.mobileMean2(period, width);
 	pdfsm.write(fichier);
 
 	if( fn )
-		fichier="Analyse/pdf/pdffnd_mob.txt";
+		sprintf(fichier,"Analyse/pdf/pdffnd_mob.txt");
 	else
-		fichier="Analyse/pdf/pdfftd_mob.txt";
+		sprintf(fichier,"Analyse/pdf/pdfftd_mob.txt");
 	pdfs.periodic()=false;
 	pointSet pdfdm = pdfd.mobileMean2(period, width);
 	pdfdm.write(fichier);
 
-	cout<<"	OK "<<endl;
 	}
 	else
 	{
@@ -3258,20 +3279,19 @@ int Biaxial_A::pdfforce(bool fn,int nbin,bool normalize, unsigned int period, un
 	pointSet pdf = f.kernelPdf( nbin,.01);
 	
 	if(fn)
-		fichier="Analyse/pdf/pdffn.txt";
+		sprintf(fichier,"Analyse/pdf/pdffn.txt");
 	else
-		fichier="Analyse/pdf/pdfft.txt";
+		sprintf(fichier,"Analyse/pdf/pdfft.txt");
 	
 	pdf.write(fichier);
 
 	if( fn )
-		fichier="Analyse/pdf/pdffn_mob.txt";
+		sprintf(fichier,"Analyse/pdf/pdffn_mob.txt");
 	else
-		fichier="Analyse/pdf/pdfft_mob.txt";
+		sprintf(fichier,"Analyse/pdf/pdfft_mob.txt");
 	pdf.periodic()=false;
 	pointSet pdfm = pdf.mobileMean2(period, width);
 	pdfm.write(fichier);
-	cout<<"	OK "<<endl;
 	}
 	return 1;
 }
@@ -4519,7 +4539,7 @@ void Biaxial_A::writePS2( const char * fname)
 				
 		ofstream ps(fname);
 
-		this->sys()->spl()->updateBoundaries2(); 		//Ajouter le 25/11/2011 	
+		this->sys()->spl()->updateBoundaries(); 		//Ajouter le 25/11/2011 	
 		double height= sys_->spl()->ymax()-sys_->spl()->ymin();
 		double width = sys_->spl()->xmax()-sys_->spl()->xmin();
 		double xoffset=5.;
@@ -4979,6 +4999,7 @@ double Biaxial_A::compactness_disk(double &x, double &y, double &h, double &l)
 
 double Biaxial_A::compactness(double &ratio)
 {
+	/*
 	const double g=10;
 	double compact=0;
 	double h,w,h1;
@@ -4993,7 +5014,7 @@ double Biaxial_A::compactness(double &ratio)
 	double R, d, alpha, area;
 	unsigned int Nb;
 	
-	sys_->spl()->updateBoundaries2();
+	sys_->spl()->updateBoundaries();
 	h = sys_->spl()->ymax()-sys_->spl()->ymin();
 	w = sys_->spl()->xmax()-sys_->spl()->xmin();
 	h*=ratio;
@@ -5061,14 +5082,17 @@ double Biaxial_A::compactness(double &ratio)
 					polyg_repla->Vertex().push_back(vertex_);					
 				}
 			}	
-			if (polyg_repla->Vertex().size()==0)
+
+			if (polyg_repla->Vertex().size()==0){
 				compact+=0;
+			}
 			else
 			{
 				polyg_repla->adjustCenter ();
 				polyg_repla->Fill(1.);
 				compact+=polyg_repla->Area();
 			}
+
 			delete polyg_repla;
 		}
 		else if (sys_->spl()->body(i)->type()==0)
@@ -5105,6 +5129,8 @@ double Biaxial_A::compactness(double &ratio)
 	//str<<time<<"\t"<<compact<<"\t"<<sys_->spl()->xmin()<<"\t"<<sys_->spl()->xmax()<<"\t"<<sys_->spl()->ymin()<<"\t"<<sys_->spl()->ymax()<<endl;
 	str.close();
 	return compact;
+	*/
+		return 0.;
 }
 	
 void Biaxial_A::fracture()
@@ -5213,7 +5239,7 @@ void Biaxial_A::heterogeneity(unsigned int Ni,unsigned int Nf)
 	double dmoy=0.;
 	unsigned int Nb;
 	
-	sys_->spl()->updateBoundaries2();
+	sys_->spl()->updateBoundaries();
 	xmin=sys_->spl()->xmin();
 	xmax=sys_->spl()->xmax();
 	ymin=sys_->spl()->ymin();
@@ -5748,16 +5774,16 @@ void Biaxial_A::cluster_shape()
 	clust_rmax.close();
 	
 //********Calcul pdf des aspects
-	char * fichier;
+	char  fichier[100];
 	DataSet f;
 	for(unsigned int i=0;i<aspect.size();i++) f.add(aspect[i]);
 	f.extractValues();
 //	f.Normalize( f.mean());
 	f.DecreasingSort();
 	pointSet pdf = f.kernelPdf( 120,.01);
-	fichier="Analyse/Cluster/pdf_aspect.txt";
+	sprintf(fichier,"Analyse/Cluster/pdf_aspect.txt");
 	pdf.write(fichier);
-	fichier="Analyse/Cluster/pdf_aspect_mob.txt";
+	sprintf(fichier,"Analyse/Cluster/pdf_aspect_mob.txt");
 	pdf.periodic()=false;
 	pointSet pdfm = pdf.mobileMean2(1, 2);
 	pdfm.write(fichier);

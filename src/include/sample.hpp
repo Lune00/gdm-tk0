@@ -6,8 +6,6 @@
 #include <vector>
 #include "body2d.hpp"
 #include "dof.hpp"
-//#include "control.hpp"
-
 #include "disk.hpp" // pourquoi ?? le display peut etre (a mettre au clair)
 #include "polyg.hpp" // ?
 #include "rline.hpp" // ?
@@ -38,8 +36,8 @@ public:
   vector<body2d*> & lbody()       { return lbody_; } 
   vector<body2d*>   lbody() const { return lbody_; }
   body2d* body(unsigned int i) { return lbody_[i]; }
-
-  
+    
+    
   void substituteBody(unsigned int i, body2d& B) 
     {
     if (i >= lbody_.size()) return;
@@ -64,7 +62,6 @@ public:
   
   //! \brief Compute the boundaried (xmin, xmax, ymin, ymax) of the sample
   void updateBoundaries();
-  void updateBoundaries2(); 
   //! \brief Compute Rmin and Rmax
   //! \author Charles Voivret 
   void radiusExtrema(unsigned int );
@@ -77,9 +74,7 @@ public:
   Sample(double left,double right,double bandW): isMonoPeriodic_(true),leftBoundary_(left),
     rightBoundary_(right),boundWidth_(right-left),bandWidth_(bandW){ }
   
-  //for sample construct with geometrical rules
-  //! \author Charles Voivret
-  void definePeriodicityCV(bool periodic);
+  void definePeriodicity(double bandW);
   
   void SortByHeight();
   
@@ -101,7 +96,7 @@ public:
   double   rmin()           const { return rmin_;}
   double & rmin()                 { return rmin_;}
 
-double   rmoy()           const { return rmoy_;}
+  double   rmoy()           const { return rmoy_;}
   double & rmoy()                 { return rmoy_;}
 
   
@@ -113,7 +108,7 @@ double   rmoy()           const { return rmoy_;}
 		cout<<"taille lbody "<<lbody_.size()<<endl; //vua cho them dong nay
        //lbody_[n].back()->id() = ;
 		}
-		void removeBody( body2d * );
+  void removeBody( body2d * );
   
   double  xmin() const { return xmin_; }
   double  xmax() const { return xmax_; }

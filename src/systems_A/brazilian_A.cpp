@@ -254,7 +254,7 @@ void brazilian_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 
 	if(calcompact && (divisionh==1) && (divisionl==1))
 	{
-		sys_->spl()->updateBoundaries2();
+		sys_->spl()->updateBoundaries();
 		
 		double xmin=sys_->spl()->xmin();
 		double xmax=sys_->spl()->xmax();
@@ -270,7 +270,7 @@ void brazilian_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	
 	else if (calcompact && (nsi==nsf))
 	{
-		sys_->spl()->updateBoundaries2();
+		sys_->spl()->updateBoundaries();
 		
 		double xmin=sys_->spl()->xmin();
 		double xmax=sys_->spl()->xmax();
@@ -351,7 +351,7 @@ void brazilian_A::initAnalyse( )
 	sys_->spl()->radiusExtrema(4);
 	cout<<" rmin "<<sys()->spl()->rmin()<<" rmax "<<sys()->spl()->rmax()<<endl;
 	
-	this->sys()->spl()->updateBoundaries2(); 		//Ajouter le 25/11/2011 	
+	this->sys()->spl()->updateBoundaries(); 		//Ajouter le 25/11/2011 	
 	h0= sys_->spl()->ymax()-sys_->spl()->ymin();
 	l0 = sys_->spl()->xmax()-sys_->spl()->xmin();
 	
@@ -956,7 +956,7 @@ void brazilian_A::Gap()
 
 void brazilian_A::def() 
 {
-	this->sys()->spl()->updateBoundaries2(); 		//Ajouter le 25/11/2011 	
+	this->sys()->spl()->updateBoundaries(); 		//Ajouter le 25/11/2011 	
 	double h= sys_->spl()->ymax()-sys_->spl()->ymin();
 	double l = sys_->spl()->xmax()-sys_->spl()->xmin();
 		
@@ -2107,18 +2107,19 @@ unsigned int brazilian_A::granuloStress3(unsigned int Nbinstress )
 
 int brazilian_A::pdfforce(bool fn,int nbin,bool normalize, unsigned int period, unsigned int width) // A coupler avec la classe SET
 {
-	char * fichier,*fichierbrut;
+	char fichier[100];
+	char fichierbrut[100];
 	cout<<"	PDF  : " ;
 	
 	if( fn )
 	{
-		fichier="Analyse/pdf/pdffn.txt";
-		fichierbrut = "Analyse/pdf/fn_brut.txt";
+		sprintf(fichier,"Analyse/pdf/pdffn.txt");
+		sprintf(fichierbrut , "Analyse/pdf/fn_brut.txt");
 	}
 	else
 	{
-		fichier="Analyse/pdf/pdfft.txt";
-		fichierbrut = "Analyse/pdf/ft_brut.txt";
+		sprintf(fichier,"Analyse/pdf/pdfft.txt");
+		sprintf(fichierbrut , "Analyse/pdf/ft_brut.txt");
 	}
 	
 	DataSet f;
@@ -2164,9 +2165,9 @@ int brazilian_A::pdfforce(bool fn,int nbin,bool normalize, unsigned int period, 
 	f.DecreasingSort();
 	
 	if(fn)
-		fichier="Analyse/pdf/pdffn.txt";
+		sprintf(fichier,"Analyse/pdf/pdffn.txt");
 	else
-		fichier="Analyse/pdf/pdfft.txt";
+		sprintf(fichier,"Analyse/pdf/pdfft.txt");
 	
 	f.write(fichier);
 	
@@ -2853,11 +2854,11 @@ void brazilian_A::reduceRattlers()
 				
 		ofstream ps(fname);
 		/*
-		this->sys()->spl()->updateBoundaries2(); 		//Ajouter le 25/11/2011 	
+		this->sys()->spl()->updateBoundaries(); 		//Ajouter le 25/11/2011 	
 		double height= sys_->spl()->ymax()-sys_->spl()->ymin();
 		double width = sys_->spl()->xmax()-sys_->spl()->xmin();*/
 		
-		this->sys()->spl()->updateBoundaries2(); 
+		this->sys()->spl()->updateBoundaries(); 
 		double height= sys_->spl()->ymax()-sys_->spl()->ymin();
 		double width = sys_->spl()->xmax()-sys_->spl()->xmin();
 		double periode = 0.;
@@ -3182,7 +3183,7 @@ void brazilian_A::writePS2( const char * fname)
 				
 		ofstream ps(fname);
 
-		this->sys()->spl()->updateBoundaries2(); 		//Ajouter le 25/11/2011 	
+		this->sys()->spl()->updateBoundaries(); 		//Ajouter le 25/11/2011 	
 		double height= sys_->spl()->ymax()-sys_->spl()->ymin();
 		double width = sys_->spl()->xmax()-sys_->spl()->xmin();
 		double xoffset=5.;

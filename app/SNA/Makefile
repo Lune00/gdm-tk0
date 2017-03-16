@@ -4,9 +4,7 @@ SYS_PATH  = ../../src/systems
 SYS_A_PATH = ../../src/systems_A
 LIB_PATH = ../../lib
 
-CC      = g++
-CFLAGS  = -I/sw/include -Wall -O3 -I$(SYS_A_PATH) -I$(INC_PATH) -I$(SYS_PATH) 
-
+include ../../Makefile.in
 
 OBJS = $(APP).o  $(LIB_PATH)/*.o
 

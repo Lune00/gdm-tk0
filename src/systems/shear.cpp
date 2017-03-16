@@ -31,7 +31,7 @@ void Shear::init()
 {  
 // Some checks
 	for (unsigned int i=0;i<4;++i) 
-		if (typeid(*(spl_->body(i))) != typeid(rline))
+		if ((*(spl_->body(i))).type() != _type_rline)
 		gdm::fatal("@Shear::init, the first four bodies must be rlines!");
 
 // y de left et right doivent etre les memes

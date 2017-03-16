@@ -11,7 +11,7 @@ void purge(Seq& c)
   for(i = c.begin(); i != c.end(); i++) 
     {
       delete *i;
-      *i = 0;
+      *i = NULL;
     }
 }
 
@@ -22,7 +22,7 @@ void purge(InpIt begin, InpIt end)
   while(begin != end) 
     {
       delete *begin;
-      *begin = 0;
+      *begin = NULL;
       begin++;
     }
 }

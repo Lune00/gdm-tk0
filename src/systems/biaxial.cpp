@@ -45,7 +45,7 @@ void Biaxial::init()
 	k_=0;
 // Check the type of first four bodies
 	for (unsigned int i=0;i<4;++i) 
-		if (typeid(*(spl_->body(i))) != typeid(rline))
+		if ( (*(spl_->body(i))).type() !=_type_rline )
 		gdm::fatal("@Biaxial::init, the first four bodies must be rlines!");
 	spl_->radiusExtrema(4); // Calcul Rmin, Rmax, Rmoy des diks
 

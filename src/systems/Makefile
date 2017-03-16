@@ -1,14 +1,12 @@
 INC_PATH  = ../include
 LIB_PATH  = ../../lib
 
-CC      = g++
-CFLAGS  = -O3 -Wall  -I$(INC_PATH)
+include ../../Makefile.in
 
 SRC = system.cpp \
       generalCD.cpp \
       biaxial.cpp shear.cpp\
 	  shearP_CD.cpp biaxial_dof.cpp\
-	  dev_cluster.cpp\
 	  check_friction.cpp\
 	  brazilian.cpp
 

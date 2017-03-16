@@ -1,8 +1,7 @@
 INC_PATH  = ../../include
 LIB_PATH  = ../../../lib
 
-CC      = g++ -arch x86_64
-CFLAGS  = -O3 -Wall -Werror -I$(INC_PATH)
+include ../../../Makefile.in
 
 SRC = body2d.cpp \
       disk.cpp polyg.cpp rline.cpp massPoint.cpp 

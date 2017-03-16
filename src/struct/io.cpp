@@ -382,7 +382,10 @@ void sample_write_tapioK(const char * name, Sample& spl)
 	double val = 0;
 	for (unsigned int i = 0 ; i < spl.lbody().size() ; ++i)
 	{
-		if (typeid(*(spl.body(i))) == typeid(disk))
+
+		if ( (*spl.body(i)).type() == _type_disk) 
+		//if (typeid(*(spl.body(i))) == typeid(disk))
+
 		{
 			++nbdisks;
 			val = spl.body(i)->xmin();
@@ -417,7 +420,9 @@ void sample_write_tapioK(const char * name, Sample& spl)
 	disk * D = 0;
 	for (unsigned int i = 0 ; i < spl.lbody().size() ; ++i)
 	{
-		if (typeid(*(spl.body(i))) == typeid(disk))
+		//if (typeid(*(spl.body(i))) == typeid(disk))
+		
+		if ( (*spl.body(i)).type() == _type_disk) 
 		{
 			D = dynamic_cast<disk*> (spl.body(i));
 			datafile << "0" << endl;
