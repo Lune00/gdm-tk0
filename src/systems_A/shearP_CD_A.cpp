@@ -3066,17 +3066,9 @@ void shearP_CD_A::computeZparticules()
 		int id1 = sys_->nwk()->inter(ci)->first()->id();
 		int id2 = sys_->nwk()->inter(ci)->second()->id();
 
-		//On ecarte les forces nulles : 
-/*		if( sys_->nwk()->inter(ci)->fn()<eps)
-		{
-			Cfn++;
-		}
-		else
-		{
-		*/
-				Ncpp[id1]++;
-				Ncpp[id2]++;
-		
+		Ncpp[id1]++;
+		Ncpp[id2]++;
+
 	}
 	unsigned int flottant = 0 ;
 	unsigned int freeparticules = 0 ;
