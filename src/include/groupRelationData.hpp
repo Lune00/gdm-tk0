@@ -105,6 +105,7 @@ public:
   void initActivator();
   
   void read(istream & is);
+  void read(const char* fname);
   
   void write(ostream & os);
   

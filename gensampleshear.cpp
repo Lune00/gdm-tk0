@@ -1,4 +1,6 @@
 #include<iomanip>
+#include<random>
+#include<limits>
 #include<cmath>
 #include<stdlib.h>
 #include<iostream>
@@ -64,7 +66,7 @@ double powerlaw(double r1, double r2){
 
 int main(){
 
-
+	//user
 	//Paramètres echantillon et de la rugosite de la paroi
 	double const r1 = 0.01 ;
 	double const r2 = 3 * r1 ;
@@ -74,20 +76,42 @@ int main(){
 	double const rparoi = R * rmean ;
 	double const lw = 2. * rmean ;// (1. + u ) * ( 2 * r1 );
 
-	unsigned int nfree = 5000 ;
+	unsigned int nfree = 500;
 	unsigned int nslice = 100 ;
+
+	//Paramètres particules : 
+	double masse_vol = 2600.0 ;
+
+
+	//Groupes :
+
 	// nombre de classes de particules differentes uniquement pour les particules libres  (assigner des valeurs de mu, cohesion differentes par ex)
 	//si ngroup = 0 alors il n'y a qu'un groupe
-	unsigned int ngroup = 0 ;
+	unsigned int ngroup = 20 ;
+	//Par defaut les partois ont un groupe different
+	unsigned int groupparoi = ngroup + 1 ; // par defaut
+
+	//Assigne a chaque paire group1-group2 une valeur de mu_s (frottement sec) suivant une distribution normale N(mu_s_moyen,mu_s_variance)
+	double mu_s_moyen = 0.3 ;
+	double mu_s_variance = 0.1 ;
+	// le frottement par defaut (true) entre grains libres et parois est identique pour tous les groupes, sinon il suit la loi des combinaisons possibles
+	// si mu_s_paroi_any est vrai alors le frottement entre (ngroup+1 <-> n) est egal a mu_s_moyen  
+	bool mu_s_paroi_any = true ;
+	//Ignore tous les groupes:
+	bool uniform_mu_s_for_all = false ;
+
 	int seed = 3 ;
 
+	//Random generator:
 	srand(seed);
 
+	std::default_random_engine generator;
+	std::normal_distribution<double> distribution(mu_s_moyen,mu_s_variance);
 
 	if(nfree == 0) {cout<<" Entrez un nombre de particules différent de 0."<<endl; return 0 ; }
 	if(nslice ==0) {cout<<" Le paramètre nslice a une valeur non acceptable."<<endl; return 0; }
 	if(u < 0. || u * 2 * rparoi > 2 * r1) {cout<<"L'espacement entre particules de la paroi est trop grand (trous) ou trop faible (overlaping)."<<endl; return 0;}
-
+	if(ngroup > 50 ) {cout<< "Attention, le nombre de groupe est élevé, il y a "<<ngroup*ngroup<<" possibilités d'interaction ! "<<endl;}
 	cout<<"Rugosite apparente R : "<<R<<endl;
 	cout<<"Espacement entre particules de la paroi lw : "<< lw <<endl;
 	cout<<"Angle de rugosite : "<<asin( lw / ( (2 * rmean) * ( 1 + R ) ) ) * 180. / M_PI <<" °"<<endl;
@@ -205,43 +229,68 @@ int main(){
 	if( ngroup != 0 ) { 
 		for(std::vector<Particule>::iterator it = sample.begin() ; it!= sample.end(); it++){
 			unsigned int group = rand () % ngroup + 1;
-			cout<<group<<endl;
 			it->setgroup(group);
 		}
+
 	}
 
-	//Ecrture du fichier packing0.spl
+	//Generation d'un fichier group.ini pour les relations entre groupes a inclure dans Simu.sim
+	ofstream groupIni("group.ini",ios::out);
+	groupIni <<"GroupData{"<<endl;
+	groupIni <<"ngrp "<<ngroup+1<<endl;
+	groupIni <<"parameter density "<<endl;
+	groupIni <<"set all density "<<masse_vol<<endl;
+	groupIni <<"}"<<endl;
+		groupIni<<"GroupRelationData{"<<endl;
+	groupIni <<"ngrp "<<ngroup+1<<endl;
+	groupIni <<"parameter mu"<<endl;
 
-	ofstream myFile ("packing0.spl",ios::out);
-	myFile<<"Sample{"<<endl;
-	myFile<<"Cluster{"<<endl;
-	for(std::vector<Particule>::iterator it = paroi1.begin() ; it!= paroi1.end(); it++){
-		myFile<<it->gettype()<<" "<<it->getgroup()<<" "<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
+	if(uniform_mu_s_for_all) {
+		groupIni<<"setall mu "<<mu_s_moyen<<endl;
 	}
-	myFile<<"}"<<endl;
-	for(std::vector<Particule>::iterator it = sample.begin() ; it!= sample.end(); it++){
-		myFile<<it->gettype()<<" "<<it->getgroup()<<" "<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
+	else
+	{
+		for (unsigned int i = 0 ; i != ngroup + 1 ; i++){
+			for (unsigned int j = i ; j != ngroup + 1 ; j++){
+				double mu = distribution(generator);
+				groupIni<<"set mu "<<i<<" "<<j<<" "<<mu<<endl;
+			}
+		}
 	}
-	myFile<<"Cluster{"<<endl;
-	for(std::vector<Particule>::iterator it = paroi2.begin() ; it!= paroi2.end(); it++){
-		myFile<<it->gettype()<<" "<<it->getgroup()<<" "<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
-	}
-	myFile<<"}"<<endl;
-	myFile<<"}"<<endl;
-	myFile.close();
+	groupIni<<"}"<<endl;
+	groupIni.close();
+		//Ecrture du fichier packing0.spl
 
-	ofstream plotsample("sample-gnuplot.txt");
+		ofstream myFile ("packing0.spl",ios::out);
+		myFile<<"Sample{"<<endl;
+		myFile<<"Cluster{"<<endl;
+		for(std::vector<Particule>::iterator it = paroi1.begin() ; it!= paroi1.end(); it++){
+			myFile<<it->gettype()<<" "<<it->getgroup()<<" "<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
+		}
+		myFile<<"}"<<endl;
+		for(std::vector<Particule>::iterator it = sample.begin() ; it!= sample.end(); it++){
+			myFile<<it->gettype()<<" "<<it->getgroup()<<" "<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
+		}
+		myFile<<"Cluster{"<<endl;
+		for(std::vector<Particule>::iterator it = paroi2.begin() ; it!= paroi2.end(); it++){
+			myFile<<it->gettype()<<" "<<it->getgroup()<<" "<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
+		}
+		myFile<<"}"<<endl;
+		myFile<<"}"<<endl;
+		myFile.close();
 
-	for(std::vector<Particule>::iterator it = paroi1.begin() ; it!= paroi1.end(); it++){
-		plotsample<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
-	}
+		ofstream plotsample("sample-gnuplot.txt");
 
-	for(std::vector<Particule>::iterator it = sample.begin() ; it!= sample.end(); it++){
-		plotsample<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
+		for(std::vector<Particule>::iterator it = paroi1.begin() ; it!= paroi1.end(); it++){
+			plotsample<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
+		}
+
+		for(std::vector<Particule>::iterator it = sample.begin() ; it!= sample.end(); it++){
+			plotsample<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
+		}
+		for(std::vector<Particule>::iterator it = paroi2.begin() ; it!= paroi2.end(); it++){
+			plotsample<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
+		}
+		plotsample.close();
+		return 0;
 	}
-	for(std::vector<Particule>::iterator it = paroi2.begin() ; it!= paroi2.end(); it++){
-		plotsample<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
-	}
-	plotsample.close();
-	return 0;
-}
