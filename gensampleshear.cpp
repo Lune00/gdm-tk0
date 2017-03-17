@@ -30,6 +30,7 @@ class Particule{
     double getvy() const {return vy_;};
     std::string gettype() const {return type_;};
     double getgroup()  const {return group_;};
+    void setgroup(unsigned int id) {group_ = id;};
 };
 
 
@@ -65,16 +66,20 @@ int main(){
 
 
   //Paramètres echantillon et de la rugosite de la paroi
-  double const r1 = 0.001 ;
-  double const r2 = 2 * r1 ;
+  double const r1 = 0.01 ;
+  double const r2 = 3 * r1 ;
   double const rmean = 0.5 * ( r1 + r2 ) ;
   double const R = 0.15 ; // R=rparoi/rmean
   double const u = 0.2 ; // lw = 2*rparoi + u * paroi
   double const rparoi = R * rmean ;
   double const lw = 2. * rmean ;// (1. + u ) * ( 2 * r1 );
 
-  unsigned int nfree = 1000 ;
-  unsigned int nslice = 30 ;
+  unsigned int nfree = 5000 ;
+  unsigned int nslice = 100 ;
+  unsigned int ngroup = 25 ; // nombre de classes de particules differentes uniquement pour les particules libres  (assigner des valeurs de mu, cohesion differentes par ex)
+  int seed = 3 ;
+
+  srand(seed);
 
 
   if(nfree == 0) {cout<<" Entrez un nombre de particules différent de 0."<<endl; return 0 ; }
@@ -193,6 +198,15 @@ int main(){
     it->sety(y);
     k++;
   }
+  //Assignation des groupes de manière aléatoire pour les particules libres:
+
+  
+  for(std::vector<Particule>::iterator it = sample.begin() ; it!= sample.end(); it++){
+	  unsigned int group = rand () % ngroup + 1;
+	  cout<<group<<endl;
+	  it->setgroup(group);
+  }
+
   //Ecrture du fichier packing0.spl
 
   ofstream myFile ("packing0.spl",ios::out);

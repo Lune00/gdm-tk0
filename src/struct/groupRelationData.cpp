@@ -1,12 +1,10 @@
 #include "groupRelationData.hpp"
 
 GroupRelationData::GroupRelationData() { 
-  cerr << "DBG Constructeur 1" << endl ;
 npar_ = 0 ; ngrp_ = 0; fragmentation_=false; frag_ = 0 ;}
 
 GroupRelationData::GroupRelationData(unsigned int ngrp) : ngrp_(ngrp)
 { 
-  cerr << "DBG Constructeur 2" << endl ;
   npar_ = 0;
   initActivator();
 }
@@ -37,8 +35,6 @@ GroupRelationData::~GroupRelationData()
       lpar_[p] = 0;
       }
     }
-
-  cerr<<"Desctructeur groupRelationData sortie."<<endl;
 }
 
 bool GroupRelationData::act(unsigned int g1, unsigned int g2) const
@@ -373,6 +369,14 @@ void GroupRelationData::read(istream & is)
       
       setParameter(parName,g1,g2,value);
       }
+
+    else if (token == "setinrange")
+    {
+
+
+    }
+
+
 	// cohesion laws
 	else if (token == "cohesionLaw")
       { 
