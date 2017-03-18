@@ -1,4 +1,4 @@
-// stand
+
 //    step --> update step num., update positions, drive & share functions of the system,
 //             update system velocities
 //    look --> contact,fres,mass matrix & array of coefficients,
@@ -366,6 +366,7 @@ unsigned int CDalgo::iter_0()
 				{ 
 					ahij=(grpRel_->getLaw(oxo->first()->grp(),oxo->second()->grp()))->fco(oxo);//Cohésion
 					muij = grpRel_->getParameterQuickly(muId,oxo->first()->grp(),oxo->second()->grp());//coefficience de friction
+					cerr<<"Appel de mu : "<< oxo->first()->grp()<< " "<< oxo->second()->grp()<< " : "<<muij<<endl;
 				
 					if( oxo->rang()==0 )//distance interaction
 					{
@@ -477,6 +478,7 @@ unsigned int CDalgo::iter_0()
 				muij = grpRel_->getParameterQuickly(muId,oxo->first()->grp(),oxo->second()->grp());//coefficience de friction
 				ahij=(grpRel_->getLaw(oxo->first()->grp(),oxo->second()->grp()))->fco(oxo);//Cohésion
 			
+					//cerr<<"Appel de mu : "<< oxo->first()->grp()<< " "<< oxo->second()->grp()<< " : "<<muij<<endl;
 				if( oxo->rang()==0 )//distance interaction
 				{
 					fnij0 = oxo ->fn(); 
