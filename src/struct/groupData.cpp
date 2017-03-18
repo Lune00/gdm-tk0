@@ -125,14 +125,7 @@ void GroupData::read(istream & is)
   is >> token;	
   while(is)
   {	
-    //S'il y a le fichier il contient tout, donc on break.
-    if (token == "includeGroups"){
-      string filename;
-      is >> filename;
-      GroupData::read(filename.c_str());
-      break ;
-    }
-    else if      (token == "ngrp")      
+    if      (token == "ngrp")      
     {
       is >> ngrp_;
       if (ngrp_ == 0) cerr << "GroupData::read, ngrp can not be 0" << endl;
@@ -175,6 +168,7 @@ void GroupData::read(istream & is)
 //Lecture a partir de group.ini s'il existe
 void GroupData::read(const char * fname)
 {
+  cerr<<"On est dans GroupData::read(const char*)"<<endl;
   ifstream datafile(fname);
   if(!datafile)
   {
@@ -186,44 +180,46 @@ void GroupData::read(const char * fname)
   {
     if(token=="GroupData{")
     {
-      datafile >> token ;
-      if(token == "ngrp")      
+      while(token!="}")
       {
-	datafile >> ngrp_;
-	if (ngrp_ == 0) cerr << "GroupData::read, ngrp can not be 0" << endl;
-      }
-      else if (token == "parameter")
-      { 
-	if (ngrp_ == 0) cerr << "GroupData::read, ngrp can not be 0" << endl;
-	string name;
-	datafile >> name;
-	addParameter(name);
-      }
-      else if (token == "setall")
-      { 
-	string parName;
-	double value;
+	datafile >> token ;
 
-	datafile >> parName >> value;
-
-	for (unsigned int g=0;g<ngrp_;++g)
+	if(token == "ngrp")      
 	{
+	  datafile >> ngrp_;
+	  if (ngrp_ == 0) cerr << "GroupData::read, ngrp can not be 0" << endl;
+	}
+	else if (token == "parameter")
+	{ 
+	  if (ngrp_ == 0) cerr << "GroupData::read, ngrp can not be 0" << endl;
+	  string name;
+	  datafile >> name;
+	  addParameter(name);
+	  cerr<<"set "<<name<<endl;
+	}
+	else if (token == "setall")
+	{ 
+	  string parName;
+	  double value;
+	  datafile >> parName >> value;
+	  cerr<<"setall : "<<parName<<" "<<ngrp_<<endl;
+	  for (unsigned int g=0;g<ngrp_;++g)
+	  {
+	    setParameter(parName,g,value);
+	  }
+	}
+	else if (token == "set")
+	{ 
+	  string parName;
+	  unsigned int g;
+	  double value;
+	  datafile >> parName >> g >> value;
 	  setParameter(parName,g,value);
 	}
       }
-      else if (token == "set")
-      { 
-	string parName;
-	unsigned int g;
-	double value;
-
-	datafile >> parName >> g >> value;
-
-	setParameter(parName,g,value);
-      }
-      if(token=="}") break;
-      datafile >> token;
+      cerr<<"GroupData defined."<<endl;
     }
+      datafile >> token;
   }
 }
 
