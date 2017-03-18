@@ -79,17 +79,19 @@ int main(){
 	unsigned int nfree = 500;
 	unsigned int nslice = 100 ;
 
-	//Paramètres particules : 
+	//GroupData:
 	double masse_vol = 2600.0 ;
 
-
-	//Groupes :
-
+	//GroupRelationData:
+	double const ah = 0. ;
+	double const en = 0. ;
+	double const et = 0. ;
+	double const rs = 0. ;
 	// nombre de classes de particules differentes uniquement pour les particules libres  (assigner des valeurs de mu, cohesion differentes par ex)
-	//si ngroup = 0 alors il n'y a qu'un groupe
-	unsigned int ngroup = 20 ;
+	//si ngroup = 1 alors il y a 2 groupes : particules libres et parois
+	unsigned int ngroup = 3 ;
 	//Par defaut les partois ont un groupe different
-	unsigned int groupparoi = ngroup + 1 ; // par defaut
+	unsigned int groupparoi = ngroup ; // par defaut
 
 	//Assigne a chaque paire group1-group2 une valeur de mu_s (frottement sec) suivant une distribution normale N(mu_s_moyen,mu_s_variance)
 	double mu_s_moyen = 0.3 ;
@@ -234,63 +236,85 @@ int main(){
 
 	}
 
+	//Assignation du groupe aux particules des  parois
+	for(std::vector<Particule>::iterator it = paroi1.begin() ; it!= paroi1.end(); it++){
+	  it->setgroup(groupparoi);
+	}
+	for(std::vector<Particule>::iterator it = paroi2.begin() ; it!= paroi2.end(); it++){
+	  it->setgroup(groupparoi);
+	}
 	//Generation d'un fichier group.ini pour les relations entre groupes a inclure dans Simu.sim
 	ofstream groupIni("group.ini",ios::out);
+
 	groupIni <<"GroupData{"<<endl;
 	groupIni <<"ngrp "<<ngroup+1<<endl;
 	groupIni <<"parameter density "<<endl;
 	groupIni <<"set all density "<<masse_vol<<endl;
 	groupIni <<"}"<<endl;
-		groupIni<<"GroupRelationData{"<<endl;
-	groupIni <<"ngrp "<<ngroup+1<<endl;
-	groupIni <<"parameter mu"<<endl;
 
+	groupIni<<"GroupRelationData{"<<endl;
+
+	groupIni <<"ngrp "<<ngroup+1<<endl;
+
+	groupIni <<"parameter ah "<<endl;
+	groupIni <<"setall ah "<<ah<<endl;
+
+	groupIni <<"parameter en "<<endl;
+	groupIni <<"setall en "<<en<<endl;
+
+	groupIni <<"parameter et "<<endl;
+	groupIni <<"setall et "<<et<<endl;
+
+	groupIni <<"parameter mu"<<endl;
 	if(uniform_mu_s_for_all) {
-		groupIni<<"setall mu "<<mu_s_moyen<<endl;
+	  groupIni<<"setall mu "<<mu_s_moyen<<endl;
 	}
 	else
 	{
-		for (unsigned int i = 0 ; i != ngroup + 1 ; i++){
-			for (unsigned int j = i ; j != ngroup + 1 ; j++){
-				double mu = distribution(generator);
-				groupIni<<"set mu "<<i<<" "<<j<<" "<<mu<<endl;
-			}
-		}
+	  for (unsigned int i = 0 ; i != ngroup + 1 ; i++){
+	    for (unsigned int j = i ; j != ngroup + 1 ; j++){
+	      double mu = distribution(generator);
+	      groupIni<<"set mu "<<i<<" "<<j<<" "<<mu<<endl;
+	      if( i == groupparoi || j == groupparoi  ) {
+		if (mu_s_paroi_any)  groupIni<<"set mu "<<i<<" "<<j<<" "<<mu_s_moyen<<endl;
+	      }
+	    }
+	  }
 	}
 	groupIni<<"}"<<endl;
 	groupIni.close();
-		//Ecrture du fichier packing0.spl
+	//Ecrture du fichier packing0.spl
 
-		ofstream myFile ("packing0.spl",ios::out);
-		myFile<<"Sample{"<<endl;
-		myFile<<"Cluster{"<<endl;
-		for(std::vector<Particule>::iterator it = paroi1.begin() ; it!= paroi1.end(); it++){
-			myFile<<it->gettype()<<" "<<it->getgroup()<<" "<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
-		}
-		myFile<<"}"<<endl;
-		for(std::vector<Particule>::iterator it = sample.begin() ; it!= sample.end(); it++){
-			myFile<<it->gettype()<<" "<<it->getgroup()<<" "<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
-		}
-		myFile<<"Cluster{"<<endl;
-		for(std::vector<Particule>::iterator it = paroi2.begin() ; it!= paroi2.end(); it++){
-			myFile<<it->gettype()<<" "<<it->getgroup()<<" "<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
-		}
-		myFile<<"}"<<endl;
-		myFile<<"}"<<endl;
-		myFile.close();
-
-		ofstream plotsample("sample-gnuplot.txt");
-
-		for(std::vector<Particule>::iterator it = paroi1.begin() ; it!= paroi1.end(); it++){
-			plotsample<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
-		}
-
-		for(std::vector<Particule>::iterator it = sample.begin() ; it!= sample.end(); it++){
-			plotsample<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
-		}
-		for(std::vector<Particule>::iterator it = paroi2.begin() ; it!= paroi2.end(); it++){
-			plotsample<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
-		}
-		plotsample.close();
-		return 0;
+	ofstream myFile ("packing0.spl",ios::out);
+	myFile<<"Sample{"<<endl;
+	myFile<<"Cluster{"<<endl;
+	for(std::vector<Particule>::iterator it = paroi1.begin() ; it!= paroi1.end(); it++){
+	  myFile<<it->gettype()<<" "<<it->getgroup()<<" "<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
 	}
+	myFile<<"}"<<endl;
+	for(std::vector<Particule>::iterator it = sample.begin() ; it!= sample.end(); it++){
+	  myFile<<it->gettype()<<" "<<it->getgroup()<<" "<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
+	}
+	myFile<<"Cluster{"<<endl;
+	for(std::vector<Particule>::iterator it = paroi2.begin() ; it!= paroi2.end(); it++){
+	  myFile<<it->gettype()<<" "<<it->getgroup()<<" "<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
+	}
+	myFile<<"}"<<endl;
+	myFile<<"}"<<endl;
+	myFile.close();
+
+	ofstream plotsample("sample-gnuplot.txt");
+
+	for(std::vector<Particule>::iterator it = paroi1.begin() ; it!= paroi1.end(); it++){
+	  plotsample<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
+	}
+
+	for(std::vector<Particule>::iterator it = sample.begin() ; it!= sample.end(); it++){
+	  plotsample<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
+	}
+	for(std::vector<Particule>::iterator it = paroi2.begin() ; it!= paroi2.end(); it++){
+	  plotsample<<it->getr()<<" "<<it->getx()<<" "<<it->gety()<<" "<<it->getrot()<<" "<<it->getvx()<<" "<<it->getvy()<<" "<<it->getvrot()<<endl;
+	}
+	plotsample.close();
+	return 0;
+}
