@@ -89,7 +89,7 @@ int main(){
   double const rs = 0. ;
   // nombre de classes de particules differentes uniquement pour les particules libres  (assigner des valeurs de mu, cohesion differentes par ex)
   //si ngroup = 1 alors il y a 2 groupes : particules libres et parois
-  unsigned int ngroup = 1 ;
+  unsigned int ngroup = 3 ;
   //Par defaut les partois ont un groupe different
   unsigned int groupparoi = ngroup ; // par defaut
 
@@ -249,7 +249,7 @@ int main(){
   groupIni <<"GroupData{"<<endl;
   groupIni <<"ngrp "<<ngroup+1<<endl;
   groupIni <<"parameter density "<<endl;
-  groupIni <<"set all density "<<masse_vol<<endl;
+  groupIni <<"setall density "<<masse_vol<<endl;
   groupIni <<"}"<<endl;
 
   groupIni<<"GroupRelationData{"<<endl;
@@ -264,6 +264,9 @@ int main(){
 
   groupIni <<"parameter et "<<endl;
   groupIni <<"setall et "<<et<<endl;
+
+  groupIni <<"parameter rs "<<endl;
+  groupIni <<"setall rs "<<rs<<endl;
 
   groupIni <<"parameter mu"<<endl;
   if(uniform_mu_s_for_all) {
