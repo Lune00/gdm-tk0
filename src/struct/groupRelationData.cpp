@@ -325,10 +325,12 @@ void GroupRelationData::read(istream & is)
 	is >> token;	
 	while(is)
 	{	
+	  //S'il y a le fichier il contient tout, donc on break.
 		if (token == "includeGroups"){
 			string filename;
 			is >> filename;
 			GroupRelationData::read(filename.c_str());
+			break;
 		}
 		else if      (token == "ngrp")      
 		{
@@ -375,18 +377,12 @@ void GroupRelationData::read(istream & is)
 			setParameter(parName,g1,g2,value);
 		}
 
-
-
 		// cohesion laws
 		else if (token == "cohesionLaw")
 		{ 
-			//	cout<<"set law "<<endl;
 			string lawName;
 			unsigned int g1,g2;
-			//double value;
 			is >> lawName >> g1 >> g2;
-			//cout<<" nom loi = "<<lawName<<endl;
-
 			setLaw(lawName , g1 , g2, is);
 		}
 		else if (token=="Fragmentation")
@@ -413,8 +409,12 @@ void GroupRelationData::read(const char * fname)
 
 	string token;
 	datafile >> token;	
+	//Il faut lire seulement le GroupRelationData{}
 	while(datafile)
 	{	
+	  if (token == "GroupRelationData{")
+	  {
+	    datafile >> token ;
 		if      (token == "ngrp")      
 		{
 			datafile >> ngrp_;
@@ -453,9 +453,12 @@ void GroupRelationData::read(const char * fname)
 
 			setParameter(parName,g1,g2,value);
 		}
+		else if(token =="}") break;
 
+	  datafile >> token ;
+	  }
+	datafile >> token ;
 	}
-
 }
 
 void GroupRelationData::write(ostream & os)

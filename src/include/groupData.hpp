@@ -1,6 +1,7 @@
 #ifndef _groupdata_hpp
 #define _groupdata_hpp
 
+#include<fstream>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -46,6 +47,7 @@ public:
   
   void addParameter(string name);
   void read(istream & is);
+  void read(const char *);
   void write(ostream & os);
   
 private:
