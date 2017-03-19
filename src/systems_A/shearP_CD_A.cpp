@@ -477,7 +477,11 @@ void shearP_CD_A::initAnalyse( )
 		ofstream lc("Analyse/forceCorr/linearCor.txt",ios::out);lc.close();
 
 	}
+	if( calcsf )
+	{
 
+	  ofstream SF_("Analyse/sf.txt",ios::out);
+	}
 
 	//cout<<"h1= "<<totalProbe_.h1()<<" h2 = "<<totalProbe_.h2()<<endl;
 	//cout<<"Compacite initiale = "<<sf()<<endl;		
@@ -816,7 +820,10 @@ void shearP_CD_A::def()
 void shearP_CD_A::SF()
 {
 	sf()=solidFraction(totalProbe_,*sys_->spl(), *sys_->nwk());
+	ofstream sf_("Analyse/sf.txt",ios::app);
+	sf_<<time<<" "<<epsxy_<<" "<<sf()<<endl;
 	cout<<".Solid Fraction = "<<sf()<<endl;
+	sf_.close();
 }
 
 void shearP_CD_A::profiles(bool Speed, bool Solfrac)
@@ -1071,7 +1078,6 @@ void shearP_CD_A::normalForceInOut(int Ninout)
 void shearP_CD_A::A()
 {
 	ofstream Fabric_out("Analyse/Anisotropies/Fabric.txt",ios::app);
-	an_=at_=al_=0;
 	if ( sys_->nwk()->clist().empty()) {cout<<" No contact = No Fabric "<<endl;return ;}
 
 	cout<<"	Fabric A : ";
@@ -1096,6 +1102,15 @@ void shearP_CD_A::forces_A(int Nbin,bool plot )
 	if ( sys_->nwk()->clist().empty()) {cout<<" No contact = No anisotropy "<<endl;return ;}
 	cout<<"-----> Uncorrelated anisotropies (classical) : "<<endl;
 
+	cout<<"	Fabric A : ";
+	gdm::Tensor2x2 * F = FabricInProbe(totalProbe_, *(sys_)->spl(),*(sys_)->nwk() );
+	if (F != NULL ) 
+	{
+		F->eigenValues();
+		a()=2.*(max(F->l2(),F->l1())- min(F->l2(),F->l1()) );
+		da_=F->majorDirection();
+		oa_=a()*cos( 2.*da_);
+	}
 	double an,at,al,dn,dt,dl;
 	an=at=al=dn=dt=dl=0;
 	cout<<"	fn_A : ";
@@ -1199,6 +1214,7 @@ void shearP_CD_A::forces_A(int Nbin,bool plot )
 	cout<<"		.5*(a+an+at+al) = "<<.5*(a()+an+at+al)<<endl;
 	cout<<"		            q/p = "<<qop_<<endl;
 
+	delete F;
 	delete Fn;
 	delete Ft;
 	delete L;
@@ -3081,4 +3097,64 @@ void shearP_CD_A::computeZparticules()
 	testZ.close();
 
 
+}
+
+
+void shearP_CD_A::writePSgroup( const char * fname)
+{
+
+	ofstream ps(fname);
+
+	//cout << endl << "---\t " << sys_->spl()->xmin() << " " << sys_->spl()->xmax() << " " << sys_->spl()->boundWidth() << endl << endl; 
+
+	//sys_->spl()->updateBoundaries();
+	sys_->spl()->updateBands();
+	sys_->spl()->radiusExtrema(1);
+
+	double R = sys_->spl()->rmax();
+
+	double Xmin = sys_->spl()->xmin() + R;
+	double Ymin = sys_->spl()->ymin() + R;
+
+	double xmin_ = sys_->spl()->xmin() - 5.*R;
+	double ymin_ = sys_->spl()->ymin() - 5.*R;
+	double xmax_ = sys_->spl()->xmax() + 5.*R;
+	double ymax_ = sys_->spl()->ymax() + 5.*R;
+
+	double zoom = zoom_;
+	double x_offset = fabs(Xmin*zoom);
+	double y_offset = fabs(Ymin*zoom);
+
+
+	//!------ Header for ps file	
+	ps<<"%!PS-Adobe-3.0 EPSF-3.0"<<endl;
+	//ps<<"%%BoundingBox:"<<" "<<"-30 -20 515 550"<<endl;
+	ps<<"%%BoundingBox:"<<" "<<x_offset + (xmin_ - 2.*sys_->spl()->bandWidth())*zoom<<" "<<y_offset + (ymin_ - 2.*sys_->spl()->bandWidth())*zoom<<" "
+		<<x_offset + (xmax_ + 2.*sys_->spl()->bandWidth())*zoom<<" "<<y_offset + (ymax_ + 2.*sys_->spl()->bandWidth())*zoom<<endl;
+	ps<<"%%Pages: 1"<<endl;
+	ps<<"0.1 setlinewidth 0. setgray "<<endl;
+
+	double x_A,y_A,x_B,y_B,x_C,y_C,x_D,y_D;
+	x_A = sys_->spl()->xmax() + R;//   sys_->spl()->body(3)->x()+R;
+	y_A = sys_->spl()->ymin() - R;//   sys_->spl()->body(0)->y()-R;
+	x_B = sys_->spl()->xmin() - R;//   sys_->spl()->body(2)->x()-R;
+	y_B = sys_->spl()->ymin() - R;//   sys_->spl()->body(0)->y()-R;
+	x_C = sys_->spl()->xmin() - R;//   sys_->spl()->body(2)->x()-R;
+	y_C = sys_->spl()->ymax() + R;//   sys_->spl()->body(1)->y()+R;
+	x_D = sys_->spl()->xmax() + R;//   sys_->spl()->body(3)->x()+R;
+	y_D = sys_->spl()->ymax() + R;//   sys_->spl()->body(1)->y()+R;
+
+
+	//!------ Draw sample
+		DataSet V;
+
+		for(unsigned i=0 ; i<sys_->spl()->lbody().size() ; ++i)
+		{
+			//if (sys_->spl()->body(i)->type() ==0)
+			{
+				V.add(sqrt(sys_->spl()->body(i)->vx()*sys_->spl()->body(i)->vx()+sys_->spl()->body(i)->vy()*sys_->spl()->body(i)->vy()));
+			}
+		}
+
+		V.extractValues();
 }

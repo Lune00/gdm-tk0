@@ -283,6 +283,7 @@ class shearP_CD_A : public System_A
     unsigned int granuloStress3( unsigned int );//Nbin sliding histo
     void followparticles();	
     void writePS(const char * fname);
+    void writePSgroup(const char * fname);
     void computeZparticules(); // calcule le nombre de contact par particule ->z_() 
     //void filterGap();
 
