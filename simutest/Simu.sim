@@ -1,0 +1,47 @@
+Simulation{
+ns      0
+nsi     0
+nsf     2000
+nHist   100
+nSpeak  10
+nAnalyse 100
+nstartAnalyse 0
+historyNetwork
+}
+
+System{ shearP_CD
+firstUse NO
+setUnit Rmax
+topX SHEARRATE 5.1
+topY PRESSURE 35000
+boundariesAuto
+bandwidth 3
+dverlet .8
+dsuperlist 1.2
+symetrical
+}
+
+
+System_A{ shearP_CD_A
+Sample
+ZoomSample 8000
+}
+
+Algo{ CD
+dt      0.0001
+epsf    0.001
+nitermn 40
+nitermx 200
+nver    3
+nsuper  8
+}
+
+Network{
+dverlet 0.01
+dsuperList 0.02
+}
+
+includeGroups group.ini
+includeGroupsRelations group.ini
+includeFile spl_nwk_0039.his
+
