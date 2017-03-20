@@ -539,7 +539,7 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	if (displaySample || displayForce)
 	{
 		sprintf(fname,"Analyse/PS1/particles%.4i.ps",Nanalyze());
-		writePS(fname);
+		writePS2(fname);
 	}
 
 	cout<<"		Nombre de contacts = "<<sys_->nwk()->linter().size()<<endl;
@@ -3100,14 +3100,11 @@ void shearP_CD_A::computeZparticules()
 }
 
 
-void shearP_CD_A::writePSgroup( const char * fname)
+void shearP_CD_A::writePS2( const char * fname)
 {
 
 	ofstream ps(fname);
 
-	//cout << endl << "---\t " << sys_->spl()->xmin() << " " << sys_->spl()->xmax() << " " << sys_->spl()->boundWidth() << endl << endl; 
-
-	//sys_->spl()->updateBoundaries();
 	sys_->spl()->updateBands();
 	sys_->spl()->radiusExtrema(1);
 
@@ -3125,7 +3122,6 @@ void shearP_CD_A::writePSgroup( const char * fname)
 	double x_offset = fabs(Xmin*zoom);
 	double y_offset = fabs(Ymin*zoom);
 
-
 	//!------ Header for ps file	
 	ps<<"%!PS-Adobe-3.0 EPSF-3.0"<<endl;
 	//ps<<"%%BoundingBox:"<<" "<<"-30 -20 515 550"<<endl;
@@ -3133,28 +3129,30 @@ void shearP_CD_A::writePSgroup( const char * fname)
 		<<x_offset + (xmax_ + 2.*sys_->spl()->bandWidth())*zoom<<" "<<y_offset + (ymax_ + 2.*sys_->spl()->bandWidth())*zoom<<endl;
 	ps<<"%%Pages: 1"<<endl;
 	ps<<"0.1 setlinewidth 0. setgray "<<endl;
+	ps <<"0. 0. .23 setrgbcolor clippath fill"<<endl;
+	ps << "/colordisk {0.3 0.8 1.0} def"<< endl;
+	ps << "/colordot {0. 0. 0.} def" <<endl;
 
-	double x_A,y_A,x_B,y_B,x_C,y_C,x_D,y_D;
-	x_A = sys_->spl()->xmax() + R;//   sys_->spl()->body(3)->x()+R;
-	y_A = sys_->spl()->ymin() - R;//   sys_->spl()->body(0)->y()-R;
-	x_B = sys_->spl()->xmin() - R;//   sys_->spl()->body(2)->x()-R;
-	y_B = sys_->spl()->ymin() - R;//   sys_->spl()->body(0)->y()-R;
-	x_C = sys_->spl()->xmin() - R;//   sys_->spl()->body(2)->x()-R;
-	y_C = sys_->spl()->ymax() + R;//   sys_->spl()->body(1)->y()+R;
-	x_D = sys_->spl()->xmax() + R;//   sys_->spl()->body(3)->x()+R;
-	y_D = sys_->spl()->ymax() + R;//   sys_->spl()->body(1)->y()+R;
+	for(unsigned i=0 ; i<sys_->spl()->lbody().size() ; ++i)
+	{
+		double x = x_offset + sys_->spl()->body(i)->x() * zoom;
+		double y = y_offset + sys_->spl()->body(i)->y() * zoom;
+		double r = sys_->spl()->body(i)->sizeVerlet() * zoom;
+		double theta = sys_->spl()->body(i)->rot(); 
+		double xrcostheta = x + r * cos(theta) * 0.8; 
+		double yrcostheta = y + r * sin(theta) * 0.8; 
+		//double xrcosthetaO = x + r * cos(theta+180); 
+		//double yrcosthetaO = y + r * sin(theta+180); 
 
+		double radiusrot = r * 0.05 ;
 
-	//!------ Draw sample
-		DataSet V;
+		ps <<" newpath "<<endl ;
+		ps <<x<<" "<<y<<" "<<r<<" colordisk setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore "<<endl; 
+		ps <<"stroke"<<endl;
+		ps << "newpath "<<endl;
+		ps <<xrcostheta<<" "<<yrcostheta<<" "<<radiusrot<<" colordot setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore"<<endl;
+		ps<<"stroke"<<endl;
 
-		for(unsigned i=0 ; i<sys_->spl()->lbody().size() ; ++i)
-		{
-			//if (sys_->spl()->body(i)->type() ==0)
-			{
-				V.add(sqrt(sys_->spl()->body(i)->vx()*sys_->spl()->body(i)->vx()+sys_->spl()->body(i)->vy()*sys_->spl()->body(i)->vy()));
-			}
-		}
-
-		V.extractValues();
+	}
+	ps.close();
 }
