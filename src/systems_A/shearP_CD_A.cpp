@@ -3132,6 +3132,7 @@ void shearP_CD_A::writePS2( const char * fname)
 	ps <<"0. 0. .23 setrgbcolor clippath fill"<<endl;
 	ps << "/colordisk {0.3 0.8 1.0} def"<< endl;
 	ps << "/colordot {0. 0. 0.} def" <<endl;
+	ps << "/colorwall {0.33 0.33 1.} def" <<endl;
 
 	for(unsigned i=0 ; i<sys_->spl()->lbody().size() ; ++i)
 	{
@@ -3146,12 +3147,21 @@ void shearP_CD_A::writePS2( const char * fname)
 
 		double radiusrot = r * 0.15 ;
 
+		if(sys_->spl()->body(i)->bodyDof()==NULL){
 		ps <<" newpath "<<endl ;
 		ps <<x<<" "<<y<<" "<<r<<" colordisk setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore "<<endl; 
 		ps <<"stroke"<<endl;
 		ps << "newpath "<<endl;
 		ps <<xrcostheta<<" "<<yrcostheta<<" "<<radiusrot<<" colordot setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore"<<endl;
 		ps<<"stroke"<<endl;
+		}
+		else
+		{
+		ps <<" newpath "<<endl ;
+		ps <<x<<" "<<y<<" "<<r<<" colorwall setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore "<<endl; 
+		ps <<"stroke"<<endl;
+		ps << "newpath "<<endl;
+		}
 
 	}
 	ps.close();
