@@ -3113,10 +3113,10 @@ void shearP_CD_A::writePS2( const char * fname)
 	double Xmin = sys_->spl()->xmin() + R;
 	double Ymin = sys_->spl()->ymin() + R;
 
-	double xmin_ = sys_->spl()->xmin() - 5.*R;
-	double ymin_ = sys_->spl()->ymin() - 5.*R;
-	double xmax_ = sys_->spl()->xmax() + 5.*R;
-	double ymax_ = sys_->spl()->ymax() + 5.*R;
+	double xmin_ = sys_->spl()->xmin() - 2.*R;
+	double ymin_ = sys_->spl()->ymin() - 2.*R;
+	double xmax_ = sys_->spl()->xmax() + 2.*R;
+	double ymax_ = sys_->spl()->ymax() + 2.*R;
 
 	double zoom = zoom_;
 	double x_offset = fabs(Xmin*zoom);
@@ -3125,8 +3125,8 @@ void shearP_CD_A::writePS2( const char * fname)
 	//!------ Header for ps file	
 	ps<<"%!PS-Adobe-3.0 EPSF-3.0"<<endl;
 	//ps<<"%%BoundingBox:"<<" "<<"-30 -20 515 550"<<endl;
-	ps<<"%%BoundingBox:"<<" "<<x_offset + (xmin_ - 2.*sys_->spl()->bandWidth())*zoom<<" "<<y_offset + (ymin_ - 2.*sys_->spl()->bandWidth())*zoom<<" "
-		<<x_offset + (xmax_ + 2.*sys_->spl()->bandWidth())*zoom<<" "<<y_offset + (ymax_ + 2.*sys_->spl()->bandWidth())*zoom<<endl;
+	ps<<"%%BoundingBox:"<<" "<<x_offset + (xmin_ - sys_->spl()->bandWidth())*zoom<<" "<<y_offset + (ymin_ - sys_->spl()->bandWidth())*zoom<<" "
+		<<x_offset + (xmax_ + sys_->spl()->bandWidth())*zoom<<" "<<y_offset + (ymax_ )*zoom<<endl;
 	ps<<"%%Pages: 1"<<endl;
 	ps<<"0.1 setlinewidth 0. setgray "<<endl;
 	ps <<"0. 0. .23 setrgbcolor clippath fill"<<endl;
@@ -3144,7 +3144,7 @@ void shearP_CD_A::writePS2( const char * fname)
 		//double xrcosthetaO = x + r * cos(theta+180); 
 		//double yrcosthetaO = y + r * sin(theta+180); 
 
-		double radiusrot = r * 0.05 ;
+		double radiusrot = r * 0.15 ;
 
 		ps <<" newpath "<<endl ;
 		ps <<x<<" "<<y<<" "<<r<<" colordisk setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore "<<endl; 
