@@ -3103,11 +3103,13 @@ void shearP_CD_A::computeZparticules()
 void shearP_CD_A::writePS2( const char * fname)
 {
 
+	bool displayforce = true ;
+
 	ofstream ps(fname);
 
 	sys_->spl()->updateBands();
 	sys_->spl()->radiusExtrema(1);
-
+	//Limits and scale factors :
 	double R = sys_->spl()->rmax();
 
 	double Xmin = sys_->spl()->xmin() + R;
@@ -3116,7 +3118,7 @@ void shearP_CD_A::writePS2( const char * fname)
 	double xmin_ = sys_->spl()->xmin() - 2.*R;
 	double ymin_ = sys_->spl()->ymin() - 2.*R;
 	double xmax_ = sys_->spl()->xmax() + 2.*R;
-	double ymax_ = sys_->spl()->ymax() + 2.*R;
+	double ymax_ = sys_->spl()->ymax() + 4.*R; // dilatancy
 
 	double zoom = zoom_;
 	double x_offset = fabs(Xmin*zoom);
@@ -3132,7 +3134,7 @@ void shearP_CD_A::writePS2( const char * fname)
 	ps <<"0. 0. .23 setrgbcolor clippath fill"<<endl;
 	ps << "/colordisk {0.3 0.8 1.0} def"<< endl;
 	ps << "/colordot {0. 0. 0.} def" <<endl;
-	ps << "/colorwall {0.33 0.33 1.} def" <<endl;
+	ps << "/colorwall {1. 1. 1.} def" <<endl;
 
 	for(unsigned i=0 ; i<sys_->spl()->lbody().size() ; ++i)
 	{
@@ -3145,25 +3147,67 @@ void shearP_CD_A::writePS2( const char * fname)
 		//double xrcosthetaO = x + r * cos(theta+180); 
 		//double yrcosthetaO = y + r * sin(theta+180); 
 
-		double radiusrot = r * 0.15 ;
+		double radiusrot = r * 0.09 ;
 
 		if(sys_->spl()->body(i)->bodyDof()==NULL){
-		ps <<" newpath "<<endl ;
-		ps <<x<<" "<<y<<" "<<r<<" colordisk setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore "<<endl; 
-		ps <<"stroke"<<endl;
-		ps << "newpath "<<endl;
-		ps <<xrcostheta<<" "<<yrcostheta<<" "<<radiusrot<<" colordot setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore"<<endl;
-		ps<<"stroke"<<endl;
+			ps <<" newpath "<<endl ;
+			ps <<x<<" "<<y<<" "<<r<<" colordisk setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore "<<endl; 
+			ps <<"stroke"<<endl;
+			ps << "newpath "<<endl;
+			ps <<xrcostheta<<" "<<yrcostheta<<" "<<radiusrot<<" colordot setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore"<<endl;
+			ps<<"stroke"<<endl;
 		}
 		else
 		{
-		ps <<" newpath "<<endl ;
-		ps <<x<<" "<<y<<" "<<r<<" colorwall setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore "<<endl; 
-		ps <<"stroke"<<endl;
-		ps << "newpath "<<endl;
+			ps <<" newpath "<<endl ;
+			ps <<x<<" "<<y<<" "<<r<<" colorwall setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore "<<endl; 
+			ps <<"stroke"<<endl;
+			ps << "newpath "<<endl;
 		}
-		//Network :
-
 	}
-	ps.close();
+	//Periodique :
+
+
+
+		//Network :
+		if(displayforce && !sys_->nwk()->clist().empty())
+		{
+
+			DataSet Fns;
+
+			for(unsigned i=0 ; i<sys_->nwk()->clist().size() ; ++i)
+			{
+				if ( sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() > 0. )
+				{
+					Fns.add(sys_->nwk()->inter(sys_->nwk()->clist(i))->fn());
+				}
+			}
+
+			Fns.extractValues();
+
+			for(unsigned i=0 ; i<sys_->nwk()->clist().size() ; ++i)
+			{
+			int x1 = sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->x();
+			int x2 = sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->x();
+				if ( sys_->nwk()->inter(sys_->nwk()->clist(i))->fn()<0. || x1 > x2 ) continue;
+
+				double factorFn = 1.5 ;
+				double fnrescale = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn()-Fns.min())/(Fns.min()+Fns.max());
+
+				double Linewidth = fnrescale * factorFn * R * zoom;
+				//double logcolor = log (fnrescale * 9 + 1) * R * zoom; 
+				ps<<"/coul_force {1 setlinecap 1 "<<1. - fnrescale<<" "<<1. -fnrescale<<" setrgbcolor} def"<<endl;
+
+
+
+				ps<<Linewidth<<" setlinewidth coul_force"<<endl;
+				ps<<sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->x()*zoom + x_offset<<" "
+					<<sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->y()*zoom + y_offset<<" "<<"moveto"<<" "
+					<<sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->x()*zoom + x_offset<<" "
+					<<sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->y()*zoom + y_offset<<" "<<" "<<"lineto stroke"<<endl;
+			}
+		}
+
+
+		ps.close();
 }
