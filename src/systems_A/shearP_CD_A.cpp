@@ -3166,6 +3166,7 @@ void shearP_CD_A::writePS2( const char * fname)
 		}
 	}
 	//Periodique :
+	//Test
 
 
 
