@@ -3162,6 +3162,7 @@ void shearP_CD_A::writePS2( const char * fname)
 		ps <<"stroke"<<endl;
 		ps << "newpath "<<endl;
 		}
+		//Network :
 
 	}
 	ps.close();
