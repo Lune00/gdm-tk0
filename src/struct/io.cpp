@@ -178,13 +178,13 @@ void history_write(unsigned int number, Sample& spl, Network& nwk, GroupRelation
     
   if(TwoFiles || !saveNetwork)
   {
-      system("mkdir spl");
+      system("mkdir -p spl");
       sprintf(name,"spl/spl_%04d.his",number);
   }
     
   else
   {
-      system("mkdir spl_nwk");
+      system("mkdir -p spl_nwk");
       sprintf(name,"spl_nwk/spl_nwk_%04d.his",number);
   
   }
@@ -201,66 +201,6 @@ void history_write(unsigned int number, Sample& spl, Network& nwk, GroupRelation
   datafile << "Sample{" << endl;
   spl.write(datafile);
   datafile << "}" << endl << endl;
-    
-    /*
-    // Ecriture variables particules dans un autre fichier pour post traitement fortran
-    /////////////////////////
-    system("mkdir ContactMesh ");
-    
-    sprintf(name_spl,"ContactMesh/spl_%04d.his",number);
-    
-    ofstream datafile__(name_spl);
-    
-    for (long int i = 0; i<spl.lbody().size(); i++) {
-        if (spl.body(i)->type() == _type_disk)
-        {
-            spl.body(i)->write(datafile__);
-        }
-    }
-    
-     datafile__.close();
-    
-  
-    char name_c[100];
-    sprintf(name_c,"ContactMesh/contact_%04d.his",number);
-    
-    ofstream datafile_2(name_c,ios::out);
-    
-    
-    
-    for(unsigned i=0 ; i<nwk.clist().size() ; ++i)
-    {
-        //if(nwk.inter(nwk.clist(i))->type()==0) cout<<"ARA"<<endl;
-        
-      // cout<<nwk.inter(i)->type()<< " "<<nwk.inter(nwk.clist(i))->type()<<" "<<i<<endl;
-        if(nwk.inter(nwk.clist(i))->type()==0)
-            // if(sys_->nwk()->inter(i)->type()==0 && sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->bodyDof()==NULL &&
-            // sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->bodyDof()==NULL)
-           // datafile_2 <<"CLING"<<endl;
-            
-        {
-            datafile_2
-            
-            << nwk.inter(nwk.clist(i))->first()->id()     << " "
-            << nwk.inter(nwk.clist(i))->second()->id()    << " "
-            << nwk.inter(nwk.clist(i))->first()->x()      << " "
-            << nwk.inter(nwk.clist(i))->first()->y()      << " "
-            << nwk.inter(nwk.clist(i))->second()->x()     << " "
-            << nwk.inter(nwk.clist(i))->second()->y()     << " "
-            << nwk.inter(nwk.clist(i))->x()               << " "
-            << nwk.inter(nwk.clist(i))->y()               << " "
-            << nwk.inter(nwk.clist(i))->nx()               << " "
-            << nwk.inter(nwk.clist(i))->ny()               << " "
-            << nwk.inter(nwk.clist(i))->fn()               << " "
-            << nwk.inter(nwk.clist(i))->ft()               <<endl;
-        }
-    }
-
-   */ 
-    
-    
-    ///////////////////////////
-    
   
   if(saveNetwork)
     {
