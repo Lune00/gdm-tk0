@@ -3132,7 +3132,8 @@ void shearP_CD_A::writePS2( const char * fname)
 	ps<<"%%Pages: 1"<<endl;
 	ps<<"0.1 setlinewidth 0. setgray "<<endl;
 	ps <<"0. 0. .23 setrgbcolor clippath fill"<<endl;
-	ps << "/colordisk {0.3 0.8 1.0} def"<< endl;
+	//ps << "/colordisk {0.3 0.8 1.0} def"<< endl;
+	ps << "/colordisk {0.3 0.7 1.0} def"<< endl;
 	ps << "/colordot {0. 0. 0.} def" <<endl;
 	ps << "/colorwall {1. 1. 1.} def" <<endl;
 
@@ -3166,49 +3167,67 @@ void shearP_CD_A::writePS2( const char * fname)
 		}
 	}
 	//Periodique :
-	//Test
+	//Left-band
+	cout<<"leftband.size = "<< sys_->spl()->leftband().size() <<endl;
+	cout<<"rightband.size = "<< sys_->spl()->rightband().size() <<endl;
+	for (unsigned int j=0 ; j<sys_->spl()->leftband().size() ; ++j)
+	{
+		ps	<<"newpath "<<x_offset + (sys_->spl()->body(sys_->spl()->leftband(j))->x() + sys_->spl()->boundWidth())*zoom<<" "
+			<<y_offset + sys_->spl()->body(sys_->spl()->leftband(j))->y()*zoom<<" "<<sys_->spl()->body(sys_->spl()->leftband(j))->sizeVerlet()*zoom<<" " 
+			<<"0.0 360.0 arc closepath 0.0 colordisk stroke" << endl;
+	}
+	//Right-band
+	for (unsigned int j=0 ; j<sys_->spl()->rightband().size() ; ++j)
+	{
+		ps	<<"newpath "<<x_offset + (sys_->spl()->body(sys_->spl()->rightband(j))->x() - sys_->spl()->boundWidth())*zoom<<" "
+			<<y_offset + sys_->spl()->body(sys_->spl()->rightband(j))->y()*zoom<<" "<<sys_->spl()->body(sys_->spl()->rightband(j))->sizeVerlet()*zoom<<" " 
+			<<"0.0 360.0 arc closepath 0.0 colordisk stroke" << endl;
+	}
 
 
+	//Network :
+	if(displayforce && !sys_->nwk()->clist().empty())
+	{
 
-		//Network :
-		if(displayforce && !sys_->nwk()->clist().empty())
+		DataSet Fns;
+
+		for(unsigned i=0 ; i<sys_->nwk()->clist().size() ; ++i)
 		{
-
-			DataSet Fns;
-
-			for(unsigned i=0 ; i<sys_->nwk()->clist().size() ; ++i)
+			if ( sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() > 0. )
 			{
-				if ( sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() > 0. )
-				{
-					Fns.add(sys_->nwk()->inter(sys_->nwk()->clist(i))->fn());
-				}
-			}
-
-			Fns.extractValues();
-
-			for(unsigned i=0 ; i<sys_->nwk()->clist().size() ; ++i)
-			{
-			int x1 = sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->x();
-			int x2 = sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->x();
-				if ( sys_->nwk()->inter(sys_->nwk()->clist(i))->fn()<0. || x1 > x2 ) continue;
-
-				double factorFn = 1.5 ;
-				double fnrescale = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn()-Fns.min())/(Fns.min()+Fns.max());
-
-				double Linewidth = fnrescale * factorFn * R * zoom;
-				//double logcolor = log (fnrescale * 9 + 1) * R * zoom; 
-				ps<<"/coul_force {1 setlinecap 1 "<<1. - fnrescale<<" "<<1. -fnrescale<<" setrgbcolor} def"<<endl;
-
-
-
-				ps<<Linewidth<<" setlinewidth coul_force"<<endl;
-				ps<<sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->x()*zoom + x_offset<<" "
-					<<sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->y()*zoom + y_offset<<" "<<"moveto"<<" "
-					<<sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->x()*zoom + x_offset<<" "
-					<<sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->y()*zoom + y_offset<<" "<<" "<<"lineto stroke"<<endl;
+				Fns.add(sys_->nwk()->inter(sys_->nwk()->clist(i))->fn());
 			}
 		}
 
+		Fns.extractValues();
 
-		ps.close();
+		double Fmean = Fns.Mean();
+		cerr<<"Fn mean = "<<Fmean<<endl;
+		double FnOverMeanMax = sys_->nwk()->inter(sys_->nwk()->clist(0))->fn()/Fmean ;
+		for(unsigned i=0 ; i<sys_->nwk()->clist().size() ; ++i)
+		{
+			int x1 = sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->x();
+			int x2 = sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->x();
+			if ( sys_->nwk()->inter(sys_->nwk()->clist(i))->fn()<0. || x1 > x2 ) continue;
+
+			//double factorFn = 1.5 ;
+			double fnrescale = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn()-Fns.min())/(Fns.min()+Fns.max());
+
+			//double Linewidth = fnrescale * factorFn * R * zoom;
+			double Linewidth = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() / Fmean) * 0.04 * R * zoom;
+			if ( (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() / Fmean) > FnOverMeanMax) FnOverMeanMax = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() / Fmean);
+			//double logcolor = log (fnrescale * 9 + 1) * R * zoom; 
+			ps<<"/coul_force {1 setlinecap 1 "<<1. - fnrescale<<" "<<1. -fnrescale<<" setrgbcolor} def"<<endl;
+
+			ps<<Linewidth<<" setlinewidth coul_force"<<endl;
+			ps<<sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->x()*zoom + x_offset<<" "
+				<<sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->y()*zoom + y_offset<<" "<<"moveto"<<" "
+				<<sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->x()*zoom + x_offset<<" "
+				<<sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->y()*zoom + y_offset<<" "<<" "<<"lineto stroke"<<endl;
+		}
+		cerr <<"max(Fn/Fmean)="<<FnOverMeanMax<<endl;
+	}
+
+
+	ps.close();
 }
