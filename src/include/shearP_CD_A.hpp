@@ -91,6 +91,7 @@ class shearP_CD_A : public System_A
     bool calcz ;
     bool calczp;
 
+    bool calcZprofile;
     bool calcfn;
     bool calcft;
     bool calcl;
@@ -139,6 +140,7 @@ class shearP_CD_A : public System_A
     int Nd,Np;
     int Nq_;
     int Ninout;
+    int NbinZ_;
 
 
     ///////////
@@ -155,6 +157,7 @@ class shearP_CD_A : public System_A
     void plugRef();
     void printSystem();
 
+    void profilZ();
 
     //void plug( shearP_CD * sys_in) {sys=sys_in;}
 
@@ -166,6 +169,7 @@ class shearP_CD_A : public System_A
       calcfn=false;
       calcft=false;
       calcSprofile=false;
+      calcZprofile=false;
       calcFC=false;
       calczg=false;
       calcdef=false;
@@ -210,6 +214,7 @@ class shearP_CD_A : public System_A
       ngap2_ = NULL ;
       time = 0. ;
       partref = NULL ;
+      NbinZ_ = 1 ;
     }
 
 

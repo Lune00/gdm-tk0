@@ -251,6 +251,16 @@ void shearP_CD_A::read_parameters(istream & is)
 				exit(0);
 			}
 		} 
+		else if(token=="Zprofile") 
+		{
+			calcZprofile=true;
+			is >> NbinZ_;
+			if ( NbinZ_ <= 0 )
+			{
+				cout<<" @ shearP_CD_A : Nprb_ undefined "<<endl;
+				exit(0);
+			}
+		} 
 		else if(token=="SFprofile") 
 		{
 			calcSFprofile=true;
@@ -440,9 +450,14 @@ void shearP_CD_A::initAnalyse( )
 
 	}
 
+	if ( calcZprofile ) 
+	{
+		ofstream XZ_out("Analyse/ZProfile.txt",ios::out); XZ_out.close();
+		// ofstream FA_out("FA.txt",ios::out); FA_out.close();
+	}
 	if ( calcSprofile ) 
 	{
-		ofstream XS_out("Analyse/SProfile.txt",ios::out); XS_out.close();
+		ofstream XS_out("Analyse/SProfile.txt",ios::out); XS_out.close();
 		// ofstream FA_out("FA.txt",ios::out); FA_out.close();
 	}
 
@@ -505,8 +520,8 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	printSystem();
 	followparticles();
 	cout<<"Zp"<<endl;
-	computeZparticules();
-
+	//computeZparticules();
+	if(calcZprofile) profilZ();
 	if (calcz)  Z(calczp,Nbingranulo,granulo);
 	if (calcPtheta) Ptheta( NbinPT, mobperiod, mobwidth);
 
@@ -3099,6 +3114,36 @@ void shearP_CD_A::computeZparticules()
 
 }
 
+void shearP_CD_A::profilZ()
+{
+
+	cout<<".Connectivity Profile"<<endl;
+	unsigned int Nprobe = NbinZ_;
+	double ampProbe=( totalProbe_.h2() - totalProbe_.h1() ) / (double) (Nprobe);
+	vector < heightProbe * > lprobe(Nprobe);
+	computeZparticules();
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		lprobe[i]=new heightProbe( totalProbe_.h1() + (double) (i) * ampProbe,
+				totalProbe_.h1() + (double) (i+1) * ampProbe);
+	}
+	vector <double> Zy(Nprobe,0.);
+
+	zProfile(lprobe , Zy , *sys_->spl() ) ;
+	ofstream Zprofile("Analyse/ZProfile.txt",ios::out|ios::app);
+	ofstream Zinst("Analyse/ZPinst.txt",ios::out);
+
+	if( ! Zprofile ) cerr<<"erreur creation de Analyse/ZProfile.txt"<<endl;
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		Zprofile<<time<<" "<<lprobe[i]->halfHeight()<<" "<<Zy[i]<<endl;
+		Zinst<<time<<" "<<lprobe[i]->halfHeight()<<" "<<Zy[i]<<endl;
+	}
+
+	Zprofile.close();
+	Zinst.close();
+}
 
 void shearP_CD_A::writePS2( const char * fname)
 {
@@ -3133,6 +3178,7 @@ void shearP_CD_A::writePS2( const char * fname)
 	ps<<"0.1 setlinewidth 0. setgray "<<endl;
 	ps <<"0. 0. .23 setrgbcolor clippath fill"<<endl;
 	//ps << "/colordisk {0.3 0.8 1.0} def"<< endl;
+	//FRPZAR
 	ps << "/colordisk {0.3 0.7 1.0} def"<< endl;
 	ps << "/colordot {0. 0. 0.} def" <<endl;
 	ps << "/colorwall {1. 1. 1.} def" <<endl;
