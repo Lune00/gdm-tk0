@@ -6,6 +6,7 @@ PATH1=/Users/schuhmacher/bin
 gdm=gdm_run_2D_0
 SNA=SNA_2D_0
 profils=Profils_0
+continu=continu_0
 
 echo $SNA
 
@@ -37,6 +38,7 @@ echo "==================--======================="
 cp app/gdm_run/gdm_run $PATH1/$gdm
 cp app/SNA/SNA $PATH1/$SNA
 cp app/profils/profils $PATH1/$profils
+cp app/continu/continu $PATH1/$continu
 
 echo "done"
 
