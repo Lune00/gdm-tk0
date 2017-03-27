@@ -3076,7 +3076,7 @@ void shearP_CD_A::printSystem()
 
 	double epaisseur = sys_->ldof(1)->lowerBody()->y() - sys_->ldof(0)->lowerBody()->y();
 
-	printSys<<time<<" "<<epsxy_<<" "<<" "<<vx_wall_sup/epaisseur<<" "<<epaisseur<<" "<< vx_wall_sup<<" "<<" "<<vx_wall_inf<<" "<<vy_wall_sup<<endl;
+	printSys<<time<<" "<<epsxy_<<" "<<vx_wall_sup/epaisseur<<" "<<epaisseur<<" "<< vx_wall_sup<<" "<<" "<<vx_wall_inf<<" "<<vy_wall_sup<<endl;
 	printSys.close();
 }
 

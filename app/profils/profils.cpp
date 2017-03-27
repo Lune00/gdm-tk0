@@ -37,6 +37,7 @@ void profilMoyenVitesse(unsigned int Nbins)
 		unsigned int j = 0 ;
 		unsigned int tic = 0 ;
 		double tr;
+		//?
 		while(is)
 		{
 			if( j % Nbins  == 0 ){ j = 0 ; tic++ ; }
@@ -52,6 +53,7 @@ void profilMoyenVitesse(unsigned int Nbins)
 			if(j==0) cout<<vx[0]<<" "<<vxsquare[0]<<endl;
 		}
 
+		tic--;
 		is.close();
 
 		for (unsigned int i = 0 ; i != Nbins ; i ++ )
@@ -93,7 +95,7 @@ void profilMoyenVitesse(unsigned int Nbins)
 		for (unsigned int i = 0 ; i != Nbins ; i++ )
 		{
 		//	cout<<i<<" "<<vxsquare[i]<<" "<<vx[i]<<" "<<endl;
-			pv << 2 * (y[i]-ymin) / h  - 1.<<" "<<vx[i]/v<<" "<<sqrt(vxsquare[i])/v<<" "<< y[i]<<" "<<vx[i]<<" "<<sqrt(vxsquare[i])<<endl;
+			pv << 2 * (y[i]-ymin) / h  - 1.<<" "<<vx[i]/v<<" "<<sqrt(vxsquare[i])/v<<" "<< y[i]<<" "<<vx[i]<<" "<<sqrt(vxsquare[i]) / (double) tic<<endl;
 		}
 		pv.close();
 
