@@ -29,7 +29,7 @@ echo " "
 cp app/gdm_run/gdm_run $PATH1/gdm_run_2D_0
 
 cp app/SNA/SNA $PATH1/SNA_2D_0
-cp app/profils/profils $PATH1/profils
+cp app/profils/profils $PATH1/Profils_0
 #cp gdm-tk-model1-stab/app/Time_mean/Time_mean $PATH1/Time-mean_2D
 #cp gdm-tk-post-hanh/app/SNA/bougeDir $PATH1/bougeDir_2D
 #cp gdm-tk-model1-stab/app/Fusion/Fusion $PATH1/Fusion_2D
