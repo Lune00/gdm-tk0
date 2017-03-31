@@ -22,15 +22,17 @@ class Grid{
 		Grid(){};
 		~Grid();
 		Grid(unsigned int, unsigned int);
-		double	getPoint(int,int);
+		double	getPt(int,int);
+		void setPt(int,int,double);
 
 };
 
-
+//Ajouter un fichier a lire poux les min,max et set tous les paramètres
 Grid::Grid(unsigned int nx , unsigned int ny)
 {
 	nx_ = nx ;
 	ny_ = ny ;
+
 	array = new double [ nx_ * ny_ ];
 	xmin_ = 0. ;
 	ymin_ = 0. ;
@@ -43,8 +45,7 @@ Grid::Grid(unsigned int nx , unsigned int ny)
 	{
 		for(int j = 0 ; j!= ny_ ; j++)
 		{
-
-			array[i*ny_ + j ] = 0. ;
+			array[ i * ny_ + j ] = 0. ;
 		}
 	}
 }
@@ -53,18 +54,26 @@ Grid::~Grid()
 	delete array;
 }
 
-double Grid::getPoint(int i, int j)
+double Grid::getPt(int i, int j)
 {
 	if( array != NULL) return array[i*ny_ + j];
 	else return 6. ;
 }
+
+void Grid::setPt(int i,int j, double aij)
+{
+	array[i * ny_ + j] = aij ;
+}
+
 
 int main (int argc,char **argv)
 {
 	cout<<"Hello (continu) world !"<<endl;
 	cout<<"Let's start."<<endl;
 	Grid grid(128,128);
-	cerr<<grid.getPoint(12,12)<<endl;
+	cerr<<grid.getPt(12,12)<<endl;
+	grid.setPt(12,12,5.);
+	cerr<<grid.getPt(12,12)<<endl;
 	return 0;
 }
 
