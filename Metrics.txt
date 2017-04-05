@@ -1,0 +1,4 @@
+xmin 0.
+xmax 3.
+ymin 0.
+ymax 5.

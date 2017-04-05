@@ -1,0 +1,11 @@
+Grid{
+nx 128
+ny 128
+metrics Metrics.txt
+}
+
+Data{
+ini 100
+end 200
+di 1
+}
