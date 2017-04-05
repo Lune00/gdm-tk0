@@ -136,10 +136,23 @@ void Grid::writeGrid(string filename)
 	gridout.close();
 }	
 
+void initContinu(ifstream& is)
+{
+	if(!is)
+	{
+		cerr << "@Simulation::read_data, cannot open file " << endl;
+		return;
+	}
+	string token ;
+
+}
+
 int main (int argc,char **argv)
 {
-	cout<<"Hello (continu) world !"<<endl;
-	cout<<"Let's start."<<endl;
+	ifstream is(argv[1]);
+	initContinu(is);
+
+	//Faire une fonction qui lit un fichier de parametres
 	Grid grid(128,128);
 	grid.initMetrics(0.,10.,0.,10.);
 	grid.writeGrid("grid.txt");
