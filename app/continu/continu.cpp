@@ -8,6 +8,7 @@
 #include "system.hpp"
 #include "dataSet.hpp"
 #include <algorithm>
+#include "vecteur.hpp"
 
 struct Globals{
 	int nx ;
@@ -46,7 +47,7 @@ class Grid{
 		void writeGrid(string);
 };
 
-//Ajouter un fichier a lire poux les min,max et set tous les paramètres
+//Construction & initialisation de la grille a l'aide des globaux (lu)
 Grid::Grid(Globals parametres)
 {
 	nx_ = parametres.nx ;
@@ -71,9 +72,6 @@ Grid::Grid(Globals parametres)
 	dx_ = Lx / nx_ ;
 	dy_ = Ly / ny_ ;
 
-	cerr<<"dx_ = "<<dx_<<endl ;
-	cerr<<"dy_ = "<<dy_<<endl;
-
 	double x = xmin_;
 	double y = ymin_;
 
@@ -92,6 +90,7 @@ Grid::Grid(Globals parametres)
 	}
 	cerr<<"Metrics done."<<endl;
 }
+
 Grid::~Grid()
 {
 	delete[] array;
@@ -106,7 +105,6 @@ double Grid::getY(int i,int j)
 {
 	return array[ i * ny_ + j].getY();
 }
-
 
 void Grid::writeGrid(string filename)
 {
@@ -132,7 +130,6 @@ void Grid::writeGrid(string filename)
 	gridout.close();
 }	
 
-
 void readMetrics(string file, Globals& parametres)
 {
 	ifstream is(file);
@@ -147,7 +144,8 @@ void readMetrics(string file, Globals& parametres)
 		is >> token;
 	}
 }
-		
+	
+//Initialisation uniquement ici des parametres globaux de l'analyse
 void initContinu(ifstream& is,Globals& parametres)
 {
 	if(!is)
@@ -198,12 +196,10 @@ int main (int argc,char **argv)
 	Globals parametres;
 	ifstream is(argv[1]);
 	initContinu(is,parametres);
-	Grid grid(parametres);
 	cerr<<"nx = "<<parametres.nx<<" ny = "<<parametres.ny<<endl;
-	cerr<<"Init metrics file : "<<parametres.metrics<<endl;
 	cerr<<"xmin = "<<parametres.xmin<<" xmax = "<<parametres.xmax<<endl;
 	cerr<<"ymin = "<<parametres.ymin<<" ymax = "<<parametres.ymax<<endl;
-	//Initialisation a partir du fichier
+	Grid grid(parametres);
 	grid.writeGrid("grid.txt");
 	return 0;
 }
