@@ -20,11 +20,8 @@ void Algo::algoFill()
 {
 	// Compute mass of bodies
 	double density = 2500.0;
-cout<<"algo.cpp fill density"<<endl;	
-cout<<"grpDat_"<<grpDat_->exist("density")<<endl;
 		if(grpDat_->exist("density"))
 		{
-			cout<<"spl_->lbody().size()="<<spl_->lbody().size()<<endl;
 			for (unsigned int i=0;i<spl_->lbody().size();++i)
 			{
 				density = grpDat_->getParameter("density",spl_->body(i)->grp());
@@ -34,19 +31,15 @@ cout<<"grpDat_"<<grpDat_->exist("density")<<endl;
 		}
 		else
 		{
-			cout<<"Else fill"<<endl;
 			spl_->fill(2500.0);
 			gdm::warning("@algo::algoFill, GroupData density not defined (so it is set to 2500)");
 		}
-cout<<"algo.cpp compute mass,gravity..."<<endl;
 		for(unsigned int i=0;i<sys_->ldof().size();++i)
 		{
 			sys_->ldof(i)->fill(density);
 			sys_->ldof(i)->setGravity(sys_->gx(),sys_->gy() );
-			//sys_->ldof(i)->computeVertex();
 			sys_->ldof(i)->computeMassCenter();
 			sys_->ldof(i)->computeMoment();
-			//sys_->ldof(i)->print();
 		}
 }
 

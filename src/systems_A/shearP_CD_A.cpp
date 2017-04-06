@@ -3,10 +3,7 @@
 void shearP_CD_A::plugRef()
 {
 	partref=sys_->spl()->body(partrefId);
-
 }
-
-
 
 void shearP_CD_A::read_parameters(istream & is)
 {

@@ -16,7 +16,17 @@ struct Globals{
 	int istart, iend, di;
 	double xmin, xmax, ymin, ymax ;
 	string metrics;
+	string fichsim;
 };
+
+
+struct Champs{
+
+	double * masse ;
+	Vecteur * momentum ;
+	Vecteur * vitesse ;
+};
+
 
 class Point{
 
@@ -144,7 +154,7 @@ void readMetrics(string file, Globals& parametres)
 		is >> token;
 	}
 }
-	
+
 //Initialisation uniquement ici des parametres globaux de l'analyse
 void initContinu(ifstream& is,Globals& parametres)
 {
@@ -182,6 +192,7 @@ void initContinu(ifstream& is,Globals& parametres)
 				if(token=="ini") is >>parametres.istart ; 
 				if(token=="end") is >>parametres.iend ; 
 				if(token=="di") is >>parametres.di; 
+				if(token=="Simu") is >> parametres.fichsim;
 				else if (token=="}") break;
 				is >> token;
 			}
@@ -201,6 +212,19 @@ int main (int argc,char **argv)
 	cerr<<"ymin = "<<parametres.ymin<<" ymax = "<<parametres.ymax<<endl;
 	Grid grid(parametres);
 	grid.writeGrid("grid.txt");
+
+	Simulation * mySimu = new Simulation();
+	mySimu->read_data(parametres.fichsim.c_str());
+
+	char nomFichier[100];
+
+	for (unsigned int i = parametres.istart ; i != parametres.iend; i++){
+		sprintf(nomFichier,"spl_nwk/spl_nwk_%.4d.his",i);
+		cerr<<"****** Chargement : "<<nomFichier<<endl;
+		mySimu->load_history(nomFichier);
+		mySimu->algo()->algoFill();
+	}
+
 	return 0;
 }
 

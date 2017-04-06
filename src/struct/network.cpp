@@ -55,8 +55,7 @@ void Network::read(istream & is/*, Sample & spl*/)
 	}
 
 
-	cout<<"Nombre de contacts chargé = "<<n<<endl;
-	cout<<"Taille de clist_ = "<<clist_.size()<<endl;
+	cout<<"Taille de clist_ (nombre de contacts) : "<<clist_.size()<<endl;
 }
 void Network::write(const char * fname)
 {

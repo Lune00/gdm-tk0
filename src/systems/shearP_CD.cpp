@@ -500,3 +500,20 @@ void shearP_CD::updateShear(){
 		ldof(0)->affect(_VELOCITY, _VELOCITY, _VELOCITY, 0., 0., 0.);
 	}
 }
+void shearP_CD::printMetrics()
+{
+	double xmin,xmax,ymin,ymax;
+	ofstream metrics("Analyse/metrics.txt");
+
+	xmin = spl()->leftBoundary();
+	xmax = spl()->rightBoundary();
+	ymin = ldof(0)->lowerBody()->y();
+	ymax = ldof(1)->lowerBody()->y();
+	metrics << "xmin "<<xmin<<endl;
+	metrics << "xmax "<<xmax<<endl;
+	metrics << "ymin "<<ymin<<endl;
+	metrics << "ymax "<<ymax<<endl;
+	metrics.close();
+}
+
+
