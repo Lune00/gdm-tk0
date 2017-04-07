@@ -3,3 +3,19 @@ lib/*
 app/SNA/SNA
 app/gdm_run/gdm_run
 
+.DS_Store
+.gitignore
+app/continu/continu
+a.out
+app/continu/.continu.cpp.swp
+app/profils/profils
+grep.pdf
+grid.txt
+packing0.spl
+sample-gnuplot.txt
+src/include/.champ.hpp.swp
+src/include/.grid.hpp.swp
+src/systems_A/.shearP_CD_A.cpp.swo
+src/systems_A/.shearP_CD_A.cpp.swp
+test.txt
+time.txt
