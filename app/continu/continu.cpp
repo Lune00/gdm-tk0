@@ -15,32 +15,35 @@ class User{
 
 	private:
 
-	int nx ;
-	int ny ;
-	int istart, iend, di;
-	double xmin, xmax, ymin, ymax ;
-	string metrics;
-	string fichsim;
-	bool calc_masse;
+		int nx ;
+		int ny ;
+		int istart, iend, di;
+		double xmin, xmax, ymin, ymax ;
+		string metrics;
+		string fichsim;
+		bool calc_masse;
 
 	public:
-	User();
-	~User(){};
-	void init(ifstream&);
-	void readMetrics(string);
+		User();
+		~User(){};
+		void init(ifstream&);
+		void readMetrics(string);
 
-	int getnx() {return nx ;}
-	int getny() {return ny ;}
-	int getistart() {return istart;}
-	int getiend() {return iend;}
-	int getdi() {return di;}
+		int getnx() {return nx ;}
+		int getny() {return ny ;}
+		int getistart() {return istart;}
+		int getiend() {return iend;}
+		int getdi() {return di;}
 
-	double getxmin() {return xmin ;}
-	double getymin() {return ymin ;}
-	double getxmax() {return xmax ;}
-	double getymax() {return ymax ;}
-	string getfichsim() {return fichsim;}
+		double getxmin() {return xmin ;}
+		double getymin() {return ymin ;}
+		double getxmax() {return xmax ;}
+		double getymax() {return ymax ;}
+		string getfichsim() {return fichsim;}
+
+		bool getcalcmasse() {return calc_masse;}
 };
+
 User::User()
 {
 	nx = 0 ;
@@ -138,25 +141,24 @@ class Champ
 		string name_ ;
 	public:
 		Champ();
-		~Champ();
+		virtual ~Champ();
+		string getname() {return name_ ; }
 };
 
-Champ::Champ()
-{
+Champ::Champ(){}
 
-}
 
-Champ::~Champ()
-{
-}
+Champ::~Champ(){}
+
+
 
 class Champ_Scalaire : public Champ
 {
-
+	private:
 	double * champ ;
 	public :
-		Champ_Scalaire(unsigned int,unsigned int, string);
-		~Champ_Scalaire();
+	Champ_Scalaire(unsigned int,unsigned int, string);
+	~Champ_Scalaire();
 
 };
 
@@ -170,6 +172,7 @@ Champ_Scalaire::Champ_Scalaire(unsigned int nx, unsigned int ny, string name)
 
 Champ_Scalaire::~Champ_Scalaire()
 {
+	cerr<<"Champ scalaire "<<this->name_<<" libéré."<<endl;
 	delete [] champ ;
 }
 
@@ -200,6 +203,7 @@ class Grid{
 		Grid(){};
 		~Grid();
 		Grid(User);
+		void initChamps(User);
 		double getX(int,int);
 		double getY(int,int);
 		void writeGrid(string);
@@ -247,10 +251,25 @@ Grid::Grid(User parametres)
 		x = xmin_;
 	}
 	cerr<<"Metrics done."<<endl;
+	initChamps(parametres);
 }
-
+void Grid::initChamps(User parametres)
+{
+	int nx = parametres.getnx();
+	int ny = parametres.getny();
+	cerr<<"Initialisation des champs:"<<endl;
+	if(parametres.getcalcmasse()) 
+	{
+		Champ * masse = new Champ_Scalaire(nx,ny,"masse") ;
+		lchamps_.push_back(masse);
+	}
+}
 Grid::~Grid()
 {
+	for (std::vector<Champ*>::iterator it = lchamps_.begin(); it != lchamps_.end();it++)
+	{
+		delete (*it);
+	}
 	delete[] array;
 }
 
