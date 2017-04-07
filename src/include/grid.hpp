@@ -11,20 +11,8 @@
 #include"config.hpp"
 #include"champ.hpp"
 #include"simulation.hpp"
+#include"point_bis.hpp"
 //Proprietes d'un point de la grille
-
-class Point{
-
-	private :
-		double x_ , y_ ;
-	public:
-		Point(){x_ = 0. ; y_ = 0. ;}
-		~Point(){};
-		double getX(){return x_;};
-		double getY(){return y_;};
-		void setX(double x){x_ = x ;};
-		void setY(double y){y_ = y ;};
-};
 
 class Grid{
 
@@ -154,7 +142,7 @@ void Grid::calculChamps(Simulation* mySimu)
 		switch ((*it)->gettype())
 		{
 			case t_masse :
-				(*it)->calculMasse(mySimu,this);
+				(*it)->calculMasse(mySimu,this->array);
 				break;
 			case t_momentum : 
 				cerr<<"Coming."<<endl;

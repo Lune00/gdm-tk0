@@ -3,7 +3,7 @@ LIB_PATH  = ../../lib
 
 include ../../Makefile.in
 
-SRC = alteration.cpp grid.cpp
+SRC = alteration.cpp
 
 OBJS = $(subst .cpp,.o,$(SRC))
 

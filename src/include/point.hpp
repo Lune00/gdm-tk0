@@ -25,4 +25,3 @@ public:
 }
 
 #endif // _dtk_point_hpp
-

@@ -8,10 +8,12 @@
 #include <vector>
 #include <iomanip>
 #include "simulation.hpp"
-#include "grid.hpp"
+// #include "grid.hpp"
+#include "point_bis.hpp"
 
 //Differents types de champs calculables:
 enum typechamps{t_masse,t_momentum};
+
 
 class Champ
 {
@@ -24,7 +26,7 @@ class Champ
 	public:
 		Champ();
 		virtual ~Champ();
-		virtual void calculMasse(Simulation*,Grid*) {};
+		virtual void calculMasse(Simulation*,Point*) {};
 		string getname() {return name_ ; }
 		typechamps gettype() {return type_ ; }
 };
@@ -42,7 +44,7 @@ class Champ_Scalaire : public Champ
 	public :
 	Champ_Scalaire(unsigned int,unsigned int, string,typechamps);
 	~Champ_Scalaire();
-	void calculMasse(Simulation*,Grid*);
+	void calculMasse(Simulation*,Point*);
 
 };
 
@@ -62,7 +64,7 @@ Champ_Scalaire::~Champ_Scalaire()
 	delete [] champ ;
 }
 
-void Champ_Scalaire::calculMasse(Simulation* mySimu, Grid* grid)
+void Champ_Scalaire::calculMasse(Simulation* mySimu, Point* grid)
 {
 
 	cerr<<"On calcule."<<endl;

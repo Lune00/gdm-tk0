@@ -8,6 +8,8 @@
 #include <vector>
 #include <iomanip>
 
+using namespace std;
+
 class Config{
 
 	private:
