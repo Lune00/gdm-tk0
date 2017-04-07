@@ -10,24 +10,170 @@
 #include <algorithm>
 #include "vecteur.hpp"
 
-struct Globals{
+//Parametres globaux de l'analyse
+class User{
+
+	private:
+
 	int nx ;
 	int ny ;
 	int istart, iend, di;
 	double xmin, xmax, ymin, ymax ;
 	string metrics;
 	string fichsim;
+	bool calc_masse;
+
+	public:
+	User();
+	~User(){};
+	void init(ifstream&);
+	void readMetrics(string);
+
+	int getnx() {return nx ;}
+	int getny() {return ny ;}
+	int getistart() {return istart;}
+	int getiend() {return iend;}
+	int getdi() {return di;}
+
+	double getxmin() {return xmin ;}
+	double getymin() {return ymin ;}
+	double getxmax() {return xmax ;}
+	double getymax() {return ymax ;}
+	string getfichsim() {return fichsim;}
+};
+User::User()
+{
+	nx = 0 ;
+	ny = 0 ;
+	istart = 0 ;
+	iend = 0 ;
+	di = 0 ;
+	xmin = 0. ;
+	xmax = 0. ;
+	ymin = 0. ;
+	ymax = 0. ;
+	metrics = "";
+	fichsim = "Simu.sim";
+	calc_masse = false ;
+}
+
+//Initialisation uniquement ici des parametres globaux de l'analyse
+void User::init(ifstream& is)
+{
+	if(!is)
+	{
+		cerr << "@initContinu : cannot open file " << endl;
+		return;
+	}
+
+	string token ;
+	is >> token ;
+	while(is)
+	{
+		if(token=="Grid{")
+		{
+			is >> token;
+			while(is)
+			{
+				if(token=="nx") is >>nx ; 
+				if(token=="ny") is >>ny ; 
+				if(token=="metrics") 
+				{
+					is >> token;
+					readMetrics(token);
+				}
+				else if (token=="}") break;
+				is >> token;
+			}
+		}
+		if(token=="Data{")
+		{
+			is >> token;
+			while(is)
+			{
+				if(token=="ini") is >>istart ; 
+				if(token=="end") is >>iend ; 
+				if(token=="di") is >>di; 
+				if(token=="Simu") is >> fichsim;
+				else if (token=="}") break;
+				is >> token;
+			}
+		}
+		if(token=="Champs{")
+		{
+			is >> token;
+			while(is)
+			{
+				if (token=="masse") calc_masse = true ;
+				if (token=="}") break;
+				is >> token;
+			}
+		}
+
+		is >> token;
+	}
+}
+
+void User::readMetrics(string file)
+{
+	ifstream is(file);
+	string token;
+	is >> token;
+	while(is)
+	{
+		if(token=="xmin") is >> xmin;
+		if(token=="xmax") is >> xmax;
+		if(token=="ymin") is >> ymin;
+		if(token=="ymax") is >> ymax;
+		is >> token;
+	}
+}
+
+class Champ
+{
+
+	protected:
+		unsigned int nx_ ;
+		unsigned int ny_ ;
+		string name_ ;
+	public:
+		Champ();
+		~Champ();
 };
 
+Champ::Champ()
+{
 
-struct Champs{
+}
 
-	double * masse ;
-	Vecteur * momentum ;
-	Vecteur * vitesse ;
+Champ::~Champ()
+{
+}
+
+class Champ_Scalaire : public Champ
+{
+
+	double * champ ;
+	public :
+		Champ_Scalaire(unsigned int,unsigned int, string);
+		~Champ_Scalaire();
+
 };
 
+Champ_Scalaire::Champ_Scalaire(unsigned int nx, unsigned int ny, string name)
+{
+	nx_ = nx ;
+	ny_ = ny ;
+	name_ = name ;
+	champ = new double [ nx_ * ny_ ];
+}
 
+Champ_Scalaire::~Champ_Scalaire()
+{
+	delete [] champ ;
+}
+
+//Proprietes d'un point de la grille
 class Point{
 
 	private :
@@ -41,6 +187,7 @@ class Point{
 		void setY(double y){y_ = y ;};
 };
 
+//Grille d'interpolation
 class Grid{
 
 	private:
@@ -48,25 +195,26 @@ class Grid{
 		double xmin_, xmax_ , ymin_, ymax_ ;
 		double dx_ , dy_ ;
 		Point * array ; 
+		std::vector<Champ*> lchamps_ ;
 	public:
 		Grid(){};
 		~Grid();
-		Grid(Globals);
+		Grid(User);
 		double getX(int,int);
 		double getY(int,int);
 		void writeGrid(string);
 };
 
 //Construction & initialisation de la grille a l'aide des globaux (lu)
-Grid::Grid(Globals parametres)
+Grid::Grid(User parametres)
 {
-	nx_ = parametres.nx ;
-	ny_ = parametres.ny ;
+	nx_ = parametres.getnx() ;
+	ny_ = parametres.getny() ;
 
-	xmin_ = parametres.xmin ;
-	xmax_ = parametres.xmax ;
-	ymin_ = parametres.ymin ;
-	ymax_ = parametres.ymax ;
+	xmin_ = parametres.getxmin() ;
+	xmax_ = parametres.getxmax() ;
+	ymin_ = parametres.getymin() ;
+	ymax_ = parametres.getymax() ;
 
 	array = new Point [ nx_ * ny_ ];
 
@@ -140,89 +288,28 @@ void Grid::writeGrid(string filename)
 	gridout.close();
 }	
 
-void readMetrics(string file, Globals& parametres)
-{
-	ifstream is(file);
-	string token;
-	is >> token;
-	while(is)
-	{
-		if(token=="xmin") is >> parametres.xmin;
-		if(token=="xmax") is >> parametres.xmax;
-		if(token=="ymin") is >> parametres.ymin;
-		if(token=="ymax") is >> parametres.ymax;
-		is >> token;
-	}
-}
-
-//Initialisation uniquement ici des parametres globaux de l'analyse
-void initContinu(ifstream& is,Globals& parametres)
-{
-	if(!is)
-	{
-		cerr << "@initContinu : cannot open file " << endl;
-		return;
-	}
-
-	string token ;
-	is >> token ;
-	while(is)
-	{
-		if(token=="Grid{")
-		{
-			is >> token;
-			while(is)
-			{
-				if(token=="nx") is >>parametres.nx ; 
-				if(token=="ny") is >>parametres.ny ; 
-				if(token=="metrics") 
-				{
-					is >> token;
-					readMetrics(token,parametres);
-				}
-				else if (token=="}") break;
-				is >> token;
-			}
-		}
-		if(token=="Data{")
-		{
-			is >> token;
-			while(is)
-			{
-				if(token=="ini") is >>parametres.istart ; 
-				if(token=="end") is >>parametres.iend ; 
-				if(token=="di") is >>parametres.di; 
-				if(token=="Simu") is >> parametres.fichsim;
-				else if (token=="}") break;
-				is >> token;
-			}
-		}
-
-		is >> token;
-	}
-}
 
 int main (int argc,char **argv)
 {
-	Globals parametres;
+	User parametres;
 	ifstream is(argv[1]);
-	initContinu(is,parametres);
-	cerr<<"nx = "<<parametres.nx<<" ny = "<<parametres.ny<<endl;
-	cerr<<"xmin = "<<parametres.xmin<<" xmax = "<<parametres.xmax<<endl;
-	cerr<<"ymin = "<<parametres.ymin<<" ymax = "<<parametres.ymax<<endl;
+	parametres.init(is) ;
+
 	Grid grid(parametres);
 	grid.writeGrid("grid.txt");
 
 	Simulation * mySimu = new Simulation();
-	mySimu->read_data(parametres.fichsim.c_str());
+	mySimu->read_data(parametres.getfichsim().c_str());
 
 	char nomFichier[100];
 
-	for (unsigned int i = parametres.istart ; i != parametres.iend; i++){
+	for (unsigned int i = parametres.getistart() ; i != parametres.getiend(); i+=parametres.getdi()){
 		sprintf(nomFichier,"spl_nwk/spl_nwk_%.4d.his",i);
 		cerr<<"****** Chargement : "<<nomFichier<<endl;
 		mySimu->load_history(nomFichier);
 		mySimu->algo()->algoFill();
+
+		//Calcul des champs:
 	}
 
 	return 0;
