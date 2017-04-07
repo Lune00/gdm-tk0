@@ -11,7 +11,11 @@
 #include "vecteur.hpp"
 
 //Parametres globaux de l'analyse
-class User{
+//Differents types de champs calculables:
+
+enum typechamps{t_masse,t_momentum};
+
+class Config{
 
 	private:
 
@@ -24,8 +28,8 @@ class User{
 		bool calc_masse;
 
 	public:
-		User();
-		~User(){};
+		Config();
+		~Config(){};
 		void init(ifstream&);
 		void readMetrics(string);
 
@@ -44,7 +48,7 @@ class User{
 		bool getcalcmasse() {return calc_masse;}
 };
 
-User::User()
+Config::Config()
 {
 	nx = 0 ;
 	ny = 0 ;
@@ -61,7 +65,7 @@ User::User()
 }
 
 //Initialisation uniquement ici des parametres globaux de l'analyse
-void User::init(ifstream& is)
+void Config::init(ifstream& is)
 {
 	if(!is)
 	{
@@ -117,7 +121,7 @@ void User::init(ifstream& is)
 	}
 }
 
-void User::readMetrics(string file)
+void Config::readMetrics(string file)
 {
 	ifstream is(file);
 	string token;
@@ -139,10 +143,13 @@ class Champ
 		unsigned int nx_ ;
 		unsigned int ny_ ;
 		string name_ ;
+		typechamps type_;//identifie le champ pour le calcul
 	public:
 		Champ();
 		virtual ~Champ();
+		virtual void calculMasse() {};
 		string getname() {return name_ ; }
+		typechamps gettype() {return type_ ; }
 };
 
 Champ::Champ(){}
@@ -157,17 +164,19 @@ class Champ_Scalaire : public Champ
 	private:
 	double * champ ;
 	public :
-	Champ_Scalaire(unsigned int,unsigned int, string);
+	Champ_Scalaire(unsigned int,unsigned int, string,typechamps);
 	~Champ_Scalaire();
+	void calculMasse();
 
 };
 
-Champ_Scalaire::Champ_Scalaire(unsigned int nx, unsigned int ny, string name)
+Champ_Scalaire::Champ_Scalaire(unsigned int nx, unsigned int ny, string name, typechamps t)
 {
 	nx_ = nx ;
 	ny_ = ny ;
 	name_ = name ;
 	champ = new double [ nx_ * ny_ ];
+	type_ = t ;
 }
 
 Champ_Scalaire::~Champ_Scalaire()
@@ -176,6 +185,10 @@ Champ_Scalaire::~Champ_Scalaire()
 	delete [] champ ;
 }
 
+void Champ_Scalaire::calculMasse()
+{
+
+}
 //Proprietes d'un point de la grille
 class Point{
 
@@ -202,15 +215,16 @@ class Grid{
 	public:
 		Grid(){};
 		~Grid();
-		Grid(User);
-		void initChamps(User);
+		Grid(Config);
+		void initChamps(Config);
+		void calculChamps();
 		double getX(int,int);
 		double getY(int,int);
 		void writeGrid(string);
 };
 
 //Construction & initialisation de la grille a l'aide des globaux (lu)
-Grid::Grid(User parametres)
+Grid::Grid(Config parametres)
 {
 	nx_ = parametres.getnx() ;
 	ny_ = parametres.getny() ;
@@ -253,14 +267,14 @@ Grid::Grid(User parametres)
 	cerr<<"Metrics done."<<endl;
 	initChamps(parametres);
 }
-void Grid::initChamps(User parametres)
+void Grid::initChamps(Config parametres)
 {
 	int nx = parametres.getnx();
 	int ny = parametres.getny();
 	cerr<<"Initialisation des champs:"<<endl;
 	if(parametres.getcalcmasse()) 
 	{
-		Champ * masse = new Champ_Scalaire(nx,ny,"masse") ;
+		Champ * masse = new Champ_Scalaire(nx,ny,"masse",t_masse) ;
 		lchamps_.push_back(masse);
 	}
 }
@@ -307,10 +321,22 @@ void Grid::writeGrid(string filename)
 	gridout.close();
 }	
 
+void Grid::calculChamps()
+{
+
+	for (std::vector<Champ*>::iterator it = lchamps_.begin(); it != lchamps_.end();it++)
+	{
+		switch ((*it)->gettype())
+		{
+			case t_masse : (*it)->calculMasse();
+			case t_momentum : cerr<<"Coming."<<endl;
+		}
+	}
+}
 
 int main (int argc,char **argv)
 {
-	User parametres;
+	Config parametres;
 	ifstream is(argv[1]);
 	parametres.init(is) ;
 
@@ -328,7 +354,7 @@ int main (int argc,char **argv)
 		mySimu->load_history(nomFichier);
 		mySimu->algo()->algoFill();
 
-		//Calcul des champs:
+		//Calcul des champs
 	}
 
 	return 0;
