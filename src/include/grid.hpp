@@ -1,7 +1,5 @@
 #ifndef _grid_hpp
 #define _grid_hpp
-#include"config.hpp"
-#include"champ.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -9,7 +7,12 @@
 #include <sstream>
 #include <vector>
 #include <iomanip>
+
+#include"config.hpp"
+#include"champ.hpp"
+#include"simulation.hpp"
 //Proprietes d'un point de la grille
+
 class Point{
 
 	private :
@@ -36,14 +39,14 @@ class Grid{
 		~Grid();
 		Grid(Config);
 		void initChamps(Config);
-		void calculChamps();
+		void calculChamps(Simulation*);
 		double getX(int,int);
 		double getY(int,int);
 		void writeGrid(string);
 };
 
 
-#endif //_grid_hpp
+
 Grid::Grid(Config parametres)
 {
 	nx_ = parametres.getnx() ;
@@ -143,15 +146,20 @@ void Grid::writeGrid(string filename)
 	gridout.close();
 }	
 
-void Grid::calculChamps()
+void Grid::calculChamps(Simulation* mySimu)
 {
 
 	for (std::vector<Champ*>::iterator it = lchamps_.begin(); it != lchamps_.end();it++)
 	{
 		switch ((*it)->gettype())
 		{
-			case t_masse : (*it)->calculMasse();
-			case t_momentum : cerr<<"Coming."<<endl;
+			case t_masse :
+				(*it)->calculMasse(mySimu,this);
+				break;
+			case t_momentum : 
+				cerr<<"Coming."<<endl;
+				break;
 		}
 	}
 }
+#endif //_grid_hpp
