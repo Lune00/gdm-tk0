@@ -43,7 +43,6 @@ class Config{
 		bool getcalcmasse() {return calc_masse;}
 };
 
-#endif
 
 Config::Config()
 {
@@ -136,3 +135,4 @@ void Config::readMetrics(string file)
 
 
 
+#endif

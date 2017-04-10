@@ -4,22 +4,32 @@
 #include <sstream>
 #include <vector>
 #include <iomanip>
+#include <algorithm>
 #include "simulation.hpp"
 #include "system.hpp"
 #include "dataSet.hpp"
-#include <algorithm>
 #include "vecteur.hpp"
 #include "grid.hpp"
+#include "champ.hpp"
 
 
 int main (int argc,char **argv)
 {
+	//Config utilisateur;
+	//Gestionnaire de Champs;
 	Config parametres;
+	ChampManager MesChamps;
+
 	ifstream is(argv[1]);
+	//Initialisation des parametres:
 	parametres.init(is) ;
 
+	//Initialisation grille:
 	Grid grid(parametres);
 	grid.writeGrid("grid.txt");
+
+	//Initialisation des champs:
+	MesChamps.initChamps(parametres);
 
 	Simulation * mySimu = new Simulation();
 	mySimu->read_data(parametres.getfichsim().c_str());
@@ -35,7 +45,6 @@ int main (int argc,char **argv)
 		mySimu->algo()->algoFill();
 
 		//Calcul des champs
-		grid.calculChamps(mySimu);
 	}
 
 	delete mySimu ;

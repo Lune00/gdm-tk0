@@ -15,6 +15,7 @@ mkdir -p lib
 #Compilation sources
 cd src
 make clean
+make cleanlib
 make
 
 #Compilation gdm run
