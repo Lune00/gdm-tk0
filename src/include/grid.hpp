@@ -26,6 +26,7 @@ class Grid{
 		double getY(int,int);
 		Point * getarray() {return array_ ;}
 		void writeGrid(string);
+		void stockparticles(const Sample&);
 };
 
 
@@ -113,4 +114,13 @@ void Grid::writeGrid(string filename)
 	gridout.close();
 }	
 
+//On stock les particules sur chaque point
+void Grid::stockparticles(const Sample& spl)
+{
+	unsigned int N = spl.lbody().size();
+	cerr<<"Nombre de particules a stocker : "<< N <<endl;
+
+
+
+}
 #endif //_grid_hpp

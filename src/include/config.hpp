@@ -18,6 +18,8 @@ class Config{
 		int ny ;
 		int istart, iend, di;
 		double xmin, xmax, ymin, ymax ;
+		//Resolution spatiale:
+		double l_ ;
 		string metrics;
 		string fichsim;
 		bool calc_masse;
@@ -41,6 +43,7 @@ class Config{
 		string getfichsim() {return fichsim;}
 
 		bool getcalcmasse() {return calc_masse;}
+		double getl() {return l_ ; }
 };
 
 
@@ -58,6 +61,7 @@ Config::Config()
 	metrics = "";
 	fichsim = "Simu.sim";
 	calc_masse = false ;
+	l_ = 0. ;
 }
 
 //Initialisation uniquement ici des parametres globaux de l'analyse
@@ -79,6 +83,7 @@ void Config::init(ifstream& is)
 			while(is)
 			{
 				if(token=="nx") is >>nx ; 
+				if(token=="spatial") is >> l_ ; 
 				if(token=="ny") is >>ny ; 
 				if(token=="metrics") 
 				{

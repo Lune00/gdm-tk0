@@ -44,6 +44,9 @@ int main (int argc,char **argv)
 		mySimu->load_history(nomFichier);
 		mySimu->algo()->algoFill();
 
+		//Stock des particules:
+		grid.stockparticles(*(mySimu->spl()));
+
 		//Calcul des champs
 		MesChamps.calculChamps(mySimu,grid);
 	}
