@@ -7,7 +7,6 @@
 #include <sstream>
 #include <vector>
 #include <iomanip>
-
 #include"config.hpp"
 #include"point_bis.hpp"
 //Proprietes d'un point de la grille
@@ -18,13 +17,14 @@ class Grid{
 		unsigned int nx_ , ny_ ;
 		double xmin_, xmax_ , ymin_, ymax_ ;
 		double dx_ , dy_ ;
-		Point * array ; 
+		Point * array_ ; 
 	public:
 		Grid(){};
 		~Grid();
 		Grid(Config);
 		double getX(int,int);
 		double getY(int,int);
+		Point * getarray() {return array_ ;}
 		void writeGrid(string);
 };
 
@@ -40,7 +40,7 @@ Grid::Grid(Config parametres)
 	ymin_ = parametres.getymin() ;
 	ymax_ = parametres.getymax() ;
 
-	array = new Point [ nx_ * ny_ ];
+	array_ = new Point [ nx_ * ny_ ];
 
 	if(xmin_ > xmax_ || ymin_ > ymax_)
 	{
@@ -63,8 +63,8 @@ Grid::Grid(Config parametres)
 	{
 		for(int i = 0 ; i != nx_ ; i++)
 		{
-			array[ i * ny_ + j ].setX(x);
-			array[ i * ny_ + j ].setY(y);
+			array_[ i * ny_ + j ].setX(x);
+			array_[ i * ny_ + j ].setY(y);
 			x+=dx_;
 		}
 		y+=dy_;
@@ -76,17 +76,17 @@ Grid::Grid(Config parametres)
 
 Grid::~Grid()
 {
-	delete[] array;
+	delete[] array_;
 }
 
 double Grid::getX(int i,int j)
 {
-	return array[ i * ny_ + j].getX();
+	return array_[ i * ny_ + j].getX();
 }
 
 double Grid::getY(int i,int j)
 {
-	return array[ i * ny_ + j].getY();
+	return array_[ i * ny_ + j].getY();
 }
 
 void Grid::writeGrid(string filename)

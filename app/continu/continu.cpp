@@ -45,6 +45,7 @@ int main (int argc,char **argv)
 		mySimu->algo()->algoFill();
 
 		//Calcul des champs
+		MesChamps.calculChamps(mySimu,grid);
 	}
 
 	delete mySimu ;
