@@ -505,6 +505,8 @@ void shearP_CD::printMetrics()
 	double xmin,xmax,ymin,ymax;
 	ofstream metrics("Analyse/metrics.txt");
 
+
+	double rmean = spl()->rmoy();
 	xmin = spl()->leftBoundary();
 	xmax = spl()->rightBoundary();
 	ymin = ldof(0)->lowerBody()->y();
@@ -513,6 +515,7 @@ void shearP_CD::printMetrics()
 	metrics << "xmax "<<xmax<<endl;
 	metrics << "ymin "<<ymin<<endl;
 	metrics << "ymax "<<ymax<<endl;
+	metrics << "rmean "<<rmean<<endl;
 	metrics.close();
 }
 

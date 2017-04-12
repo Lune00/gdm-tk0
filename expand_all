@@ -1,14 +1,11 @@
 #!/bin/bash
 
-
 PATH1=/Users/schuhmacher/bin
 
 gdm=gdm_run_2D_0
 SNA=SNA_2D_0
 profils=Profils_0
 continu=continu_0
-
-echo $SNA
 
 mkdir -p lib
 
@@ -33,7 +30,7 @@ echo " "
 
 echo "==================--======================="
 echo "Copie vers : " $PATH1
-echo "Executables a copier: $gdm / $SNA / $profils "
+echo "Executables a copier: $gdm / $SNA / $profils / $continu "
 echo "==================--======================="
 
 cp app/gdm_run/gdm_run $PATH1/$gdm

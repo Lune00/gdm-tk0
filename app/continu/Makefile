@@ -5,23 +5,26 @@ SYS_A_PATH = ../../src/systems_A
 LIB_PATH = ../../lib
 
 include ../../Makefile.in
+SRC = grid.cpp config.cpp
 
-OBJS = $(APP).o  $(LIB_PATH)/*.o
 
+OBJS = $(subst .cpp,.o,$(SRC)) 
+OBJS2 = $(LIB_PATH)/*.o
 
-all: $(APP)
+.SUFFIXES: .cpp
+.cpp.o:
+	$(CC) -c $(CFLAGS) $<
+	cp -f $@ $(LIB_PATH)
+#Il faut rajouter compulation de continu.cpp ici
+all: $(OBJS)
+	$(CC) -o continu continu.cpp $(CFLAGS) $(OBJS2) 
 
-$(APP).o : $(APP).cpp 
-	$(CC) $(CFLAGS) -c $(APP).cpp
-
-$(APP) : $(OBJS)
-	$(CC) -o $@ $(CFLAGS)  $(OBJS)
 
 clean:
 	rm -f *~ \#*\#
-	rm -f *.o $(DATA_PACK).a
+	rm -f *.o
 
 depend:
 	makedepend -- $(CFLAGS) -- *.cpp
-# DO NOT DELETE
 
+#

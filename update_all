@@ -27,7 +27,6 @@ echo " "
 echo " "
 
 cp app/gdm_run/gdm_run $PATH1/gdm_run_2D_0
-
 cp app/SNA/SNA $PATH1/SNA_2D_0
 cp app/profils/profils $PATH1/Profils_0
 cp app/continu/continu $PATH1/continu_0
