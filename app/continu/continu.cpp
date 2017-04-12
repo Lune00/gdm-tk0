@@ -26,6 +26,11 @@ int main (int argc,char **argv)
 
 	//Initialisation grille:
 	Grid grid(parametres);
+	//Grid tmp(grid.getdx(),grid.getdy(),parametres.getl());
+	//grid.initmotif(tmp);
+	//Check recouvrement:
+	if(grid.check(parametres) == 1 ) return 0 ;
+
 	grid.writeGrid("grid.txt");
 
 	//Initialisation des champs:
@@ -43,9 +48,6 @@ int main (int argc,char **argv)
 
 		mySimu->load_history(nomFichier);
 		mySimu->algo()->algoFill();
-
-		//Stock des particules:
-		grid.stockparticles(*(mySimu->spl()));
 
 		//Calcul des champs
 		MesChamps.calculChamps(mySimu,grid);

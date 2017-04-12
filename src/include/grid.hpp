@@ -24,18 +24,26 @@ class Grid{
 		unsigned int nx_ , ny_ ;
 		double xmin_, xmax_ , ymin_, ymax_ ;
 		double dx_ , dy_ ;
+		double resolution_ ;
 		Point * array_ ; 
 		std::vector<voisin> motif_ ;
 	public:
 		Grid(){};
+		Grid(double,double,double,int); //init a grid with dx,dy,l_ (motif)
 		~Grid();
 		Grid(Config);
 		double getX(int,int);
 		double getY(int,int);
+		double getdx() {return dx_ ; }
+		double getdy() {return dy_ ; }
 		Point * getarray() {return array_ ;}
 		void writeGrid(string);
-		void initmotif(Config);
+		void setcoordinates();
+		void initmotif(Config&);
 		void stockparticles(const Sample&);
+		int check(Config);
+		bool recouvrement(Point,Point);
+		Point getPoint(int,int);
 };
 
 

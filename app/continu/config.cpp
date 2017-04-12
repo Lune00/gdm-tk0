@@ -22,7 +22,6 @@ Config::Config()
 //Initialisation uniquement ici des parametres globaux de l'analyse
 void Config::init(ifstream& is)
 {
-	cerr<<"))))))))))))))))))))))))))))))))))"<<endl;
 	if(!is)
 	{
 		cerr << "@initContinu : cannot open file " << endl;
@@ -33,7 +32,6 @@ void Config::init(ifstream& is)
 	is >> token ;
 	while(is)
 	{
-		cerr<<token<<"*"<<endl;
 		if(token=="Grid{")
 		{
 			is >> token;
@@ -77,6 +75,15 @@ void Config::init(ifstream& is)
 
 		is >> token;
 	}
+
+	//Initialisation de la résolution spatiale initiale:
+	{
+		cerr<<"---------------------------------"<<endl;
+		l_ *= rmean_ ;
+		cerr<<"initial spatial resolution (l_) = "<<l_<<endl;
+		cerr<<"initial spatial resolution / average radius = "<<l_/rmean_<<endl;
+		cerr<<"---------------------------------"<<endl;
+	}
 }
 
 void Config::readMetrics(string file)
@@ -91,14 +98,7 @@ void Config::readMetrics(string file)
 		if(token=="xmax") is >> xmax;
 		if(token=="ymin") is >> ymin;
 		if(token=="ymax") is >> ymax;
-		if(token=="rmean")
-		{
-			cerr<<"---------------------------------"<<endl;
-			double mult ;
-			is >> mult ;
-			l_ *= mult ;
-			cerr<<"l_ = "<<l_<<endl;
-		}
+		if(token=="rmean") is >> rmean_ ;
 		is >> token;
 	}
 }

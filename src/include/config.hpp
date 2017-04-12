@@ -19,6 +19,7 @@ class Config{
 		double xmin, xmax, ymin, ymax ;
 		//Resolution spatiale:
 		double l_ ;
+		double rmean_ ; //rayon moyen d'une particule de la sim
 		std::string metrics;
 		std::string fichsim;
 		bool calc_masse;

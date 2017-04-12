@@ -17,7 +17,7 @@ OBJS2 = $(LIB_PATH)/*.o
 	cp -f $@ $(LIB_PATH)
 #Il faut rajouter compulation de continu.cpp ici
 all: $(OBJS)
-	$(CC) -o continu continu.cpp $(CFLAGS) $(OBJS2) 
+	$(CC) -o $(APP) $(APP).cpp $(CFLAGS) $(OBJS2) 
 
 
 clean:
