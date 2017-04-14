@@ -262,7 +262,22 @@ void Grid::repartition(Sample& spl)
 		unsigned int i = floor( (x-xmin_)/dx_);
 		unsigned int j = floor( (y-ymin_)/dy_);
 		part<<i * dx_  <<" "<<j* dy_ <<" "<<x -xmin_<<" "<<y- ymin_<<" "<<r<<endl;
+		// (i,j) point de reference : on applique le motif a partir de ce point
+		// Fonction qui prend la particule et la grille
+		//updatePoint(getPoint(i,j),spl.body(k));
 	}
 
 	part.close();
 }
+
+
+void Grid::updatePoint(Point& ref,body2d* p)
+{
+
+
+
+
+
+
+}
+
