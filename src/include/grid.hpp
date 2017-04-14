@@ -45,7 +45,7 @@ class Grid{
 		bool recouvrement(Point,Point);
 		Point getPoint(int,int);
 		bool motifinit();
-		void updatePoint(Point&,body2d*);
+		void updatePoints(Point&,body2d*);
 };
 
 

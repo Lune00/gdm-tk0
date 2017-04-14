@@ -271,7 +271,7 @@ void Grid::repartition(Sample& spl)
 }
 
 
-void Grid::updatePoint(Point& ref,body2d* p)
+void Grid::updatePoints(Point& ref,body2d* p)
 {
 
 
