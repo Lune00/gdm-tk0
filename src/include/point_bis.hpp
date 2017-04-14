@@ -13,7 +13,7 @@ class Point{
 
 	private :
 		double x_ , y_ ;
-		std::map<int,body2d*> particles;
+		std::map<int,double> particules_; // id particule / distance au point
 	public:
 		Point(){x_ = 0. ; y_ = 0. ;}
 		~Point(){};

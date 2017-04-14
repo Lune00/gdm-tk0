@@ -247,9 +247,22 @@ void Grid::writeGrid(string filename)
 }	
 
 //On stock les particules sur chaque point
-void Grid::repartition(const Sample& spl)
+void Grid::repartition(Sample& spl)
 {
 	unsigned int N = spl.lbody().size();
 	cerr<<"Nombre de particules a stocker : "<< N <<endl;
 
+	ofstream part("particules.txt");
+	//On commence par parcourir les particules et a reperer leur point de ref
+	for(unsigned int k = 0 ; k != N ; k++)
+	{
+		double x = spl.body(k)->x() ; 
+		double y = spl.body(k)->y() ; 
+		double r =  spl.body(k)->sizeVerlet() ; 
+		unsigned int i = floor( (x-xmin_)/dx_);
+		unsigned int j = floor( (y-ymin_)/dy_);
+		part<<i * dx_  <<" "<<j* dy_ <<" "<<x -xmin_<<" "<<y- ymin_<<" "<<r<<endl;
+	}
+
+	part.close();
 }
