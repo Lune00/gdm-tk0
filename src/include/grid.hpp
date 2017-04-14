@@ -44,6 +44,7 @@ class Grid{
 		int check(Config);
 		bool recouvrement(Point,Point);
 		Point getPoint(int,int);
+		bool motifinit();
 };
 
 

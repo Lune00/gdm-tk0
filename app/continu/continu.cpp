@@ -36,6 +36,8 @@ int main (int argc,char **argv)
 	//Initialisation des champs:
 	MesChamps.initChamps(parametres);
 
+	return 0 ;
+
 	Simulation * mySimu = new Simulation();
 	mySimu->read_data(parametres.getfichsim().c_str());
 

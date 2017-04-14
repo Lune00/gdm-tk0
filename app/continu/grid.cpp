@@ -13,15 +13,18 @@ int Grid::check(Config parametres)
 
 Grid::Grid(double dx,double dy,double l, int mult)
 {
-	unsigned int nx = round(l / dx);
-	unsigned int ny = round(l / dy);
+	nx_ = mult * ceil(l / dx);
+        ny_ = mult * ceil(l / dy);
+	cerr<<nx_<<" - "<<ny_<<endl;
 	dx_ = dx ;
 	dy_ = dy ;
 	xmin_ = 0. ;
 	ymin_ = 0. ;
-	xmax_ = mult * nx ;
-	ymax_ = mult * ny ;
-	cerr<<"nx = "<<nx<<" - ny = "<<ny<<endl;
+	xmax_ = mult * nx_ ;
+	ymax_ = mult * ny_ ;
+	resolution_ = l ;
+	array_ = new Point [ nx_ * ny_ ];
+	if(ny_ == 0 || nx_ == 0 ) cerr<<"@Grid::Grid(dx,dy,l,mult) grille temporaire - dimension nulle"<<endl;
 }
 
 //renvoie vrai sur les deux points se recouvrent via la resolution spatiale
@@ -38,10 +41,16 @@ bool Grid::recouvrement(Point a, Point b)
 		return false;
 }
 
+bool sortv(const voisin& a,const voisin& b)
+{
+	return a.i_ < b.i_;
+}
+
+
 
 Point Grid::getPoint(int i,int j)
 {
-	if ( i >= 0 && i <= nx_ && j >=0 && j<= ny_) return array_[ i * ny_ + j ] ; 
+	if ( i >= 0 && i < nx_ && j >=0 && j< ny_) return array_[ i * ny_ + j ] ; 
 	else
 	{
 		//Gerer exception:
@@ -56,9 +65,14 @@ void Grid::initmotif(Config& parametres)
 
 	int size = 10 ;
 
+	//double dx = 1. ;
+	//double dy = 2. ;
+	//double resolution = 0.71;
+	//if(resolution< sqrt(dx * dx + dy * dy ) * 0.5 ) cerr<<"RES TROP FAIBLE!"<<endl;
 	Grid *  tmp = new Grid(dx_,dy_,resolution_,size);
 
 	tmp->setcoordinates();
+	tmp->writeGrid("tmp.txt");
 	//On prend le point au centre de la grille:
 	int iref = size / 2 ;
 	int jref = size / 2 ;
@@ -66,20 +80,84 @@ void Grid::initmotif(Config& parametres)
 	//   o-------o
 	//   |       |
 	//   x-------o
-
-	for (unsigned int j = 0 ; j!=tmp->ny_ ; j++)
+	
+	//Par précaution on met toujours les 4 points du domaine de reference a tester:
+	for(unsigned int l=jref; l!=jref + 2 ;l++)
 	{
-		for(unsigned int i = 0 ; i != tmp->nx_ ; i++)
+		for (unsigned int k = iref ; k != iref + 2 ; k++)
 		{
-			cerr<<i<<" "<<j<<endl;
-			if(tmp->recouvrement(tmp->getPoint(iref,jref),tmp->getPoint(i,j)))
+			voisin v ;
+			v.i_ = k - iref  ;
+			v.j_ = l - jref  ;
+			motif_.push_back(v);
+		}
+	}
+
+	//check : allows to avoid doublon
+	std::vector<voisin> check;
+	for(unsigned int l=jref; l!=jref + 2 ;l++)
+	{
+		for (unsigned int k = iref ; k != iref + 2 ; k++)
+		{
+
+			for (unsigned int j = 0 ; j!=tmp->ny_ ; j++)
 			{
-				cerr<<"Ca recouvre !"<<endl;
+				for(unsigned int i = 0 ; i != tmp->nx_ ; i++)
+				{
+					if( i == k && j == l ) continue;
+
+					if(tmp->recouvrement(tmp->getPoint(k,l),tmp->getPoint(i,j)))
+					{
+						voisin v;
+						v.i_ = i - iref  ;
+						v.j_ = j - jref  ;
+						std::vector<voisin>::iterator it = check.begin();
+						bool notinthelist = true;
+						while(it != check.end())
+						{
+							if( it->i_ == i - iref && it->j_ == j -jref ){
+								notinthelist = false;
+								break;
+							}
+							it++;
+						}
+
+						if(notinthelist){
+							motif_.push_back(v);
+							check.push_back(v);
+						}
+						else
+						{
+							check.push_back(v);
+						}
+
+					}
+				}
 			}
 		}
 	}
-	cerr<<"End initmotif"<<endl;
+
+	cerr<<"N recouvrements : "<<motif_.size()<<endl;
+	ofstream testr("motif.txt");
+	for(std::vector<voisin>::iterator it = motif_.begin() ; it != motif_.end();it++)
+	{	
+		testr<<(*it).i_ * dx_ <<" "<<(*it).j_ * dy_  <<" "<<resolution_<<endl;
+	}
+	testr.close();
+
 	delete tmp ;
+}
+
+//pas necessaire
+bool Grid::motifinit()
+{
+	if(motif_.size()==0)
+	{
+		cerr<<"Erreur : motif ne contient aucun point d'intégration !"<<endl;
+		return false;
+	}
+	else
+		return true;
 }
 
 void Grid::setcoordinates()
@@ -129,7 +207,6 @@ Grid::Grid(Config parametres)
 
 	setcoordinates();
 	initmotif(parametres);
-	cerr<<"End Grid"<<endl;
 }
 
 Grid::~Grid()
@@ -149,14 +226,13 @@ double Grid::getY(int i,int j)
 
 void Grid::writeGrid(string filename)
 {
+	cerr<<"write grid : nx = "<<nx_<<" ny = "<<ny_<<endl;
 	ofstream gridout (filename,ios::out);
-
-	cout<<filename<<endl;
 	for(int j = 0 ; j != ny_ ; j++)
 	{
 		for(int i = 0 ; i!= nx_ - 1 ; i++)
 		{
-			gridout<<getX(i,j)<<" "<<getY(i,j)<<" "<<dx_<<" 0."<<endl;
+			gridout<<getX(i,j)<<" "<<getY(i,j)<<" "<<dx_<<" 0."<<" "<<resolution_<<endl;
 		}
 	}
 
@@ -164,7 +240,7 @@ void Grid::writeGrid(string filename)
 	{
 		for(int j = 0 ; j!= ny_ - 1 ; j++)
 		{
-			gridout<<getX(i,j)<<" "<<getY(i,j)<<" 0. "<<dy_<<endl; 
+			gridout<<getX(i,j)<<" "<<getY(i,j)<<" 0. "<<dy_<<" "<<resolution_<<endl; 
 		}
 	}
 
