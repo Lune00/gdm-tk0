@@ -36,8 +36,6 @@ int main (int argc,char **argv)
 	//Initialisation des champs:
 	MesChamps.initChamps(parametres);
 
-	return 0 ;
-
 	Simulation * mySimu = new Simulation();
 	mySimu->read_data(parametres.getfichsim().c_str());
 
@@ -50,9 +48,10 @@ int main (int argc,char **argv)
 
 		mySimu->load_history(nomFichier);
 		mySimu->algo()->algoFill();
-
+		//Particle repartition on grid:
+		grid.repartition(*(mySimu->spl()));
 		//Calcul des champs
-		MesChamps.calculChamps(mySimu,grid);
+		MesChamps.calculChamps(grid);
 	}
 
 	delete mySimu ;

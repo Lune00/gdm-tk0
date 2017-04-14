@@ -14,8 +14,6 @@
 //Differents types de champs calculables:
 enum typechamps{t_masse,t_momentum};
 
-
-
 class Champ
 {
 
@@ -27,7 +25,7 @@ class Champ
 	public:
 		Champ();
 		virtual ~Champ();
-		virtual void calculMasse(Simulation*,const Grid& ) {};
+		virtual void calculMasse(const Grid& ) {};
 		string getname() {return name_ ; }
 		typechamps gettype() {return type_ ; }
 };
@@ -45,8 +43,7 @@ class Champ_Scalaire : public Champ
 	public :
 	Champ_Scalaire(unsigned int,unsigned int, string,typechamps);
 	~Champ_Scalaire();
-	void calculMasse(Simulation*,const Grid&);
-
+	void calculMasse(const Grid&);
 };
 
 
@@ -65,7 +62,7 @@ Champ_Scalaire::~Champ_Scalaire()
 	delete [] champ ;
 }
 
-void Champ_Scalaire::calculMasse(Simulation* mySimu, const Grid& grid)
+void Champ_Scalaire::calculMasse(const Grid& grid)
 {
 
 	cerr<<"On calcule."<<endl;
@@ -81,7 +78,7 @@ class ChampManager
 		ChampManager();
 		~ChampManager();
 		void initChamps(Config);
-		void calculChamps(Simulation*,const Grid&);
+		void calculChamps(const Grid&);
 };
 
 ChampManager::ChampManager(){}
@@ -107,7 +104,7 @@ void ChampManager::initChamps(Config parametres)
 	}
 }
 
-void ChampManager::calculChamps(Simulation* mySimu, const Grid& grid)  
+void ChampManager::calculChamps(const Grid& grid)  
 {
 
 	for (std::vector<Champ*>::iterator it = lchamps_.begin(); it != lchamps_.end();it++)
@@ -115,7 +112,7 @@ void ChampManager::calculChamps(Simulation* mySimu, const Grid& grid)
 		switch ((*it)->gettype())
 		{
 			case t_masse :
-				(*it)->calculMasse(mySimu,grid);
+				(*it)->calculMasse(grid);
 				break;
 			case t_momentum : 
 				cerr<<"Coming."<<endl;

@@ -137,7 +137,7 @@ void Grid::initmotif(Config& parametres)
 		}
 	}
 
-	cerr<<"N recouvrements : "<<motif_.size()<<endl;
+	cerr<<"Taille du motif : "<<motif_.size()<<endl;
 	ofstream testr("motif.txt");
 	for(std::vector<voisin>::iterator it = motif_.begin() ; it != motif_.end();it++)
 	{	
@@ -226,7 +226,6 @@ double Grid::getY(int i,int j)
 
 void Grid::writeGrid(string filename)
 {
-	cerr<<"write grid : nx = "<<nx_<<" ny = "<<ny_<<endl;
 	ofstream gridout (filename,ios::out);
 	for(int j = 0 ; j != ny_ ; j++)
 	{
@@ -248,11 +247,9 @@ void Grid::writeGrid(string filename)
 }	
 
 //On stock les particules sur chaque point
-void Grid::stockparticles(const Sample& spl)
+void Grid::repartition(const Sample& spl)
 {
 	unsigned int N = spl.lbody().size();
 	cerr<<"Nombre de particules a stocker : "<< N <<endl;
-
-
 
 }

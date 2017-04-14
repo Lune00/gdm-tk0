@@ -13,6 +13,7 @@ class Point{
 
 	private :
 		double x_ , y_ ;
+		std::map<int,body2d*> particles;
 	public:
 		Point(){x_ = 0. ; y_ = 0. ;}
 		~Point(){};

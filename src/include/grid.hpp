@@ -40,7 +40,7 @@ class Grid{
 		void writeGrid(string);
 		void setcoordinates();
 		void initmotif(Config&);
-		void stockparticles(const Sample&);
+		void repartition(const Sample&);
 		int check(Config);
 		bool recouvrement(Point,Point);
 		Point getPoint(int,int);
