@@ -12,6 +12,7 @@
 class Point{
 
 	private :
+		int i_ , j_ ;
 		double x_ , y_ ;
 		std::map<int,double> particules_; // id particule / distance au point
 	public:
@@ -19,6 +20,10 @@ class Point{
 		~Point(){};
 		double getX(){return x_;};
 		double getY(){return y_;};
+		int geti() {return i_ ;}
+		int getj() {return j_ ;}
+		void seti(int i) {i_ = i ;}
+		void setj(int j) {j_ = j ;}
 		void setX(double x){x_ = x ;};
 		void setY(double y){y_ = y ;};
 };
