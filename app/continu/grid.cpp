@@ -114,11 +114,17 @@ void Grid::initmotif(Config& parametres)
 	motif_.erase(unique(motif_.begin(),motif_.end()),motif_.end());
 	cerr<<"+After  erase doublons : Taille du motif : "<<motif_.size()<<endl;
 
+	//Relative coordinates (les points de motif servent juste a les donner)
+	for(std::vector<Point>::iterator it = motif_.begin(); it != motif_.end();it++)
+	{
+		(*it).seti( (*it).geti() - iref );
+		(*it).setj( (*it).getj() - jref );
+	}
 	ofstream imotif("motif_indices.txt");
 
 	for(std::vector<Point>::iterator it = motif_.begin() ; it != motif_.end();it++)
 	{	
-		imotif<<(*it).getX()<<" "<<(*it).getY()<<tmp->getResolution()<< endl;
+		imotif<<(*it).getX()<<" "<<(*it).getY()<<tmp->getResolution()<<" "<<(*it).geti()<<" "<<(*it).getj()<< endl;
 	}
 	imotif.close();
 
@@ -239,23 +245,19 @@ void Grid::repartition(Sample& spl)
 {
 	unsigned int N = spl.lbody().size();
 	cerr<<"Nombre de particules a stocker : "<< N <<endl;
-
-	ofstream part("particules.txt");
 	//On commence par parcourir les particules et a reperer leur point de ref
-	for(unsigned int k = 1000 ; k != 1001 ; k++)
+	for(unsigned int k = 1100 ; k != 1101 ; k++)
 	{
 		double x = spl.body(k)->x() ; 
 		double y = spl.body(k)->y() ; 
-		double r =  spl.body(k)->sizeVerlet() ; 
+		//Determine le point de reference (coin gauche)
 		unsigned int i = floor( (x-xmin_)/dx_);
 		unsigned int j = floor( (y-ymin_)/dy_);
-		part<<i * dx_  <<" "<<j* dy_ <<" "<<x -xmin_<<" "<<y- ymin_<<" "<<r<<endl;
 		// (i,j) point de reference : on applique le motif a partir de ce point
 		// Fonction qui prend la particule et la grille
 		updatePoints(returnPoint(i,j),spl.body(k));
 	}
 
-	part.close();
 }
 
 
@@ -278,24 +280,27 @@ bool Grid::out(int i,int j)
 void Grid::updatePoints(Point& ref,body2d* p)
 {
 
-	//int iref = ref.geti() ;
-	//int jref = ref.getj() ;
+	int iref = ref.geti() ;
+	int jref = ref.getj() ;
 
+			ofstream testp("testpp.txt");
 	for(std::vector<Point>::iterator it = motif_.begin(); it != motif_.end() ; it++)
 	{
 		//Check si le motif sort de la grille:
-		//int i = iref + it->i_;
-		//int j = jref + it->j_;
-		//if(out(i,j)) continue;
-		//if( belongtopoint(returnPoint(i,j),p)) 
-		//{
-		//	cerr<<"La particule "<<p->id()<<" appartient au point "<<i<<" "<<j<<endl;
+		int i = iref + it->geti();
+		int j = jref + it->getj();
+		if(out(i,j)) continue;
+		if( belongtopoint(returnPoint(i,j),p)) 
+		{
+			cerr<<"La particule "<<p->id()<<" appartient au point "<<i<<" "<<j<<endl;
+			testp<<p->x()<<" "<<p->y()<<" "<<p->sizeVerlet()<<" "<<returnPoint(i,j).getX()<<" "<<returnPoint(i,j).getY()<<" "<<resolution_<<endl;
 
-		//}
+		}
 
 
 	}
 
+	testp.close();
 
 }
 
