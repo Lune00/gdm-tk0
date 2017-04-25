@@ -41,12 +41,6 @@ bool Grid::recouvrement(Point a, Point b)
 		return false;
 }
 
-bool sortv(const voisin& a,const voisin& b)
-{
-	return a.i_ < b.i_;
-}
-
-
 
 Point Grid::getPoint(int i,int j)
 {
@@ -69,7 +63,6 @@ void Grid::initmotif(Config& parametres)
 	//double dx = 1. ;
 	//double dy = 2. ;
 	//double resolution = 0.71;
-	//if(resolution< sqrt(dx * dx + dy * dy ) * 0.5 ) cerr<<"RES TROP FAIBLE!"<<endl;
 	Grid *  tmp = new Grid(dx_,dy_,resolution_,size);
 
 	tmp->setcoordinates();
@@ -82,6 +75,16 @@ void Grid::initmotif(Config& parametres)
 	//   |       |
 	//   x-------o
 	
+	//Par précaution on met toujours les 4 points du domaine de reference a tester:
+	for(unsigned int l=jref; l!=jref + 2 ;l++)
+	{
+		for (unsigned int k = iref ; k != iref + 2 ; k++)
+		{
+			Point p = tmp->getPoint(k,l) ;
+			cerr<<p.getid()<<endl;
+			motif_.push_back(p);
+		}
+	}
 
 	for(unsigned int l=jref; l!=jref + 2 ;l++)
 	{
@@ -96,55 +99,26 @@ void Grid::initmotif(Config& parametres)
 
 					if(tmp->recouvrement(tmp->getPoint(k,l),tmp->getPoint(i,j)))
 					{
-						voisin v;
-						v.i_ = i - iref  ;
-						v.j_ = j - jref  ;
-						motif_.insert(v);
-						if(!motif_.insert(v).second) {
 
-							cerr<<"motif = { "<<endl;
-							for(std::set<voisin>::iterator it = motif_.begin() ; it != motif_.end();it++)
-							{	
-								cerr<<"("<<(*it).i_<<","<<(*it).j_<<")"<<endl;
-							}
-							cerr<<"}"<<endl;
-
-							cerr<<"Failed to insert ("<<v.i_<<","<<v.j_<<")"<<endl;
-						}
-
+						Point p = tmp->getPoint(i,j) ;
+						motif_.push_back(p);
 					}
 				}
 			}
 		}
 	}
 
-	//Par précaution on met toujours les 4 points du domaine de reference a tester:
-	for(unsigned int l=jref; l!=jref + 2 ;l++)
-	{
-		for (unsigned int k = iref ; k != iref + 2 ; k++)
-		{
-			voisin v ;
-			v.i_ = k - iref  ;
-			v.j_ = l - jref  ;
-			motif_.insert(v);
-			if(!motif_.insert(v).second) {
+	cerr<<"+Before erase doublons : Taille du motif : "<<motif_.size()<<endl;
+	//Erase doublons:
+	sort(motif_.begin(),motif_.end());
+	motif_.erase(unique(motif_.begin(),motif_.end()),motif_.end());
+	cerr<<"+After  erase doublons : Taille du motif : "<<motif_.size()<<endl;
 
-				cerr<<"motif = { "<<endl;
-				for(std::set<voisin>::iterator it = motif_.begin() ; it != motif_.end();it++)
-				{	
-					cerr<<"("<<(*it).i_<<","<<(*it).j_<<")"<<endl;
-				}
-				cerr<<"}"<<endl;
-
-				cerr<<"Failed to insert ("<<v.i_<<","<<v.j_<<")"<<endl;
-			}
-		}
-	}
-	cerr<<"Taille du motif : "<<motif_.size()<<endl;
 	ofstream imotif("motif_indices.txt");
-	for(std::set<voisin>::iterator it = motif_.begin() ; it != motif_.end();it++)
+
+	for(std::vector<Point>::iterator it = motif_.begin() ; it != motif_.end();it++)
 	{	
-		imotif<<(*it).i_<<" "<<(*it).j_<<" "<<(*it).i_*dx_+xmin_<<" "<<(*it).j_+ymin_<<endl;
+		imotif<<(*it).getX()<<" "<<(*it).getY()<<tmp->getResolution()<< endl;
 	}
 	imotif.close();
 
@@ -169,6 +143,7 @@ void Grid::setcoordinates()
 	double x = xmin_;
 	double y = ymin_;
 
+	int id = 0 ;
 	for(int j = 0 ; j!= ny_ ; j++)
 	{
 		for(int i = 0 ; i != nx_ ; i++)
@@ -177,7 +152,9 @@ void Grid::setcoordinates()
 			array_[ i * ny_ + j ].setY(y);
 			array_[ i * ny_ + j ].seti(i);
 			array_[ i * ny_ + j ].setj(j);
+			array_[ i * ny_ + j ].setid(id);
 			x+=dx_;
+			id++;
 		}
 		y+=dy_;
 		x = xmin_;
@@ -301,20 +278,20 @@ bool Grid::out(int i,int j)
 void Grid::updatePoints(Point& ref,body2d* p)
 {
 
-	int iref = ref.geti() ;
-	int jref = ref.getj() ;
+	//int iref = ref.geti() ;
+	//int jref = ref.getj() ;
 
-	for(std::set<voisin>::iterator it = motif_.begin(); it != motif_.end() ; it++)
+	for(std::vector<Point>::iterator it = motif_.begin(); it != motif_.end() ; it++)
 	{
 		//Check si le motif sort de la grille:
-		int i = iref + it->i_;
-		int j = jref + it->j_;
-		if(out(i,j)) continue;
-		if( belongtopoint(returnPoint(i,j),p)) 
-		{
-			cerr<<"La particule "<<p->id()<<" appartient au point "<<i<<" "<<j<<endl;
+		//int i = iref + it->i_;
+		//int j = jref + it->j_;
+		//if(out(i,j)) continue;
+		//if( belongtopoint(returnPoint(i,j),p)) 
+		//{
+		//	cerr<<"La particule "<<p->id()<<" appartient au point "<<i<<" "<<j<<endl;
 
-		}
+		//}
 
 
 	}

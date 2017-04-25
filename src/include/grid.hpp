@@ -2,6 +2,7 @@
 #define _grid_hpp
 
 #include <iostream>
+#include <set>
 #include <fstream>
 #include <string>
 #include <sstream>
@@ -11,27 +12,26 @@
 #include "config.hpp"
 #include "point_bis.hpp"
 #include "sample.hpp"
-#include <set>
 
-struct voisin{
-	int i_ ;
-	int j_;
-	voisin() : i_(0), j_(0) {} ;
-	voisin(int i,int j) : i_(i) , j_(j) {} ;
-//	bool operator== (const voisin&b)
+//struct voisin{
+//	int i_ ;
+//	int j_;
+//	voisin() : i_(0), j_(0) {} ;
+//	voisin(int i,int j) : i_(i) , j_(j) {} ;
+////	bool operator== (const voisin&b)
+////	{
+////		return ( i_ == b.i_ && j_ == b.j_);
+////	}
+//};
+//
+//
+//struct comparevoisin{
+//	bool operator() (const voisin&a,const voisin&b)
 //	{
-//		return ( i_ == b.i_ && j_ == b.j_);
+//		return ( ! ( a.i_ != b.i_ || a.j_ != b.j_ )) ;
+//		//return ( ! (a.i_ == b.i_ && a.j_ == b.j_) ) ;
 //	}
-};
-
-
-struct comparevoisin{
-	bool operator() (const voisin&a,const voisin&b)
-	{
-		return ( ! ( a.i_ != b.i_ || a.j_ != b.j_ )) ;
-		//return ( ! (a.i_ == b.i_ && a.j_ == b.j_) ) ;
-	}
-};
+//};
 class Grid{
 
 	private:
@@ -40,7 +40,7 @@ class Grid{
 		double dx_ , dy_ ;
 		double resolution_ ;
 		Point * array_ ; 
-		std::set<voisin,comparevoisin> motif_ ;
+		std::vector<Point> motif_ ;
 	public:
 		Grid(){};
 		Grid(double,double,double,int); //init a grid with dx,dy,l_ (motif)
@@ -50,6 +50,7 @@ class Grid{
 		double getY(int,int);
 		double getdx() {return dx_ ; }
 		double getdy() {return dy_ ; }
+		double getResolution() {return resolution_;}
 		Point * getarray() {return array_ ;}
 		void writeGrid(string);
 		void setcoordinates();
