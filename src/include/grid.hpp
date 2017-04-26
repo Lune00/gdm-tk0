@@ -13,25 +13,6 @@
 #include "point_bis.hpp"
 #include "sample.hpp"
 
-//struct voisin{
-//	int i_ ;
-//	int j_;
-//	voisin() : i_(0), j_(0) {} ;
-//	voisin(int i,int j) : i_(i) , j_(j) {} ;
-////	bool operator== (const voisin&b)
-////	{
-////		return ( i_ == b.i_ && j_ == b.j_);
-////	}
-//};
-//
-//
-//struct comparevoisin{
-//	bool operator() (const voisin&a,const voisin&b)
-//	{
-//		return ( ! ( a.i_ != b.i_ || a.j_ != b.j_ )) ;
-//		//return ( ! (a.i_ == b.i_ && a.j_ == b.j_) ) ;
-//	}
-//};
 class Grid{
 
 	private:
@@ -61,7 +42,8 @@ class Grid{
 		Point getPoint(int,int);
 		Point& returnPoint(int,int);
 		bool motifinit();
-		void updatePoints(Point&,body2d*);
+		void updatePoints(int,int,body2d*);
+		void clearPoints();
 		double getdistance(Point,body2d*);
 		bool belongtopoint(Point,body2d*);
 		bool out(int,int);

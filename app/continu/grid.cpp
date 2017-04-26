@@ -225,7 +225,7 @@ void Grid::writeGrid(string filename)
 	{
 		for(int i = 0 ; i!= nx_ - 1 ; i++)
 		{
-			gridout<<getX(i,j)<<" "<<getY(i,j)<<" "<<dx_<<" 0."<<" "<<resolution_<<endl;
+			gridout<<getX(i,j)<<" "<<getY(i,j)<<" "<<dx_<<" 0."<<" "<<resolution_<<" "<<getPoint(i,j).getsizeparticules()<< endl;
 		}
 	}
 
@@ -233,33 +233,12 @@ void Grid::writeGrid(string filename)
 	{
 		for(int j = 0 ; j!= ny_ - 1 ; j++)
 		{
-			gridout<<getX(i,j)<<" "<<getY(i,j)<<" 0. "<<dy_<<" "<<resolution_<<endl; 
+			gridout<<getX(i,j)<<" "<<getY(i,j)<<" 0. "<<dy_<<" "<<resolution_<<" "<<getPoint(i,j).getsizeparticules()<<endl; 
 		}
 	}
 
 	gridout.close();
 }	
-
-//On stock les particules sur chaque point
-void Grid::repartition(Sample& spl)
-{
-	unsigned int N = spl.lbody().size();
-	cerr<<"Nombre de particules a stocker : "<< N <<endl;
-	//On commence par parcourir les particules et a reperer leur point de ref
-	for(unsigned int k = 1100 ; k != 1101 ; k++)
-	{
-		double x = spl.body(k)->x() ; 
-		double y = spl.body(k)->y() ; 
-		//Determine le point de reference (coin gauche)
-		unsigned int i = floor( (x-xmin_)/dx_);
-		unsigned int j = floor( (y-ymin_)/dy_);
-		// (i,j) point de reference : on applique le motif a partir de ce point
-		// Fonction qui prend la particule et la grille
-		updatePoints(returnPoint(i,j),spl.body(k));
-	}
-
-}
-
 
 double Grid::getdistance(Point p , body2d* b)
 {
@@ -277,24 +256,50 @@ bool Grid::out(int i,int j)
 	else
 		return false;
 }
-void Grid::updatePoints(Point& ref,body2d* p)
+
+//On stock les particules sur chaque point
+void Grid::repartition(Sample& spl)
 {
+	unsigned int N = spl.lbody().size();
+	cerr<<"Nombre de particules a stocker : "<< N <<endl;
+	//On commence par parcourir les particules et a reperer leur point de ref
+	for(unsigned int k = 172 ; k != 175 ; k++)
+	{
+		double x = spl.body(k)->x() ; 
+		double y = spl.body(k)->y() ; 
+		//Determine le point de reference (coin gauche)
+		unsigned int i = floor( (x-xmin_)/dx_);
+		unsigned int j = floor( (y-ymin_)/dy_);
+		// (i,j) point de reference : on applique le motif a partir de ce point
+		// Fonction qui prend la particule et la grille
+		updatePoints(i,j,spl.body(k));
+		cerr<<"k="<<k<<" / "<<N<<" - "<<i<<" "<<j<<endl;
+	}
 
-	int iref = ref.geti() ;
-	int jref = ref.getj() ;
+}
 
-			ofstream testp("testpp.txt");
+
+void Grid::updatePoints(int iref,int jref,body2d* p)
+{
+	ofstream testp("testpp.txt");
 	for(std::vector<Point>::iterator it = motif_.begin(); it != motif_.end() ; it++)
 	{
 		//Check si le motif sort de la grille:
 		int i = iref + it->geti();
 		int j = jref + it->getj();
-		if(out(i,j)) continue;
-		if( belongtopoint(returnPoint(i,j),p)) 
+		cerr<<"Motif : "<<i<<" "<<j<<endl;
+		
+		if(out(i,j)){
+			cerr<<"Le point "<<i<<" "<<j<<" n'existe pas, next."<<endl;
+			continue;
+		}
+		double d = getdistance(returnPoint(i,j),p);
+		cerr<<"distance : "<<d<<endl;
+		if(d < resolution_) 
 		{
-			cerr<<"La particule "<<p->id()<<" appartient au point "<<i<<" "<<j<<endl;
 			testp<<p->x()<<" "<<p->y()<<" "<<p->sizeVerlet()<<" "<<returnPoint(i,j).getX()<<" "<<returnPoint(i,j).getY()<<" "<<resolution_<<endl;
 
+			returnPoint(i,j).add(p->id(),d);
 		}
 
 
@@ -303,4 +308,17 @@ void Grid::updatePoints(Point& ref,body2d* p)
 	testp.close();
 
 }
+
+void Grid::clearPoints()
+{
+
+	for(int j = 0 ; j!= ny_ ; j++)
+	{
+		for(int i = 0 ; i != nx_ ; i++)
+		{
+			array_[ i * ny_ + j ].clearparticules();
+		}
+	}
+}
+
 

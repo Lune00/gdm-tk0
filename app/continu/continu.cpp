@@ -26,8 +26,6 @@ int main (int argc,char **argv)
 
 	//Initialisation grille:
 	Grid grid(parametres);
-	//Grid tmp(grid.getdx(),grid.getdy(),parametres.getl());
-	//grid.initmotif(tmp);
 	//Check recouvrement:
 	if(grid.check(parametres) == 1 ) return 0 ;
 
@@ -51,7 +49,10 @@ int main (int argc,char **argv)
 		//Particle repartition on grid:
 		grid.repartition(*(mySimu->spl()));
 		//Calcul des champs
-		MesChamps.calculChamps(grid);
+	//	MesChamps.calculChamps(grid);
+		//Clear grille:
+		grid.writeGrid("grid_size.txt");
+		grid.clearPoints();
 	}
 
 	delete mySimu ;

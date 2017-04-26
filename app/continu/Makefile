@@ -5,7 +5,7 @@ SYS_A_PATH = ../../src/systems_A
 LIB_PATH = ../../lib
 
 include ../../Makefile.in
-SRC = grid.cpp config.cpp
+SRC = grid.cpp config.cpp point_bis.cpp
 
 
 OBJS = $(subst .cpp,.o,$(SRC)) 
