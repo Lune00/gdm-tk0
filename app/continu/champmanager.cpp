@@ -49,6 +49,7 @@ void ChampManager::writeChamps(const Grid& grid)
 		{
 			case t_masse :
 				(*it)->writechamp(grid);
+				(*it)->drawchamp();
 				break;
 			case t_momentum : 
 				cerr<<"Coming."<<endl;

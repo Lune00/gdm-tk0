@@ -69,12 +69,37 @@ void Champ_Scalaire::writechamp(const Grid& grid)
 {
 	string filename = name_ + ".txt" ;
 	ofstream champout (filename);
-	for(int j = 0 ; j != ny_ ; j++)
-	{
-		for(int i = 0 ; i!= nx_  ; i++)
+	for(int i = 0 ; i!= nx_  ; i++)
+		for(int j = 0 ; j != ny_ ; j++)
 		{
-			champout<<grid.getX(i,j)<<" "<<grid.getY(i,j)<<" "<<champ[ i * ny_ + j]<<endl;
+			{
+				champout<<grid.getX(i,j)<<" "<<grid.getY(i,j)<<" "<<champ[ i * ny_ + j]<<endl;
+			}
 		}
-	}
 
 }
+
+
+void Champ_Scalaire::drawchamp()
+{
+	string name = name_ + ".bmp" ;
+	bitmap_image image(nx_,ny_);
+
+	if(!image)
+	{
+		cerr<<"Error - Failed to open: "<<name<<endl;
+	}
+	for(unsigned int i = 0 ; i!=nx_; i++)
+	{
+		for(unsigned int j = 0 ; j!=ny_ ; j++)
+		{
+			double value =  champ[i * ny_ + j] ;
+			image.set_pixel( i , j , value , value , value );
+		}
+	}
+	image.save_image(name);
+
+}
+
+
+

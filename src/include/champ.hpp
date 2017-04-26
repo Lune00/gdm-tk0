@@ -10,6 +10,7 @@
 #include "simulation.hpp"
 #include "config.hpp"
 #include "grid.hpp"
+#include "bitmap_image.hpp"
 
 //Differents types de champs calculables:
 enum typechamps{t_masse,t_momentum};
@@ -32,6 +33,7 @@ class Champ
 		string getname() {return name_ ; }
 		typechamps gettype() {return type_ ; }
 		double ponderation(double);
+		virtual void drawchamp() {};
 };
 
 
@@ -45,6 +47,7 @@ class Champ_Scalaire : public Champ
 	~Champ_Scalaire();
 	void calculMasse(const Grid&,Sample&);
 	void writechamp(const Grid&);
+	void drawchamp();
 };
 
 
