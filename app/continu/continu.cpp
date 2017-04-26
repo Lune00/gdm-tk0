@@ -10,7 +10,7 @@
 #include "dataSet.hpp"
 #include "vecteur.hpp"
 #include "grid.hpp"
-#include "champ.hpp"
+#include "champmanager.hpp"
 
 
 int main (int argc,char **argv)
@@ -49,7 +49,7 @@ int main (int argc,char **argv)
 		//Particle repartition on grid:
 		grid.repartition(*(mySimu->spl()));
 		//Calcul des champs
-	//	MesChamps.calculChamps(grid);
+		MesChamps.calculChamps(grid,*(mySimu->spl()));
 		//Clear grille:
 		grid.writeGrid("grid_size.txt");
 		grid.clearPoints();

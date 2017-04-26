@@ -252,7 +252,7 @@ bool Grid::belongtopoint(Point p , body2d* b)
 
 bool Grid::out(int i,int j)
 {
-	if( i < 0 || i > nx_ || j < 0 || j > ny_) return true;
+	if( i < 0 || i >= nx_ || j < 0 || j >= ny_) return true;
 	else
 		return false;
 }
@@ -263,7 +263,7 @@ void Grid::repartition(Sample& spl)
 	unsigned int N = spl.lbody().size();
 	cerr<<"Nombre de particules a stocker : "<< N <<endl;
 	//On commence par parcourir les particules et a reperer leur point de ref
-	for(unsigned int k = 172 ; k != 175 ; k++)
+	for(unsigned int k = 0 ; k != N ; k++)
 	{
 		double x = spl.body(k)->x() ; 
 		double y = spl.body(k)->y() ; 
@@ -273,7 +273,6 @@ void Grid::repartition(Sample& spl)
 		// (i,j) point de reference : on applique le motif a partir de ce point
 		// Fonction qui prend la particule et la grille
 		updatePoints(i,j,spl.body(k));
-		cerr<<"k="<<k<<" / "<<N<<" - "<<i<<" "<<j<<endl;
 	}
 
 }
@@ -281,20 +280,15 @@ void Grid::repartition(Sample& spl)
 
 void Grid::updatePoints(int iref,int jref,body2d* p)
 {
-	ofstream testp("testpp.txt");
+	ofstream testp("testpp.txt",ios::app);
 	for(std::vector<Point>::iterator it = motif_.begin(); it != motif_.end() ; it++)
 	{
 		//Check si le motif sort de la grille:
 		int i = iref + it->geti();
 		int j = jref + it->getj();
-		cerr<<"Motif : "<<i<<" "<<j<<endl;
 		
-		if(out(i,j)){
-			cerr<<"Le point "<<i<<" "<<j<<" n'existe pas, next."<<endl;
-			continue;
-		}
+		if(out(i,j)) continue;
 		double d = getdistance(returnPoint(i,j),p);
-		cerr<<"distance : "<<d<<endl;
 		if(d < resolution_) 
 		{
 			testp<<p->x()<<" "<<p->y()<<" "<<p->sizeVerlet()<<" "<<returnPoint(i,j).getX()<<" "<<returnPoint(i,j).getY()<<" "<<resolution_<<endl;
