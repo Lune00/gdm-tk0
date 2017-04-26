@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Champ::Champ(){}
+Champ::Champ(){ epsilon_ = 0.0000001; }
 
 Champ::~Champ(){}
 
@@ -21,7 +21,7 @@ Champ_Scalaire::Champ_Scalaire(unsigned int nx, unsigned int ny, string name, ty
 	type_ = t ;
 	resolution_ = resolution;
 	//A mofifier ensuite: variance de l'exponentielle, mettre un parametres explicite
-	true_resolution_ = resolution_ * 0.3;
+	true_resolution_ = resolution_ * 0.8;
 
 	for(unsigned int i = 0 ; i < nx_ ; i++)
 	{
@@ -58,7 +58,7 @@ void Champ_Scalaire::calculMasse(const Grid& grid,Sample& spl)
 				poidstotal += poids;
 			}
 
-			if(poidstotal > 0.0000000001 ) champ[ i * ny_ + j ] /= poidstotal ; 
+			if(poidstotal > epsilon_) champ[ i * ny_ + j ] /= poidstotal ; 
 			else
 				champ[ i * ny_ + j ] = 0. ; 
 		}

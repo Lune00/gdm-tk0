@@ -23,6 +23,7 @@ class Champ
 		double true_resolution_; // parametre de la ponderation expo, peut etre plus faible que resolution_ 
 		string name_ ;
 		typechamps type_;//identifie le champ pour le calcul
+		double epsilon_;
 	public:
 		Champ();
 		virtual ~Champ();
