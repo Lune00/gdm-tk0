@@ -13,5 +13,6 @@ class ChampManager
 		~ChampManager();
 		void initChamps(Config);
 		void calculChamps(const Grid&,Sample&);
+		void writeChamps(const Grid&);
 };
 #endif

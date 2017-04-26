@@ -31,6 +31,7 @@ class Point{
 		void setX(double x){x_ = x ;};
 		void setY(double y){y_ = y ;};
 		void add(int,double);
+		std::map<int,double> getparticules() const {return particules_;}
 		void clearparticules() { particules_.clear();}
 		int getsizeparticules() {return particules_.size();}
 		bool operator==(const Point&a) const{

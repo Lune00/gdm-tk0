@@ -50,6 +50,7 @@ int main (int argc,char **argv)
 		grid.repartition(*(mySimu->spl()));
 		//Calcul des champs
 		MesChamps.calculChamps(grid,*(mySimu->spl()));
+		MesChamps.writeChamps(grid);
 		//Clear grille:
 		grid.writeGrid("grid_size.txt");
 		grid.clearPoints();

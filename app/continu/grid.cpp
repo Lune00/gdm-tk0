@@ -202,18 +202,23 @@ Grid::~Grid()
 	delete[] array_;
 }
 
-double Grid::getX(int i,int j)
+double Grid::getX(int i,int j) const
 {
 	return array_[ i * ny_ + j].getX();
 }
 
-double Grid::getY(int i,int j)
+double Grid::getY(int i,int j) const
 {
 	return array_[ i * ny_ + j].getY();
 }
 
 
 Point& Grid::returnPoint(int i,int j)
+{
+	return array_[ i * ny_ + j];
+}
+
+Point& Grid::readPoint (int i,int j) const
 {
 	return array_[ i * ny_ + j];
 }
@@ -261,7 +266,7 @@ bool Grid::out(int i,int j)
 void Grid::repartition(Sample& spl)
 {
 	unsigned int N = spl.lbody().size();
-	cerr<<"Nombre de particules a stocker : "<< N <<endl;
+	cerr<<"+Init repartition : nombre de particules a stocker : "<< N <<endl;
 	//On commence par parcourir les particules et a reperer leur point de ref
 	for(unsigned int k = 0 ; k != N ; k++)
 	{
@@ -274,6 +279,7 @@ void Grid::repartition(Sample& spl)
 		// Fonction qui prend la particule et la grille
 		updatePoints(i,j,spl.body(k));
 	}
+	cerr<<"+Repartition done."<<endl;
 
 }
 
