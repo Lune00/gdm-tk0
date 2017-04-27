@@ -14,5 +14,6 @@ class ChampManager
 		void initChamps(Config);
 		void calculChamps(const Grid&,Sample&);
 		void writeChamps(const Grid&);
+		const Champ* getchamp(string) const; 
 };
 #endif

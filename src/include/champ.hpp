@@ -13,7 +13,7 @@
 #include "bitmap_image.hpp"
 
 //Differents types de champs calculables:
-enum typechamps{t_masse,t_momentum};
+enum typechamps{t_masse,t_momentum,t_vitesse};
 
 class Champ
 {
@@ -29,7 +29,14 @@ class Champ
 		Champ();
 		virtual ~Champ();
 		virtual void calculMasse(const Grid&,Sample& ) {};
+		virtual void calculMomentum(const Grid&,Sample& ) {};
+		virtual void calculVitesse(const Champ*,const Champ*) {};
 		virtual void writechamp(const Grid&) {};
+		//J'ai pas trouve mieux, ou alors formater le retour de valeur du champ
+		//Par exemple une struct valeur avec 1,2,4 valeurs selon vec,tens,sca
+		virtual double getchamp_ij(int,int) const   {return 0.; }
+		virtual double getchamp_ij_x(int,int) const {return 0.; };
+		virtual double getchamp_ij_y(int,int) const {return 0.; };
 		string getname() {return name_ ; }
 		typechamps gettype() {return type_ ; }
 		double ponderation(double);
@@ -40,17 +47,31 @@ class Champ
 class Champ_Scalaire : public Champ
 {
 	private:
-	double * champ ;
+		double * champ ;
 	public :
-	//nx,ny,nom,typechamp,resolution de la grille
-	Champ_Scalaire(unsigned int,unsigned int, string,typechamps,double);
-	~Champ_Scalaire();
-	void calculMasse(const Grid&,Sample&);
-	void writechamp(const Grid&);
-	void drawchamp();
+		//nx,ny,nom,typechamp,resolution de la grille
+		Champ_Scalaire(unsigned int,unsigned int, string,typechamps,double);
+		~Champ_Scalaire();
+		void calculMasse(const Grid&,Sample&);
+		void writechamp(const Grid&);
+		void drawchamp();
+		double getchamp_ij(int i,int j) const {return champ[i*ny_+j];}
 };
 
-
+class Champ_Vectoriel : public Champ
+{
+	private:
+		double * champx;
+		double * champy;
+	public:
+		Champ_Vectoriel(unsigned int, unsigned int, string, typechamps, double);
+		~Champ_Vectoriel();
+		void calculMomentum(const Grid&,Sample&);
+		void calculVitesse(const Champ*,const Champ*) ;
+		void writechamp(const Grid&);
+		double getchamp_ij_x(int i,int j) const {return champx[i*ny_+j];}
+		double getchamp_ij_y(int i,int j) const {return champy[i*ny_+j];}
+};
 
 
 

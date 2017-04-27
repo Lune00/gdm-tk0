@@ -22,7 +22,10 @@ class Config{
 		double rmean_ ; //rayon moyen d'une particule de la sim
 		std::string metrics;
 		std::string fichsim;
+		std::string dossierparent;
 		bool calc_masse;
+		bool calc_momentum;
+		bool calc_vitesse;
 
 	public:
 		Config();
@@ -43,6 +46,8 @@ class Config{
 		std::string getfichsim() {return fichsim;}
 
 		bool getcalcmasse() {return calc_masse;}
+		bool getcalcmomentum() {return calc_momentum;}
+		bool getcalcvitesse() {return calc_vitesse;}
 		double getl() {return l_ ; }
 };
 
