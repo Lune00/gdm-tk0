@@ -108,11 +108,11 @@ void Grid::initmotif(Config& parametres)
 		}
 	}
 
-	cerr<<"+Before erase doublons : Taille du motif : "<<motif_.size()<<endl;
+	//cerr<<"+Before erase doublons : Taille du motif : "<<motif_.size()<<endl;
 	//Erase doublons:
 	sort(motif_.begin(),motif_.end());
 	motif_.erase(unique(motif_.begin(),motif_.end()),motif_.end());
-	cerr<<"+After  erase doublons : Taille du motif : "<<motif_.size()<<endl;
+	cerr<<"Taille du motif : "<<motif_.size()<<endl;
 
 	//Relative coordinates (les points de motif servent juste a les donner)
 	for(std::vector<Point>::iterator it = motif_.begin(); it != motif_.end();it++)
@@ -150,9 +150,50 @@ void Grid::setcoordinates()
 	double y = ymin_;
 
 	int id = 0 ;
+
+	//Partie de la grille periodique
 	for(int j = 0 ; j!= ny_ ; j++)
 	{
-		for(int i = 0 ; i != nx_ ; i++)
+		for(int i = nb_ ; i != nx_ - nb_ ; i++)
+		{
+			array_[ i * ny_ + j ].setX(x);
+			array_[ i * ny_ + j ].setY(y);
+			array_[ i * ny_ + j ].seti(i);
+			array_[ i * ny_ + j ].setj(j);
+			array_[ i * ny_ + j ].setid(id);
+			x+=dx_;
+			id++;
+		}
+		y+=dy_;
+		x = xmin_;
+	}
+
+
+	//Bande periodique gauche grille
+	x = xmin_ ;
+	y = ymin_ ;
+	for(int j = 0 ; j!= ny_ ; j++)
+	{
+		for(int i = nb_ - 1  ; i != -1 ; i--)
+		{
+			array_[ i * ny_ + j ].setX(x);
+			array_[ i * ny_ + j ].setY(y);
+			array_[ i * ny_ + j ].seti(i);
+			array_[ i * ny_ + j ].setj(j);
+			array_[ i * ny_ + j ].setid(id);
+			x-=dx_;
+			id++;
+		}
+		y+=dy_;
+		x = xmin_;
+	}
+
+	//Bande periodique droite grille
+	x = xmax_;
+	y = ymin_ ;
+	for(int j = 0 ; j!= ny_ ; j++)
+	{
+		for(int i = nx_ - nb_  ; i != nx_ ; i++)
 		{
 			array_[ i * ny_ + j ].setX(x);
 			array_[ i * ny_ + j ].setY(y);
@@ -178,6 +219,10 @@ Grid::Grid(Config parametres)
 	ymin_ = parametres.getymin() ;
 	ymax_ = parametres.getymax() ;
 	resolution_ = parametres.getl();
+	bandwitdh_ = parametres.getbw();
+	nb_ = ceil(bandwitdh_/parametres.getrmean());
+
+	nx_ += nb_ * 2 ;
 
 	array_ = new Point [ nx_ * ny_ ];
 
@@ -193,6 +238,7 @@ Grid::Grid(Config parametres)
 	dx_ = Lx / nx_ ;
 	dy_ = Ly / ny_ ;
 
+	cerr<<"nb = "<<nb_<<endl;
 	setcoordinates();
 	initmotif(parametres);
 }
@@ -222,7 +268,7 @@ Point& Grid::readPoint (int i,int j) const
 {
 	return array_[ i * ny_ + j];
 }
-
+//Imprimer la grille periodique vs grille totale
 void Grid::writeGrid(string filename)
 {
 	ofstream gridout (filename,ios::out);
@@ -280,6 +326,12 @@ void Grid::repartition(Sample& spl)
 		updatePoints(i,j,spl.body(k));
 	}
 	cerr<<"+Repartition done."<<endl;
+	//On recupere les bandes periodiques
+	spl.updateBands();
+	for(unsigned int k=0; k<spl.leftband().size();k++)
+	{
+	//	double x = spl.body(spl.leftband(k))->x() + spl.boundWidth() ;
+	}
 
 }
 

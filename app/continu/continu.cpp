@@ -31,6 +31,7 @@ int main (int argc,char **argv)
 
 	grid.writeGrid("grid.txt");
 
+	return 0 ;
 	//Initialisation des champs:
 	MesChamps.initChamps(parametres);
 

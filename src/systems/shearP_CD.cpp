@@ -419,8 +419,6 @@ void shearP_CD::SetUnity()
 	}
 	else if (Unit_ == "Rmax" || Unit_ == "Rmin")
 	{
-		int a = topPlateThickness_ ;
-		cerr << "DBG TTTTTTTTTTTTTTTTTTTTTTTTTTTT a:" << a << endl ;
 		if (topPlateThickness_ == 0.)		{ topPlateThickness_ = 2.;		}
 		if (bottomPlateThickness_ == 0.)	{ bottomPlateThickness_ = 2.;	}
 		if (bandwidth_ == 0.)				{ bandwidth_ = 2.;				}
@@ -504,17 +502,17 @@ void shearP_CD::printMetrics()
 {
 	double xmin,xmax,ymin,ymax;
 	ofstream metrics("Analyse/metrics.txt");
-
-
 	double rmean = spl()->rmoy();
 	xmin = spl()->leftBoundary();
 	xmax = spl()->rightBoundary();
 	ymin = ldof(0)->lowerBody()->y();
 	ymax = ldof(1)->lowerBody()->y();
+	double bandwidth = spl()->bandWidth();
 	metrics << "xmin "<<xmin<<endl;
 	metrics << "xmax "<<xmax<<endl;
 	metrics << "ymin "<<ymin<<endl;
 	metrics << "ymax "<<ymax<<endl;
+	metrics << "bw "<<bandwidth<<endl;
 	metrics << "rmean "<<rmean<<endl;
 	metrics.close();
 }

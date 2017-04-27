@@ -17,7 +17,9 @@ class Grid{
 
 	private:
 		unsigned int nx_ , ny_ ;
+		unsigned int nb_ ;
 		double xmin_, xmax_ , ymin_, ymax_ ;
+		double bandwitdh_;
 		double dx_ , dy_ ;
 		double resolution_ ;
 		Point * array_ ; 
@@ -33,6 +35,7 @@ class Grid{
 		double getny() {return ny_ ;}
 		double getdx() {return dx_ ; }
 		double getdy() {return dy_ ; }
+		double getbandwidth() {return bandwitdh_;}
 		double getResolution() {return resolution_;}
 		Point * getarray() {return array_ ;}
 		void writeGrid(string);

@@ -17,6 +17,7 @@ class Config{
 		int ny ;
 		int istart, iend, di;
 		double xmin, xmax, ymin, ymax ;
+		double bandwidth;
 		//Resolution spatiale:
 		double l_ ; //resolution_
 		double rmean_ ; //rayon moyen d'une particule de la sim
@@ -43,6 +44,8 @@ class Config{
 		double getymin() {return ymin ;}
 		double getxmax() {return xmax ;}
 		double getymax() {return ymax ;}
+		double getbw() {return bandwidth;}
+		double getrmean() {return rmean_;}
 		std::string getfichsim() {return fichsim;}
 
 		bool getcalcmasse() {return calc_masse;}

@@ -16,7 +16,9 @@ Config::Config()
 	metrics = "";
 	fichsim = "Simu.sim";
 	calc_masse = false ;
+	calc_momentum = false ;
 	l_ = 0. ;
+	dossierparent = "continu";
 }
 
 //Initialisation uniquement ici des parametres globaux de l'analyse
@@ -68,6 +70,8 @@ void Config::init(ifstream& is)
 			while(is)
 			{
 				if (token=="masse") calc_masse = true ;
+				if (token=="momentum") calc_momentum = true ;
+				if (token=="vitesse") calc_vitesse = true ;
 				if (token=="}") break;
 				is >> token;
 			}
@@ -84,6 +88,9 @@ void Config::init(ifstream& is)
 		cerr<<"initial spatial resolution / average radius = "<<l_/rmean_<<endl;
 		cerr<<"---------------------------------"<<endl;
 	}
+
+	string commande = "mkdir -p " + dossierparent ;
+	system(commande.c_str());
 }
 
 void Config::readMetrics(string file)
@@ -99,6 +106,7 @@ void Config::readMetrics(string file)
 		if(token=="ymin") is >> ymin;
 		if(token=="ymax") is >> ymax;
 		if(token=="rmean") is >> rmean_ ;
+		if(token=="bw") is >> bandwidth ;
 		is >> token;
 	}
 }
