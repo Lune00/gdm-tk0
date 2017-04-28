@@ -1461,7 +1461,7 @@ void shearP_CD_A::globalStress()
 		ds_=S->majorDirection();
 		cout<<" direction = "<<ds_/M_PI*180.<<" q/p = "<<qop_;
 		ofstream GS_out("Analyse/stress.txt",ios::app);
-		GS_out<<time<<" "<<max(s1,s2)<<" "<<min(s1,s2)<<" "<<pressure_<<" "<<q_<<" "<<qop_<<" "<<ds_<<endl;
+		GS_out<<time<<" "<<max(s1,s2)<<" "<<min(s1,s2)<<" "<<pressure_<<" "<<q_<<" "<<qop_<<" "<<ds_<<" "<<S->xy()<<" "<<S->yy()<<endl;
 		GS_out.close();
 
 	}
@@ -3257,7 +3257,7 @@ void shearP_CD_A::writePS2( const char * fname)
 			double fnrescale = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn()-Fns.min())/(Fns.min()+Fns.max());
 
 			//double Linewidth = fnrescale * factorFn * R * zoom;
-			double Linewidth = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() / Fmean) * 0.04 * R * zoom;
+			double Linewidth = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() / Fmean) * 0.01 * R * zoom;
 			if ( (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() / Fmean) > FnOverMeanMax) FnOverMeanMax = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() / Fmean);
 			//double logcolor = log (fnrescale * 9 + 1) * R * zoom; 
 			ps<<"/coul_force {1 setlinecap 1 "<<1. - fnrescale<<" "<<1. -fnrescale<<" setrgbcolor} def"<<endl;
