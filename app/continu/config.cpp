@@ -82,8 +82,8 @@ void Config::init(ifstream& is)
 
 	//Initialisation de la résolution spatiale initiale:
 	{
-		cerr<<"---------------------------------"<<endl;
 		l_ *= rmean_ ;
+		cerr<<"---------------------------------"<<endl;
 		cerr<<"initial spatial resolution (l_) = "<<l_<<endl;
 		cerr<<"initial spatial resolution / average radius = "<<l_/rmean_<<endl;
 		cerr<<"---------------------------------"<<endl;
