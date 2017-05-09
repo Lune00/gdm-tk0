@@ -111,6 +111,7 @@ int main (int argc, char * argv[])
 		double temp1,temp2;
 		ifstream time(fichtemps);
 		string line;
+
 		if(!time.is_open())
 		{
 			cerr << "Fichier de temps manquant  " << time << endl;
@@ -128,7 +129,6 @@ int main (int argc, char * argv[])
 			}
 		}
 		time.close();
-		
 		
 		Simulation * mySimu= new Simulation();
 
@@ -188,12 +188,6 @@ int main (int argc, char * argv[])
 		
 		cout<<endl<<endl<<"************+++++ Chargement  :  "<<nomFichier<<endl;
 
-		//mySimu->load_history(nomFichier );
-		//mySimu->algo()->algoFill();
-		
-//		std::string dirAna(princDir);
-	
-		
 		mySimu->sys()->init();
 		mySimu->sysA()->initAnalyse();		
 
@@ -218,6 +212,7 @@ int main (int argc, char * argv[])
 			
 			cout<<"*o*0ro*************0******^r******0********1**"<<endl;
 		}
+		delete mySimu ;
 		
 	}
 	

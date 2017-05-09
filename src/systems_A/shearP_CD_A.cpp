@@ -467,7 +467,6 @@ void shearP_CD_A::initAnalyse( )
 	if (calcz)
 	{
 		system("mkdir -p Analyse/Connect");
-		//	ofstream FA_out("Connect/Zp.txt",ios::out); FA_out.close();
 		if (calczp) {ofstream zp_out("Analyse/Connect/Zpt.txt",ios::out); zp_out.close();}
 		ofstream scalZ_out("Analyse/Connect/scalarZ.txt",ios::out); scalZ_out.close();
 		if( granulo )
