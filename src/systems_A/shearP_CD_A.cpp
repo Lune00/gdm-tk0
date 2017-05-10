@@ -1460,7 +1460,8 @@ void shearP_CD_A::globalStress()
 		ds_=S->majorDirection();
 		cout<<" direction = "<<ds_/M_PI*180.<<" q/p = "<<qop_;
 		ofstream GS_out("Analyse/stress.txt",ios::app);
-		GS_out<<time<<" "<<max(s1,s2)<<" "<<min(s1,s2)<<" "<<pressure_<<" "<<q_<<" "<<qop_<<" "<<ds_<<" "<<S->xy()<<" "<<S->yy()<<endl;
+		double mu = -( S->xy() / S->yy());
+		GS_out<<time<<" "<<max(s1,s2)<<" "<<min(s1,s2)<<" "<<pressure_<<" "<<q_<<" "<<qop_<<" "<<ds_<<" "<<S->xy()<<" "<<S->yy()<<" "<<mu<<endl;
 		GS_out.close();
 
 	}
