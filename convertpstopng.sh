@@ -1,3 +1,5 @@
+#ffmpeg -start_number 126 -i img%03d.png -pix_fmt yuv420p out.mp4
+
 density=20
 for INP in *.ps
 do
