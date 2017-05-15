@@ -5,7 +5,7 @@ int main(int argc,char **argv)
 	mySimu->read_data(argv[1]);
 	mySimu->init();
 	mySimu->run();
-	delete mySimu ;
+//	delete mySimu ;
 
 	return 0;
 }

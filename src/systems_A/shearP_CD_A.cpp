@@ -1,5 +1,4 @@
 #include "shearP_CD_A.hpp"
-
 void shearP_CD_A::plugRef()
 {
 	partref=sys_->spl()->body(partrefId);
@@ -27,7 +26,9 @@ void shearP_CD_A::read_parameters(istream & is)
 		else if(token== "Sample") displaySample=true;
 		else if(token== "Force") displayForce=true;
 		else if(token== "Solidfraction") calcsf=true;
+		else if(token== "extractFN") extractFN_=true;
 		else if(token== "Fabric") calcFabric=true;
+		else if(token== "Angles") calcangles=true;
 		else if(token== "Fractal") calcfracdim=true;
 		else if(token== "Granulo") granulo=true;
 		else if(token== "Inout")
@@ -409,6 +410,11 @@ void shearP_CD_A::initAnalyse( )
 		ofstream inout("Analyse/inout_time.txt",ios::out);
 		inout.close();
 	}
+	if(extractFN_)
+	{
+		ofstream exFN("Analyse/fn.txt",ios::out);
+		exFN.close();
+	}
 
 	if ( calcforcesA ) 
 	{
@@ -493,6 +499,15 @@ void shearP_CD_A::initAnalyse( )
 
 	  ofstream SF_("Analyse/sf.txt",ios::out);
 	}
+	if( calcangles)
+	{
+		ofstream o_angles("Analyse/deltatheta.txt",ios::out);
+		ofstream anglebulk("Analyse/deltabulk.txt",ios::out);
+		ofstream angleparoi("Analyse/deltaparoi.txt",ios::out);
+		o_angles.close();
+		anglebulk.close();
+		angleparoi.close();
+	}
 
 	//cout<<"h1= "<<totalProbe_.h1()<<" h2 = "<<totalProbe_.h2()<<endl;
 	//cout<<"Compacite initiale = "<<sf()<<endl;		
@@ -515,8 +530,9 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 
 	printSystem();
 	followparticles();
-	cout<<"Zp"<<endl;
 	//computeZparticules();
+	if(extractFN_) extractFN();
+	if(calcangles) averageangle();
 	if(calcZprofile) profilZ();
 	if (calcz)  Z(calczp,Nbingranulo,granulo);
 	if (calcPtheta) Ptheta( NbinPT, mobperiod, mobwidth);
@@ -3274,3 +3290,215 @@ void shearP_CD_A::writePS2( const char * fname)
 
 	ps.close();
 }
+
+
+void shearP_CD_A::extractFN(){
+
+	ofstream outputFN("Analyse/fn.txt",ios::app);	
+	for( unsigned int i=0;i< sys_->nwk()->linter().size();++i)
+	{
+		if( sys_->nwk()->inter(i)->fn() != 0.) 
+		{
+			//f.add(sys_->nwk()->inter(i)->fn());
+			outputFN<<sys_->nwk()->inter(i)->fn()<<endl;
+		}
+	}
+
+	outputFN.close();
+	//cout<<"Force appliquee : "<<sys_->topYvalue()<<endl;
+
+
+}
+
+
+
+
+
+
+void shearP_CD_A::averageangle()
+{
+	cout<<"**** Angle analysis "<<endl;
+
+	unsigned int Np = sys_->spl()->lbody().size(); //nb particules
+	unsigned int Nc = sys_->nwk()->clist().size(); //nb de contacts
+	vector < vector <double> > nxlist ;
+	vector < vector <double> > nylist ;
+	vector < vector <double> > anglelist ;
+	vector < double> avangleP(Np,0.) ;
+	vector<double> delta;
+	vector<double> deltaparoi;
+
+	//double pi=4*atan(1.);
+
+	ofstream o_dtheta("Analyse/deltatheta.txt",ios::app);
+	//On init le vecteur
+	for (unsigned int i = 0 ; i<Np;i++)
+	{
+		nxlist.push_back(vector <double>());
+		nylist.push_back(vector <double>());
+		anglelist.push_back(vector <double>());
+	}
+
+
+
+	//Test
+	//char contactp[50];
+	//system("mkdir -p testangle");
+	//sprintf(contactp,"testangle/contact%05d.his",10);
+	//ofstream cont(contactp,ios::out);
+
+	for ( unsigned int i = 0 ; i < Nc ; i++) {
+
+		unsigned int ni = sys_->nwk()->clist(i);
+
+		unsigned int id1 = sys_->nwk()->inter(ni)->first()->id();
+		unsigned int id2 = sys_->nwk()->inter(ni)->second()->id();
+
+		double nx = sys_->nwk()->inter(ni)->nx();
+		double ny = sys_->nwk()->inter(ni)->ny();
+
+		//Ca marche comme ça!
+		// cont<<sys_->spl()->body(id1)->x()<< " "<<sys_->spl()->body(id1)->y()<<" "<<sys_->spl()->body(id1)->sizeVerlet()<<" "<<nx<<" "<<ny<<endl;
+		// cont<<sys_->spl()->body(id2)->x()<< " "<<sys_->spl()->body(id2)->y()<<" "<<sys_->spl()->body(id2)->sizeVerlet()<<" "<<-nx<<" "<<-ny<<endl;
+
+		//Id1 : nx
+
+		nxlist[id1].push_back(-nx);
+		nylist[id1].push_back(-ny);
+
+		nxlist[id2].push_back(nx);
+		nylist[id2].push_back(ny);
+
+	}
+
+	//cont.close();
+
+	//On check que les angles soit bien pris en comtpe
+
+	   char pangle[100];
+
+	   system("mkdir -p testangle");
+
+	   sprintf(pangle,"testangle/pangle%05d.his",10);
+	   ofstream o_pangle(pangle,ios::out);
+
+	   for (unsigned int i=0; i<Np; i++) {
+
+	   unsigned int nc = nxlist[i].size();
+	   for(unsigned int j=0;j<nc;j++ )
+	   {
+	   o_pangle<<sys_->spl()->body(i)->x()<<" "<<sys_->spl()->body(i)->y()<<" "<<sys_->spl()->body(i)->sizeVerlet()<<" "<<nxlist[i][j]<<" "<<nylist[i][j]<<endl;
+	   }
+
+
+	   }
+	 
+	o_pangle.close();
+
+	for (unsigned int i=0; i<Np; i++) {
+
+		unsigned int nc = nxlist[i].size();
+
+		if(sys_->spl()->body(i)->bodyDof()!=NULL && nc > 1) cout<<i<<" "<<nc<<endl;
+
+		if(nc>1) {
+
+			for(unsigned int j=0;j<nc;j++ )
+			{
+				double angle=atan2(nylist[i][j],nxlist[i][j]);
+				//if(angle<0) angle+=2*pi;
+				anglelist[i].push_back(angle);
+
+			}
+
+
+			std::sort(anglelist[i].begin(), anglelist[i].end());
+
+
+			//On parcourt chaque liste d'angle pour calculer l'angle moyen par particule
+
+
+			double deltap=0.;
+			double deltamoyen;
+			double deltatheta;
+
+
+			for(unsigned int j=0;j<nc-1;j++ )
+			{
+				deltap+=anglelist[i][j+1]-anglelist[i][j];
+				deltatheta=anglelist[i][j+1]-anglelist[i][j];
+				o_dtheta<<deltatheta<<endl;
+
+			}
+			deltamoyen=deltap/((double)nc-1);
+
+
+			//On cree une liste pour le bulk et une pour la paroi
+			if(sys_->spl()->body(i)->bodyDof()==NULL)
+			{
+				delta.push_back(deltamoyen);
+			}
+			else
+			{
+				deltaparoi.push_back(deltamoyen);
+			}
+
+			//Pour les profils
+			avangleP[i]=deltamoyen;
+
+
+
+		}
+
+		else
+		{
+			avangleP[i]=0.;
+			continue;
+
+		}
+
+
+		//On fait un profil de avangleP[i]
+
+
+	}
+
+
+
+	ofstream map_("mapangle.txt",ios::out);
+
+	for(unsigned int i=0;i<Np;i++ )
+	{
+		map_<<sys_->spl()->body(i)->x()<<" "<<sys_->spl()->body(i)->y()<<" "<<sys_->spl()->body(i)->sizeVerlet()<<" "<<avangleP[i]<<" "<<sys_->spl()->body(i)->z()<<endl;
+
+	}
+	map_.close();
+
+
+
+
+	cout<<"************* Ecriture delta *************"<<endl;
+
+	ofstream dataangle("Analyse/deltabulk.txt",ios::app);
+	ofstream deltaparoifile_("Analyse/deltaparoi.txt",ios::app);
+
+	unsigned int ndeltaparoi=deltaparoi.size();
+	unsigned int ndelta=delta.size();
+
+	for (unsigned k=0; k<ndelta; k++) {
+		dataangle<<k<<" "<<delta[k]<<endl;
+	}
+
+	for (unsigned k=0; k<ndeltaparoi; k++) {
+		deltaparoifile_<<k<<" "<<deltaparoi[k]<<endl;
+	}
+
+
+	dataangle.close();
+	deltaparoifile_.close();
+	o_dtheta.close();
+
+
+
+}
+

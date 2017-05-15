@@ -146,9 +146,11 @@ int main (int argc, char * argv[])
 
 		//Lecture des parametres syteme dans fichier Sim
 		//Le spl et nwk sont normalement vide... a remplir par la suite
+		cout<<"--- lecture du fichier Simu.sim"<<endl;
 		mySimu->read_data(fichsim.c_str());
+		mySimu->sys()->init();
 	
-		cout<<" --- lecture fichier sim ok "<<endl;
+		cout<<"--> lecture fichier sim ok "<<endl;
 		
 		//Lecture du fichier de commande contenant les grandeurs a evaluer
 		ifstream com(fichcom.c_str());
@@ -168,9 +170,9 @@ int main (int argc, char * argv[])
 				com >> token;
 			}
 		}
-		cout<<" --- lecture fichier de commande ok "<<endl;
+		cout<<"--> lecture fichier de commande ok "<<endl;
 		
-		cout<<" --- lecture fichier temps ok "<<endl;
+		cout<<"--> lecture fichier temps ok "<<endl;
 		
 	//	ofstream analyze("Analyze.txt",ios::out);
 		
@@ -185,11 +187,9 @@ int main (int argc, char * argv[])
 			cout<<" Bad format = "<<format<<endl;
 			exit(0);
 		}
-		
-		cout<<endl<<endl<<"************+++++ Chargement  :  "<<nomFichier<<endl;
 
-		mySimu->sys()->init();
 		mySimu->sysA()->initAnalyse();		
+		cout<<mySimu->spl()->lbody().size()<<endl;
 
 		
 		for( unsigned int i= Ndeb; i<=Nfin;i+=period)
@@ -201,18 +201,21 @@ int main (int argc, char * argv[])
 			else if (format==5)
 			sprintf(nomFichier,"spl_nwk/spl_nwk_%.5d.his",i);
 
-			cout<<endl<<endl<<"************ Chargement  :  "<<nomFichier<<endl;
+			cout<<endl<<endl<<"--> Chargement  :  "<<nomFichier<<endl;
 						
 			mySimu->load_history(nomFichier);
-		//	cout<<"load_history() done"<<endl;
+			cout<<"load_history() done"<<endl;
 			mySimu->algo()->algoFill();
-		//	cout<<"algoFill() done"<<endl;	
+			cout<<"algoFill() done"<<endl;	
 			mySimu->sysA()->plugRef();
+			cout<<"plugRef() done"<<endl;
+			cout<<"t["<<i<<"]="<<t[i]<<endl;
 			mySimu->sysA()->analyse(t[i],1,1);
+			cout<<"analyse done"<<endl;
 			
 			cout<<"*o*0ro*************0******^r******0********1**"<<endl;
 		}
-		delete mySimu ;
+	//	delete mySimu ;
 		
 	}
 	

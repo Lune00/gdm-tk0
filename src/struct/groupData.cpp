@@ -168,7 +168,7 @@ void GroupData::read(istream & is)
 //Lecture a partir de group.ini s'il existe
 void GroupData::read(const char * fname)
 {
-  cerr<<"On est dans GroupData::read(const char*)"<<endl;
+  cerr<<"GroupData::read a partir du fichier :"<<fname<<endl;
   ifstream datafile(fname);
   if(!datafile)
   {
@@ -202,7 +202,7 @@ void GroupData::read(const char * fname)
 	  string parName;
 	  double value;
 	  datafile >> parName >> value;
-	  cerr<<"setall : "<<parName<<" "<<ngrp_<<endl;
+	  cerr<<"setall "<<parName<<" to "<<ngrp_<<" groups, value = "<<value<<endl;
 	  for (unsigned int g=0;g<ngrp_;++g)
 	  {
 	    setParameter(parName,g,value);

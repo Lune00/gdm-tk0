@@ -90,6 +90,7 @@ class shearP_CD_A : public System_A
     bool calcforcesAC ;
     bool calcz ;
     bool calczp;
+    bool calcangles;
 
     bool calcZprofile;
     bool calcfn;
@@ -148,6 +149,7 @@ class shearP_CD_A : public System_A
     bool displaySample;
     bool displayForce;
     double zoom_;
+    bool extractFN_;
 
   public:
     void setFolder(std::string);
@@ -156,6 +158,7 @@ class shearP_CD_A : public System_A
     void read_parameters(istream &);
     void plugRef();
     void printSystem();
+    void extractFN(); //sort toutes les forces dans un fichier en cumule
 
     void profilZ();
 
@@ -171,6 +174,7 @@ class shearP_CD_A : public System_A
       calcSprofile=false;
       calcZprofile=false;
       calcFC=false;
+      extractFN_ = false;
       calczg=false;
       calcdef=false;
       calcSFprofile=false;
@@ -198,6 +202,7 @@ class shearP_CD_A : public System_A
       displayForce=false;
       ContactMesh_=false;
       calcgap=calcdef=true;
+      calcangles=false;
 
       fnmoy_=1.;
       Nanalyze_ = 0;
@@ -290,7 +295,7 @@ class shearP_CD_A : public System_A
     void writePS(const char * fname);
     void writePS2(const char * fname);
     void computeZparticules(); // calcule le nombre de contact par particule ->z_() 
-    //void filterGap();
+    void averageangle();
 
 
 

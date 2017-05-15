@@ -203,26 +203,26 @@ void shearP_CD::init()
 	}
 	spl_->updateBands();//Id based
 
-	cout<<endl<<".Taille zone périodique (d)="<<spl_->boundWidth()/(spl_->rmin()+spl_->rmax())<<endl;
+	cout<<".Taille zone périodique (d)="<<spl_->boundWidth()/(spl_->rmin()+spl_->rmax())<<endl;
 	cout<<".Taille des bandes periodiques (d) : "<<spl_->bandWidth()/(spl_->rmin()+spl_->rmax())<<endl;
 	cout<<scientific<<"Rmin = "<<spl_->rmin()<<" Rmax ="<<spl_->rmax()<<endl;
 	cout<<"Rmax/Rmin = "<<spl_->rmax()/spl_->rmin()<<endl;
 
 	//Impose une masse a la paroi libre egale à celle du système:
 
-	double Mparoi=0.;
+	double Msysteme=0.;
 
 	for(unsigned int i=0 ;i<spl_->lbody().size();i++){
 
-		if (spl_->body(i)->bodyDof() == NULL)  Mparoi += spl_->body(i)->mass();
+		if (spl_->body(i)->bodyDof() == NULL)  Msysteme += spl_->body(i)->mass();
 
 	}
 
-	ldof(1)->ComputeImposedMass(Mparoi);
+	ldof(1)->ComputeImposedMass(Msysteme);
 
 	cout<<scientific<<".Speed of topPlate : "<<topXvalue_<<endl;
 
-	cout<<scientific<<".Mass of topPlate : "<<Mparoi<<endl;
+	cout<<scientific<<".Mass of topPlate : "<<Msysteme<<endl;
 
 	cout<<".Nombre de pas (pas de temps 0.0001) pour l'essais pour 100% de Xdef = "<<spl_->boundWidth()/(topXvalue_*0.0001)<<endl;
 

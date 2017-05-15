@@ -12,7 +12,7 @@ Algo* Algo::factory(string type)
 	 
   
   cerr << "@Algo::factory, Unknown type of algorithm: " << type << endl << flush;
-  gdm::fatal("No Algorothm is defined!");
+  gdm::fatal("No Algorithm is defined!");
   return 0;
 }
 
@@ -22,12 +22,14 @@ void Algo::algoFill()
 	double density = 2500.0;
 		if(grpDat_->exist("density"))
 		{
+			cout<<"algoFill, taille systeme charge : "<<spl_->lbody().size()<<endl;
 			for (unsigned int i=0;i<spl_->lbody().size();++i)
 			{
+
 				density = grpDat_->getParameter("density",spl_->body(i)->grp());
 				spl_->body(i)->Fill(density);
 			}
-			
+		cout<<"on sort de la boucle sur lbody"<<endl;	
 		}
 		else
 		{
@@ -41,6 +43,7 @@ void Algo::algoFill()
 			sys_->ldof(i)->computeMassCenter();
 			sys_->ldof(i)->computeMoment();
 		}
+		cout<<"Fill ok"<<endl;
 }
 
 
