@@ -115,6 +115,7 @@ class shearP_CD_A : public System_A
     bool calcgranulopdf;
     bool exportDistribution;
     bool calcinout;
+    bool calcStress_profileX;
     //bool filter;
 
     bool removeR;
@@ -127,6 +128,7 @@ class shearP_CD_A : public System_A
 
     unsigned int Nbincor_;
     unsigned int Npointps;
+    unsigned int Nprb_stressX;
     int NbinFN;
     int NbinL;
     int NbinFA;
@@ -161,6 +163,8 @@ class shearP_CD_A : public System_A
     void extractFN(); //sort toutes les forces dans un fichier en cumule
 
     void profilZ();
+    void Stress_profileX();
+    void Stress_profile();
 
     //void plug( shearP_CD * sys_in) {sys=sys_in;}
 
@@ -203,6 +207,7 @@ class shearP_CD_A : public System_A
       ContactMesh_=false;
       calcgap=calcdef=true;
       calcangles=false;
+      calcStress_profileX=false;
 
       fnmoy_=1.;
       Nanalyze_ = 0;
@@ -220,6 +225,7 @@ class shearP_CD_A : public System_A
       time = 0. ;
       partref = NULL ;
       NbinZ_ = 1 ;
+      Nprb_stressX = 0 ;
     }
 
 

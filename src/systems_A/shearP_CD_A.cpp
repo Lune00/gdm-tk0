@@ -74,6 +74,16 @@ void shearP_CD_A::read_parameters(istream & is)
 				cout<<" @shearP_CD_A :Forcesanisotropy : missing plot command : "<<endl;
 			}
 		}
+		else if(token=="StressProfileX")
+		{
+			calcStress_profileX=true;
+			is >> Nprb_stressX;
+			if( Nprb_stressX == 0 )
+			{
+				cout<<" @ shearP_CD_A: Nprb_ undefined for StressProfile option"<<endl;
+				exit(0);
+			}
+		}
 		else if(token== "FCA")
 		{
 			calcforcesAC=true;
@@ -424,6 +434,22 @@ void shearP_CD_A::initAnalyse( )
 		ofstream DPM_out("Analyse/Anisotropies/F_DPM.txt",ios::out); FA_out.close();
 		// ofstream FA_out("FA.txt",ios::out); FA_out.close();
 	}
+	if(calcStress_profileX)
+	{
+		system ("mkdir -p Analyse/ProfilX");
+
+		ofstream XXSS_out("Analyse/ProfileX.txt",ios::out); XXSS_out.close();
+
+		char tprofil[100];
+		for (unsigned int i = 0; i < Nprb_stressX; i++) {
+
+			sprintf(tprofil,"Analyse/ProfilX/Profilx%05d.txt",i);
+			ofstream tprofilO(tprofil,ios::out);
+			tprofilO.close();
+		}
+
+
+	}
 	if ( calcforcesAC ) 
 	{
 		ofstream FA_out("Analyse/Anisotropies/FCAnisotropy.txt",ios::out);
@@ -497,7 +523,7 @@ void shearP_CD_A::initAnalyse( )
 	if( calcsf )
 	{
 
-	  ofstream SF_("Analyse/sf.txt",ios::out);
+		ofstream SF_("Analyse/sf.txt",ios::out);
 	}
 	if( calcangles)
 	{
@@ -531,6 +557,7 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	printSystem();
 	followparticles();
 	//computeZparticules();
+	if(calcStress_profileX) Stress_profileX();
 	if(extractFN_) extractFN();
 	if(calcangles) averageangle();
 	if(calcZprofile) profilZ();
@@ -3328,7 +3355,7 @@ void shearP_CD_A::averageangle()
 	vector<double> delta;
 	vector<double> deltaparoi;
 
-	//double pi=4*atan(1.);
+	double pi=4*atan(1.);
 
 	ofstream o_dtheta("Analyse/deltatheta.txt",ios::app);
 	//On init le vecteur
@@ -3338,14 +3365,6 @@ void shearP_CD_A::averageangle()
 		nylist.push_back(vector <double>());
 		anglelist.push_back(vector <double>());
 	}
-
-
-
-	//Test
-	//char contactp[50];
-	//system("mkdir -p testangle");
-	//sprintf(contactp,"testangle/contact%05d.his",10);
-	//ofstream cont(contactp,ios::out);
 
 	for ( unsigned int i = 0 ; i < Nc ; i++) {
 
@@ -3357,12 +3376,6 @@ void shearP_CD_A::averageangle()
 		double nx = sys_->nwk()->inter(ni)->nx();
 		double ny = sys_->nwk()->inter(ni)->ny();
 
-		//Ca marche comme ça!
-		// cont<<sys_->spl()->body(id1)->x()<< " "<<sys_->spl()->body(id1)->y()<<" "<<sys_->spl()->body(id1)->sizeVerlet()<<" "<<nx<<" "<<ny<<endl;
-		// cont<<sys_->spl()->body(id2)->x()<< " "<<sys_->spl()->body(id2)->y()<<" "<<sys_->spl()->body(id2)->sizeVerlet()<<" "<<-nx<<" "<<-ny<<endl;
-
-		//Id1 : nx
-
 		nxlist[id1].push_back(-nx);
 		nylist[id1].push_back(-ny);
 
@@ -3371,28 +3384,27 @@ void shearP_CD_A::averageangle()
 
 	}
 
-	//cont.close();
 
 	//On check que les angles soit bien pris en comtpe
 
-	   char pangle[100];
+	char pangle[100];
 
-	   system("mkdir -p testangle");
+	system("mkdir -p testangle");
 
-	   sprintf(pangle,"testangle/pangle%05d.his",10);
-	   ofstream o_pangle(pangle,ios::out);
+	sprintf(pangle,"testangle/pangle%05d.his",10);
+	ofstream o_pangle(pangle,ios::out);
 
-	   for (unsigned int i=0; i<Np; i++) {
+	for (unsigned int i=0; i<Np; i++) {
 
-	   unsigned int nc = nxlist[i].size();
-	   for(unsigned int j=0;j<nc;j++ )
-	   {
-	   o_pangle<<sys_->spl()->body(i)->x()<<" "<<sys_->spl()->body(i)->y()<<" "<<sys_->spl()->body(i)->sizeVerlet()<<" "<<nxlist[i][j]<<" "<<nylist[i][j]<<endl;
-	   }
+		unsigned int nc = nxlist[i].size();
+		for(unsigned int j=0;j<nc;j++ )
+		{
+			o_pangle<<sys_->spl()->body(i)->x()<<" "<<sys_->spl()->body(i)->y()<<" "<<sys_->spl()->body(i)->sizeVerlet()<<" "<<nxlist[i][j]<<" "<<nylist[i][j]<<endl;
+		}
 
 
-	   }
-	 
+	}
+
 	o_pangle.close();
 
 	for (unsigned int i=0; i<Np; i++) {
@@ -3406,7 +3418,8 @@ void shearP_CD_A::averageangle()
 			for(unsigned int j=0;j<nc;j++ )
 			{
 				double angle=atan2(nylist[i][j],nxlist[i][j]);
-				//if(angle<0) angle+=2*pi;
+				//Angles entre 0 et 2pi
+				if(angle<0) angle+=2*pi;
 				anglelist[i].push_back(angle);
 
 			}
@@ -3415,18 +3428,21 @@ void shearP_CD_A::averageangle()
 			std::sort(anglelist[i].begin(), anglelist[i].end());
 
 
-			//On parcourt chaque liste d'angle pour calculer l'angle moyen par particule
-
+			//On parcourt chaque liste d'angle pour calculer l'angle moyen par particule et les ecarts entre deux angles successifs entre 0 et PI
 
 			double deltap=0.;
 			double deltamoyen;
 			double deltatheta;
 
-
 			for(unsigned int j=0;j<nc-1;j++ )
 			{
+				double nxi = nxlist[i][j];
+				double nyi = nylist[i][j];
+				double nxj = nxlist[i][j+1];
+				double nyj = nylist[i][j+1];
+				deltatheta = acos(nxi*nxj+nyi*nyj);
 				deltap+=anglelist[i][j+1]-anglelist[i][j];
-				deltatheta=anglelist[i][j+1]-anglelist[i][j];
+				//deltatheta=anglelist[i][j+1]-anglelist[i][j];
 				o_dtheta<<deltatheta<<endl;
 
 			}
@@ -3446,8 +3462,6 @@ void shearP_CD_A::averageangle()
 			//Pour les profils
 			avangleP[i]=deltamoyen;
 
-
-
 		}
 
 		else
@@ -3457,13 +3471,7 @@ void shearP_CD_A::averageangle()
 
 		}
 
-
-		//On fait un profil de avangleP[i]
-
-
 	}
-
-
 
 	ofstream map_("mapangle.txt",ios::out);
 
@@ -3473,9 +3481,6 @@ void shearP_CD_A::averageangle()
 
 	}
 	map_.close();
-
-
-
 
 	cout<<"************* Ecriture delta *************"<<endl;
 
@@ -3498,7 +3503,130 @@ void shearP_CD_A::averageangle()
 	deltaparoifile_.close();
 	o_dtheta.close();
 
+}
 
+void shearP_CD_A::Stress_profileX()
+{
+	cout<<"--> Profil x stress/texture "<<endl;
+	unsigned int Nprobe = Nprb_stressX;
+	double dy = 0.5 * ( totalProbe_.h2() - totalProbe_.h1() );
+	double ycenter = totalProbe_.h1()+ dy;
+
+	system ("mkdir -p ProfilX");
+
+	cout<<"h1="<<totalProbe_.h1()<<endl;
+	cout<<"h2="<<totalProbe_.h2()<<endl;
+	vector < rectangularProbe *> lprobe(Nprobe);
+	double L =  sys_->spl()->boundWidth() ;
+	double x0 = sys_->spl()->leftBoundary();
+	double ampx = L / (double) (Nprobe) ;
+
+	ofstream Probes ( "Analyse/Probes_x.txt" , ios::out );
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+
+		lprobe[i]= new rectangularProbe( x0 + i*ampx , ycenter , dy, ampx*0.5 );
+		Probes<<i<<" "<<lprobe[i]->x()<<" "<<lprobe[i]->y()<<" "<<lprobe[i]->hh()<<" "<<lprobe[i]->hl()<<endl;
+	}
+
+	Probes.close();
+
+	vector <double> Phi(Nprobe,0.);
+	vector <gdm::Tensor2x2*> Stress(Nprobe);
+	vector <gdm::Tensor2x2*> Texture(Nprobe);
+
+
+	cout<<" Nprobe = "<<lprobe.size()<<endl;
+	for (unsigned int i=0; i<Nprobe; ++i)
+	{
+		Stress[i]=StressInProbe(*lprobe[i], *(sys_)->spl(),*(sys_)->nwk()) ;
+		Texture[i]=FabricInProbe(*lprobe[i], *(sys_)->spl(),*(sys_)->nwk()) ;
+		Phi[i]=solidFraction(*lprobe[i],*sys_->spl(),*sys_->nwk());
+
+	}
+
+	ofstream ACprofile ( "Analyse/ProfileX.txt" , ios::app );
+	if ( ! ACprofile ) cout<<"erreur creation de StressProfileX.txt"<<endl;
+
+
+
+	char tprofil[100];
+
+	double majeure,majeurTex;
+	double ac,s1,s2,xx;
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+
+		if (Stress[i] != NULL)
+		{
+			majeure=Stress[i]->majorDirection();
+
+		}
+		else
+		{
+			cout<<"i="<<i<<"NULL"<<endl;
+			majeure=0.;
+		}
+
+
+		if(Texture[i] != NULL)
+
+		{
+			majeurTex=Texture[i]->majorDirection();
+			Texture[i]->eigenValues();
+			s1 = Texture[i]->l1();
+			s2 = Texture[i]->l2();
+			ac= 2.*(max(s1,s2) - min(s1,s2));
+			xx=Texture[i]->xx();
+		}
+
+		else
+		{
+			majeurTex=0.;
+			ac=0.;
+			xx=0.;
+		}
+
+
+		ACprofile<<time<<" "<<epsxy_<<" "<<lprobe[i]->x()<<" "<<lprobe[i]->y()<<" "<<lprobe[i]->hl()<<" "<<Stress[i]->xx()<<" "<<Stress[i]->xy()<<" " <<Stress[i]->yy()<<" "<<" "<<" "<<ac<<" "<<Phi[i]<<" "<<" "<<xx<<   endl;
+
+		sprintf(tprofil,"Analyse/ProfilX/ProfilX%05d.txt",i);
+		ofstream bintime(tprofil,ios::out|ios::app);
+		if ( ! bintime ) cout<<"erreur creation de ACPint"<<endl;
+
+
+		bintime<<time<<" "<<epsxy_<<" "<<lprobe[i]->x()<<" "<<lprobe[i]->y()<<" "<<lprobe[i]->hl()<<" "<<Stress[i]->xx()<<" "<<Stress[i]->xy()<<" " <<Stress[i]->yy()<< " "<<majeure<<" "<<majeurTex<<" "<<ac<<" "<<Phi[i]<<" "<< " "<<xx<<  endl;
+
+		bintime.close();
+	}
+
+	ACprofile.close();
+
+	//Cleaning pointers:
+
+	for (std::vector< rectangularProbe * >::iterator it = lprobe.begin() ; it != lprobe.end(); ++it)
+	{
+		delete (*it);
+	}
+
+	lprobe.clear();
+
+	for (std::vector< gdm::Tensor2x2* >::iterator it = Stress.begin() ; it != Stress.end(); ++it)
+	{
+		delete (*it);
+	}
+
+	Stress.clear();
+
+
+	for (std::vector< gdm::Tensor2x2* >::iterator it = Texture.begin() ; it != Texture.end(); ++it)
+	{
+		delete (*it);
+	}
+
+	Texture.clear();
 
 }
 
