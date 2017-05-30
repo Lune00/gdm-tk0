@@ -280,6 +280,17 @@ void shearP_CD_A::read_parameters(istream & is)
 			}
 		} 
 
+		else if(token=="StressProfile")
+		{
+			calcStress_profile=true;
+			is >> Nprb_;
+			if( Nprb_ == 0 )
+			{
+				cout<<" @ shearP_CD_A: Nprb_ undefined for StressProfile option"<<endl;
+				exit(0);
+			}
+		}
+
 		else if(token=="Globalstress") calcglobalstress=true;
 		else if(token=="PartialLengthStress")
 		{
@@ -488,6 +499,15 @@ void shearP_CD_A::initAnalyse( )
 	{
 		ofstream XS_out("Analyse/SProfile.txt",ios::out); XS_out.close();
 		// ofstream FA_out("FA.txt",ios::out); FA_out.close();
+		system ( "mkdir -p Analyse/Spbins");
+		char spbins[50] ;
+
+		for ( unsigned int i=0;i<Nprb_;++i)
+		{
+			sprintf(spbins,"Analyse/Spbins/Sbin_%05d.his",i);
+			ofstream sb(spbins, ios::out);
+			sb.close();
+		}
 	}
 
 	if(calcFabric)
@@ -544,6 +564,11 @@ void shearP_CD_A::initAnalyse( )
 		system("mkdir -p Analyse/PS1");
 	}
 
+	if (calcStress_profile)
+	{
+		ofstream XSS_out("Analyse/StressProfile.txt",ios::out); XSS_out.close();
+
+	}
 }
 
 void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
@@ -557,6 +582,7 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	printSystem();
 	followparticles();
 	//computeZparticules();
+	if(calcStress_profile) Stress_profile();
 	if(calcStress_profileX) Stress_profileX();
 	if(extractFN_) extractFN();
 	if(calcangles) averageangle();
@@ -941,10 +967,31 @@ void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 			Sinst<<time<<" "<<lprobe[i]->halfHeight()<<" "<<XS[i]<<" "<<YS[i]<<endl;
 		}
 
+		//On sort un fichier pour chaque bins de suivi de vmoyen
+		system ( "mkdir -p Analyse/Spbins");
+		// ofstream middle("Analyse/Spbins/SpeedMiddle.txt", ios::out|ios::app);
+
+		char spbins[50] ;
+
+		for ( unsigned int i=0;i<Nprobe;++i)
+		{
+			sprintf(spbins,"Analyse/Spbins/Sbin_%05d.his",i);
+			ofstream sb(spbins, ios::out|ios::app);
+			sb<<time<<" "<<lprobe[i]->halfHeight()<<" "<<XS[i]<<" "<<YS[i]<<endl;
+			sb.close();
+		}
+
 		Sprofile.close();
 		Sinst.close();
 
 	}
+
+	for (std::vector< heightProbe * >::iterator it = lprobe.begin() ; it != lprobe.end(); ++it)
+	{
+		delete (*it);
+	}
+
+	lprobe.clear();
 }
 
 
@@ -3628,5 +3675,89 @@ void shearP_CD_A::Stress_profileX()
 
 	Texture.clear();
 
+}
+
+void shearP_CD_A::Stress_profile()
+{
+	unsigned int Nprobe = Nprb_;
+	double ampProbe=( totalProbe_.h2() - totalProbe_.h1() ) / (double) (Nprobe);
+	cout<<" h2= "<<totalProbe_.h2()<<" "<<" h1= "<<totalProbe_.h1() <<endl;
+	vector < heightProbe *> lprobe(Nprobe);
+
+	ofstream Probes ( "Analyse/Probes.txt" , ios::out );
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+
+		lprobe[i]= new heightProbe( totalProbe_.h1() + (double) (i) * ampProbe, totalProbe_.h1() + (double) (i+1) * ampProbe,sys_->spl()->boundWidth() );
+
+
+		Probes<<i<<" "<<lprobe[i]->h1()<<" "<<lprobe[i]->h2()<<" "<<lprobe[i]->h2()-lprobe[i]->h1()<<endl;
+	}
+
+	Probes.close();
+
+	//Vecteur de tenseur de contrainte dans la hauteur (slices)
+	vector <gdm::Tensor2x2*> Stress(Nprobe);
+
+	cout<<".Profil Stress "<<endl;
+	cout<<".Nprobe = "<<lprobe.size()<<endl;
+
+	for (unsigned int i=0; i<Nprobe; ++i)
+	{
+
+		Stress[i]=StressInProbe(*lprobe[i], *(sys_)->spl(),*(sys_)->nwk()) ;
+	}
+
+	ofstream Stressprofile ( "Analyse/StressProfile.txt" , ios::out|ios::app );
+	if ( ! Stressprofile)  cout<<"erreur creation de Analyse/StressProfile.txt"<<endl;
+
+	double majeure;
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+
+		if (Stress[i] != NULL)
+		{
+			majeure=Stress[i]->majorDirection();
+
+		}
+		else
+		{
+			majeure=0.;
+		}
+
+		Stressprofile<<time<<" "<<lprobe[i]->halfHeight()<<" "<<Stress[i]->xx()<<" "<<Stress[i]->xy()<<" " <<Stress[i]->yy()<< " "<<majeure<<" "<<i<<endl;
+	}
+
+
+	char spbins[50] ;
+
+	system("mkdir -p Analyse/Stressbins");
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		sprintf(spbins,"Analyse/Stressbins/SbinStress_%05d.his",i);
+		ofstream sb(spbins, ios::out|ios::app);
+		sb<<epsxy_<<" "<<lprobe[i]->halfHeight()<<" "<<Stress[i]->xx()<<" "<<Stress[i]->xy()<<" "<<Stress[i]->yy()<<" "<<Stress[i]->majorDirection()<<endl;
+		sb.close();
+	}
+
+	Stressprofile.close();
+
+
+	for (std::vector< heightProbe * >::iterator it = lprobe.begin() ; it != lprobe.end(); ++it)
+	{
+		delete (*it);
+	}
+
+	lprobe.clear();
+
+	for (std::vector< gdm::Tensor2x2*>::iterator it = Stress.begin() ; it != Stress.end(); ++it)
+	{
+		delete (*it);
+	}
+
+	Stress.clear();
 }
 

@@ -83,6 +83,7 @@ class shearP_CD_A : public System_A
     double lmoy_;
 
     bool calcsf;
+    bool calcStress_profile;
     bool calcFabric ;
     bool plotFA;
     bool calcforcesA ;
@@ -208,6 +209,7 @@ class shearP_CD_A : public System_A
       calcgap=calcdef=true;
       calcangles=false;
       calcStress_profileX=false;
+      calcStress_profile=false;
 
       fnmoy_=1.;
       Nanalyze_ = 0;
