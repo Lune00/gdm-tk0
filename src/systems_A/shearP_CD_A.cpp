@@ -26,6 +26,7 @@ void shearP_CD_A::read_parameters(istream & is)
 		else if(token== "Sample") displaySample=true;
 		else if(token== "Force") displayForce=true;
 		else if(token== "Solidfraction") calcsf=true;
+		else if(token== "AngleAtWall") calcAngleAtWall_=true;
 		else if(token== "extractFN") extractFN_=true;
 		else if(token== "Fabric") calcFabric=true;
 		else if(token== "Angles") calcangles=true;
@@ -426,6 +427,11 @@ void shearP_CD_A::initAnalyse( )
 	ofstream strain("Analyse/strain.txt",ios::out);
 	strain.close();	
 
+	if(calcAngleAtWall_)
+	{
+		ofstream aaw("Analyse/angleswall.txt",ios::out);
+			aaw.close();
+	}
 	if(calcinout)
 	{
 		ofstream inout("Analyse/inout_time.txt",ios::out);
@@ -582,6 +588,7 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	printSystem();
 	followparticles();
 	//computeZparticules();
+	if(calcAngleAtWall_) angleAtWall();
 	if(calcStress_profile) Stress_profile();
 	if(calcStress_profileX) Stress_profileX();
 	if(extractFN_) extractFN();
@@ -1533,7 +1540,7 @@ void shearP_CD_A::forces_AC(int Nbin ,bool plot)
 //Rajouter calcul tenseur de contraintes avec les composantes propres de l'Žcoulement (xy,yy)
 void shearP_CD_A::globalStress()
 {
-	cout<<"	Globalstress : ";
+	cout<<"Globalstress : ";
 	gdm::Tensor2x2 * S = StressInProbe(totalProbe_, *(sys_)->spl(),*(sys_)->nwk());
 
 	if (S != NULL ) 
@@ -3235,7 +3242,7 @@ void shearP_CD_A::profilZ()
 void shearP_CD_A::writePS2( const char * fname)
 {
 
-	bool displayforce = true ;
+	bool displayforce = false ;
 
 	ofstream ps(fname);
 
@@ -3761,3 +3768,39 @@ void shearP_CD_A::Stress_profile()
 	Stress.clear();
 }
 
+
+void shearP_CD_A::angleAtWall()
+{
+
+	cout<<"**** Angle at Walls analysis "<<endl;
+
+	unsigned int Nc = sys_->nwk()->clist().size(); //nb de contacts
+	double pi=4*atan(1.);
+
+	ofstream aaw("Analyse/angleswall.txt",ios::app);
+
+	for ( unsigned int i = 0 ; i < Nc ; i++) {
+
+		unsigned int ni = sys_->nwk()->clist(i);
+
+		unsigned int id1 = sys_->nwk()->inter(ni)->first()->id();
+		unsigned int id2 = sys_->nwk()->inter(ni)->second()->id();
+
+		//Si contact avec une paroi:
+		if(sys_->spl()->body(id1)->bodyDof()!=NULL || sys_->spl()->body(id2)->bodyDof()!=NULL )
+		{
+			double nx = sys_->nwk()->inter(ni)->nx();
+			double theta=acos(nx);
+			double fn = sys_->nwk()->inter(ni)->fn();
+ 
+			cout<<"Contact avec la paroi a un angle "<<theta*180./pi<<endl;
+			aaw<<theta<<" "<<fn<<" "<<theta * fn<<endl;
+		}
+
+	}
+
+
+
+	aaw.close();
+
+}

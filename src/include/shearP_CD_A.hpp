@@ -153,6 +153,7 @@ class shearP_CD_A : public System_A
     bool displayForce;
     double zoom_;
     bool extractFN_;
+    bool calcAngleAtWall_;
 
   public:
     void setFolder(std::string);
@@ -210,6 +211,7 @@ class shearP_CD_A : public System_A
       calcangles=false;
       calcStress_profileX=false;
       calcStress_profile=false;
+      calcAngleAtWall_=false;
 
       fnmoy_=1.;
       Nanalyze_ = 0;
@@ -304,6 +306,7 @@ class shearP_CD_A : public System_A
     void writePS2(const char * fname);
     void computeZparticules(); // calcule le nombre de contact par particule ->z_() 
     void averageangle();
+    void angleAtWall();
 
 
 

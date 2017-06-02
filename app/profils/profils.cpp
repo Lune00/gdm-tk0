@@ -10,6 +10,74 @@
 #include<algorithm>
 
 
+void profilMoyenStress(unsigned int Nbins)
+{
+	double xy[Nbins];
+	double yy[Nbins];
+	double y[Nbins];
+	std::fill_n(xy,Nbins,0.);
+	std::fill_n(yy,Nbins,0.);
+
+
+	if( Nbins == 0 ) {
+		cerr<<"@profilMoyenVitesse le nombre de Nbins ne peut pas etre nul."<<endl;
+		return;
+	}
+
+	ifstream is("Analyse/StressProfile.txt");
+	if(!is.is_open()) {
+		cerr<<"@profilMoyenVitesse impossible ouvrir SProfile.txt"<<endl;
+		return;
+	}
+	else
+	{
+		double time, yt , xy_s, yy_s ;
+		unsigned int j = 0 ;
+		unsigned int tic = 0 ;
+		double tr;
+		//?
+		while(is)
+		{
+			if( j % Nbins  == 0 ){ j = 0 ; tic++ ; }
+
+			is >> time >> yt >> tr >> xy_s >> yy_s >> tr >> tr ; 
+
+			if(is.eof()) break;
+
+			xy[j] +=  xy_s * (-1.)  ;
+			yy[j] +=  yy_s  ;
+			y[j] = yt ;
+			j++;
+		}
+
+		tic--;
+		is.close();
+
+		for (unsigned int i = 0 ; i != Nbins ; i ++ )
+		{
+			xy[i]       /= (double) tic;
+			yy[i]       /= (double) tic;
+		}
+
+		double ymin,ymax;
+		ymin = y[0] ;
+		ymax = y[Nbins-1];
+		double h = ymax - ymin ;
+		cout <<"h = "<<h<<endl;	
+		//Output : 
+		ofstream pv("profils/profstress.txt",ios::out);
+		pv<<"# 2y/h-1 mu musquare"<<endl;
+
+		for (unsigned int i = 0 ; i != Nbins ; i++ )
+		{
+		//	cout<<i<<" "<<vxsquare[i]<<" "<<vx[i]<<" "<<endl;
+			pv << 2 * (y[i]-ymin) / h  - 1.<<" "<<xy[i]<<" "<<yy[i]<<endl;
+		}
+		pv.close();
+
+
+	}
+}
 
 
 void profilMoyenVitesse(unsigned int Nbins)
@@ -109,13 +177,14 @@ int main (int argc,char **argv)
 
 
 	bool calcProfilVitesse = false;
+	bool calcProfilStress = false;
 	unsigned int NbinsV = 0 ;
+	unsigned int NbinsS = 0 ;
 
 	system("mkdir -p profils");
 	string token;
 
 	ifstream is(argv[1]);
-
 	is>>token;
 	while(is)
 	{
@@ -123,12 +192,20 @@ int main (int argc,char **argv)
 			calcProfilVitesse = true ;
 			is>>NbinsV;
 		}
+		if(token=="stress"){
+			calcProfilStress = true ;
+			is>>NbinsS;
+		}
 		is>>token;
 	}
 
 	if(calcProfilVitesse) {
 		cout<<".Calcul profil moyen de vitesse - Bins : "<<NbinsV<<endl;
 		profilMoyenVitesse(NbinsV);
+	}
+	if(calcProfilStress) {
+		cout<<".Calcul profil moyen de stress (mu) - Bins : "<<NbinsS<<endl;
+		profilMoyenStress(NbinsS);
 	}
 
 
