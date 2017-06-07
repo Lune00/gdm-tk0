@@ -2,7 +2,7 @@
 
 
 // For disk only
-void speedProfile( vector < heightProbe* > & lprb,vector <double> & Xprofile,vector <double> & Yprofile, Sample& spl)
+void speedProfile( vector < heightProbe* > & lprb,vector <double> & Xprofile,vector <double> & Yprofile, Sample& spl, vector <double>& ShearRateprofile, bool shearrateProfile)
 {
 	unsigned int Nb = spl.lbody().size();
 	unsigned int Nprb = lprb.size();
@@ -53,6 +53,26 @@ void speedProfile( vector < heightProbe* > & lprb,vector <double> & Xprofile,vec
 		Xprofile[i]/=(double) (Nbod[i]);
 		Yprofile[i]/=(double) (Nbod[i]);
 		//cout<<" "<<profile[i]<<endl;
+
+	}
+
+
+	if(shearrateProfile && Nprb > 50)
+	{
+
+		double dy = lprb[1]->halfHeight()-lprb[0]->halfHeight(); 
+
+		//Derivee le profile de vitesse
+		// Le shear rate a Nprb - 1 points
+		for (unsigned int i=1;i<Nprb-1; ++i)
+		{
+			double vyup = Xprofile[i+1];
+			double vydown= Xprofile[i-1];
+
+			ShearRateprofile[i]= (vyup - vydown)/( 2. * dy ) ;
+			//cout<<" "<<profile[i]<<endl;
+
+		}
 
 	}
 
@@ -185,9 +205,10 @@ void TemperatureProfile( vector < heightProbe* > & lprb,vector <double> & Xprofi
 
 	vector <double> Vxprofile(lprb.size(),0.);
 	vector <double> Vyprofile(lprb.size(),0.);
+	vector <double> Shear(lprb.size(),0.);
 
 	//Construction du profil de vitesse moyen:
-	speedProfile( lprb, Vxprofile, Vyprofile, spl) ;
+	speedProfile( lprb, Vxprofile, Vyprofile, spl, Shear, false) ;
 
 	for (unsigned int i=0;i<Nb; ++i)
 	{

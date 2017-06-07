@@ -24,6 +24,7 @@
 #include "tensor.hpp"
 #include "speedProfile.hpp"
 #include "dataSet.hpp"
+#include "tensor.hpp"
 //#include "pointSet.hpp"
 #include "NRsource.hpp"
 
@@ -117,6 +118,7 @@ class shearP_CD_A : public System_A
     bool exportDistribution;
     bool calcinout;
     bool calcStress_profileX;
+    bool calcTempprofile;
     //bool filter;
 
     bool removeR;
@@ -145,15 +147,15 @@ class shearP_CD_A : public System_A
     int Nq_;
     int Ninout;
     int NbinZ_;
-
+    int NbinTemp_;
 
     ///////////
-    bool ContactMesh_;
     bool displaySample;
     bool displayForce;
     double zoom_;
     bool extractFN_;
     bool calcAngleAtWall_;
+    bool calcShearRate_;
 
   public:
     void setFolder(std::string);
@@ -206,12 +208,13 @@ class shearP_CD_A : public System_A
       calcpartiaNormalForcestress=false;
       displaySample=false;
       displayForce=false;
-      ContactMesh_=false;
       calcgap=calcdef=true;
       calcangles=false;
       calcStress_profileX=false;
       calcStress_profile=false;
       calcAngleAtWall_=false;
+      calcShearRate_=false;
+      calcTempprofile=false;
 
       fnmoy_=1.;
       Nanalyze_ = 0;
@@ -229,6 +232,7 @@ class shearP_CD_A : public System_A
       time = 0. ;
       partref = NULL ;
       NbinZ_ = 1 ;
+      NbinTemp_ = 1 ;
       Nprb_stressX = 0 ;
     }
 
@@ -307,6 +311,7 @@ class shearP_CD_A : public System_A
     void computeZparticules(); // calcule le nombre de contact par particule ->z_() 
     void averageangle();
     void angleAtWall();
+    void ProfilTemp();
 
 
 

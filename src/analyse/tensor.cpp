@@ -1,5 +1,7 @@
 #include "tensor.hpp"
 
+gdm::Tensor2x2::Tensor2x2(double xx, double xy, double yx, double yy) : xx_(xx), xy_(xy), yx_(yx), yy_(yy), l1_(0.0), l2_(0.0) { name_ = "noName";}
+
 void gdm::Tensor2x2::print()
       {
       cout << name_ << " =" << endl;

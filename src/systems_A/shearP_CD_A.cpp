@@ -270,6 +270,17 @@ void shearP_CD_A::read_parameters(istream & is)
 				exit(0);
 			}
 		} 
+		else if(token=="TempProfile") 
+		{
+			calcTempprofile=true;
+			is >> NbinTemp_;
+			if ( NbinTemp_ <= 0 )
+			{
+				cout<<" @ shearP_CD_A : Nprb_ undefined "<<endl;
+				exit(0);
+			}
+		} 
+
 		else if(token=="SFprofile") 
 		{
 			calcSFprofile=true;
@@ -430,7 +441,7 @@ void shearP_CD_A::initAnalyse( )
 	if(calcAngleAtWall_)
 	{
 		ofstream aaw("Analyse/angleswall.txt",ios::out);
-			aaw.close();
+		aaw.close();
 	}
 	if(calcinout)
 	{
@@ -501,6 +512,20 @@ void shearP_CD_A::initAnalyse( )
 		ofstream XZ_out("Analyse/ZProfile.txt",ios::out); XZ_out.close();
 		// ofstream FA_out("FA.txt",ios::out); FA_out.close();
 	}
+	if (calcTempprofile)
+	{
+		ofstream TPROFILE("Analyse/TempProfile.txt",ios::out);
+		TPROFILE.close();
+		system ( "mkdir -p Analyse/Tempbins");
+		char spbins[50] ;
+
+		for ( unsigned int i=0;i<NbinTemp_;++i)
+		{
+			sprintf(spbins,"Analyse/Tempbins/Tbin_%05d.his",i);
+			ofstream sb(spbins, ios::out);
+			sb.close();
+		}
+	}
 	if ( calcSprofile ) 
 	{
 		ofstream XS_out("Analyse/SProfile.txt",ios::out); XS_out.close();
@@ -514,6 +539,8 @@ void shearP_CD_A::initAnalyse( )
 			ofstream sb(spbins, ios::out);
 			sb.close();
 		}
+		ofstream ShearProfile ( "Analyse/ShearProfile.txt" , ios::out);
+		ShearProfile.close();
 	}
 
 	if(calcFabric)
@@ -594,6 +621,7 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	if(extractFN_) extractFN();
 	if(calcangles) averageangle();
 	if(calcZprofile) profilZ();
+	if(calcTempprofile) ProfilTemp();
 	if (calcz)  Z(calczp,Nbingranulo,granulo);
 	if (calcPtheta) Ptheta( NbinPT, mobperiod, mobwidth);
 
@@ -923,6 +951,7 @@ void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 
 
 	vector < heightProbe *> lprobe(Nprobe);
+	calcShearRate_ = true ;
 
 
 	for ( unsigned int i=0;i<Nprobe;++i)
@@ -955,9 +984,11 @@ void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 		cout<<".Speed Profile "<<endl;
 		vector <double> XS(Nprobe,0.);
 		vector <double> YS(Nprobe,0.);
+		//On prend derivee centree donc on elimine les deux bords
+		vector <double> ShearRate(Nprobe,0.);
 		//cout<<" taille lpr "<<lprobe.size()<<" taille XS "<<XS.size()<<endl;
 
-		speedProfile( lprobe  , XS , YS , *sys_->spl()  );
+		speedProfile( lprobe  , XS , YS , *sys_->spl(), ShearRate, calcShearRate_  );
 
 
 		ofstream Sprofile ( "Analyse/SProfile.txt" , ios::out|ios::app );
@@ -967,6 +998,9 @@ void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 		ofstream Sinst ( "Analyse/SPinst.txt" , ios::out );
 		if ( ! Sprofile ) cout<<"erreur creation de SPint"<<endl;
 
+		ofstream ShearProfile ( "Analyse/ShearProfile.txt" , ios::out|ios::app );
+		if ( ! ShearProfile ) cout<<"erreur creation de ShearProfile"<<endl;
+
 
 		for ( unsigned int i=0;i<Nprobe;++i)
 		{
@@ -974,6 +1008,11 @@ void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 			Sinst<<time<<" "<<lprobe[i]->halfHeight()<<" "<<XS[i]<<" "<<YS[i]<<endl;
 		}
 
+		for ( unsigned int i=0;i<Nprobe;++i)
+		{
+
+			ShearProfile<<time<<" "<<lprobe[i]->halfHeight()<<" "<<ShearRate[i]<<endl;
+		}
 		//On sort un fichier pour chaque bins de suivi de vmoyen
 		system ( "mkdir -p Analyse/Spbins");
 		// ofstream middle("Analyse/Spbins/SpeedMiddle.txt", ios::out|ios::app);
@@ -3792,7 +3831,7 @@ void shearP_CD_A::angleAtWall()
 			double nx = sys_->nwk()->inter(ni)->nx();
 			double theta=acos(nx);
 			double fn = sys_->nwk()->inter(ni)->fn();
- 
+
 			cout<<"Contact avec la paroi a un angle "<<theta*180./pi<<endl;
 			aaw<<theta<<" "<<fn<<" "<<theta * fn<<endl;
 		}
@@ -3803,4 +3842,68 @@ void shearP_CD_A::angleAtWall()
 
 	aaw.close();
 
+}
+
+void shearP_CD_A::ProfilTemp()
+{
+
+	unsigned int Nprobe = NbinTemp_;
+
+	double ampProbe=( totalProbe_.h2() - totalProbe_.h1() ) / (double) (Nprobe);
+
+	vector < heightProbe *> lprobe(Nprobe);
+
+	ofstream Probes ( "Analyse/Probes.txt" , ios::out|ios::app );
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		lprobe[i]= new heightProbe( totalProbe_.h1() + (double) (i) * ampProbe, totalProbe_.h1() + (double) (i+1) * ampProbe);
+		Probes<<i<<" "<<lprobe[i]->h1()<<" "<<lprobe[i]->h2()<<" "<<lprobe[i]->h2()-lprobe[i]->h1()<<endl;
+	}
+
+	Probes.close();
+
+	std::vector <double> XS(Nprobe,0.);
+	std::vector <double> YS(Nprobe,0.);
+	std::vector <double> XYS(Nprobe,0.);
+
+	TemperatureProfile( lprobe  , XS , YS ,XYS, *sys_->spl(), sys_);
+
+	ofstream TempP_ ( "Analyse/TempProfile.txt" , ios::out|ios::app );
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+
+		//On crŽe un tenseur ici
+
+		gdm::Tensor2x2 T(XS[i],XYS[i],XYS[i],YS[i]);
+
+		T.eigenValues();
+		double s1 = T.l1();
+		double s2 = T.l2();
+		double majeure=T.majorDirection();
+		double dev = 0.5*(max(s1,s2) - min(s1,s2));
+		double trace = 0.5*(max(s1,s2) + min(s1,s2));
+
+		TempP_<<time<<" "<<epsxy_<<" "<<i<<" "<<totalProbe_.h2()-lprobe[i]->halfHeight()<<" "<<trace<<" "<<dev<<" "<<majeure<<" "<<XS[i]<<" "<<YS[i]<<endl;
+	}
+
+	TempP_.close();
+
+	char spbins[50] ;
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		sprintf(spbins,"Analyse/Tempbins/Tbin_%05d.his",i);
+		ofstream sb(spbins, ios::out|ios::app);
+		sb<<epsxy_<<" "<<lprobe[i]->halfHeight()<<" "<<XS[i]<<" "<<YS[i]<<endl;
+		sb.close();
+	}
+
+
+	for (std::vector< heightProbe * >::iterator it = lprobe.begin() ; it != lprobe.end(); ++it)
+	{
+		delete (*it);
+	}
+
+	lprobe.clear();
 }
