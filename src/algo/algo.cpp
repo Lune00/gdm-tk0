@@ -26,6 +26,7 @@ void Algo::algoFill()
 			for (unsigned int i=0;i<spl_->lbody().size();++i)
 			{
 
+//				cout<<"Groupe du body "<<i<<" : "<<spl_->body(i)->grp()<<endl;
 				density = grpDat_->getParameter("density",spl_->body(i)->grp());
 				spl_->body(i)->Fill(density);
 			}

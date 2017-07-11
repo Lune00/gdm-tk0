@@ -55,6 +55,7 @@ double GroupData::getParameter(string name, unsigned int g) const
     return 0.0;
   }
 
+  //cout<<"Groupe du body : "<<g<<" Ngrp_ : "<<ngrp_<<endl;
   // Retrieve the value
   if (g < ngrp_)
   {
@@ -164,6 +165,10 @@ void GroupData::read(istream & is)
 
     is >> token;
   }
+
+
+  cout<<"Fin de lecture de GroupData dans Simu.sim"<<endl;
+  cout<<"Nombre de groupes : "<<ngrp_<<endl;
 }
 //Lecture a partir de group.ini s'il existe
 void GroupData::read(const char * fname)

@@ -260,6 +260,18 @@ void shearP_CD_A::read_parameters(istream & is)
 				exit(0);
 			}
 		} 
+
+		else if(token=="RotKeProfile") 
+		{
+			calcRotKeProfile_=true;
+			is >> Nprb_Rot;
+			if ( Nprb_Rot == 0 )
+			{
+				cout<<" @ shearP_CD_A : Nprb_Rot undefined "<<endl;
+				exit(0);
+			}
+		} 
+		
 		else if(token=="Zprofile") 
 		{
 			calcZprofile=true;
@@ -401,9 +413,12 @@ void shearP_CD_A::initAnalyse( )
 
 
 	totalProbe_.width() = sys_->spl()->boundWidth();
-	totalProbe_.h1()= (sys_->ldof(0)->lowerBody())->ymin()+sys_->spl()->rmax();//sys_->spl()->body(0)->y()+sys_->spl()->rmax();
-	totalProbe_.h2()= (sys_->ldof(1)->lowerBody())->ymin()-sys_->spl()->rmax();//-sys_->spl()->rmax();
+	//totalProbe_.h1()= (sys_->ldof(0)->lowerBody())->ymin()+ys_->spl()->rmax();//sys_->spl()->body(0)->y()+sys_->spl()->rmax();
+	totalProbe_.h1()= (sys_->ldof(0)->lowerBody())->ymin();//sys_->spl()->body(0)->y()+sys_->spl()->rmax();
+	//totalProbe_.h2()= (sys_->ldof(1)->lowerBody())->ymin()-sys_->spl()->rmax();//-sys_->spl()->rmax();
+	totalProbe_.h2()= (sys_->ldof(1)->lowerBody())->ymin();//-sys_->spl()->rmax();
 
+	cout<<"h2="<<totalProbe_.h2()<<" h1="<<totalProbe_.h1()<<endl;
 
 	//Rectangular probe:
 
@@ -425,8 +440,6 @@ void shearP_CD_A::initAnalyse( )
 	p_ymax=totalProbe_R.y()+totalProbe_R.hh();
 	rmax=sys_->spl()->rmax();
 	//Ecriture des dimensions de la probe:
-
-	cout<<"Probe position :"<<totalProbe_R.x()<<" "<<totalProbe_R.y()<<endl;
 	cout<<string(100,'*')<<endl;
 
 	Vinit_=totalProbe_.area();
@@ -475,8 +488,6 @@ void shearP_CD_A::initAnalyse( )
 			ofstream tprofilO(tprofil,ios::out);
 			tprofilO.close();
 		}
-
-
 	}
 	if ( calcforcesAC ) 
 	{
@@ -602,6 +613,21 @@ void shearP_CD_A::initAnalyse( )
 		ofstream XSS_out("Analyse/StressProfile.txt",ios::out); XSS_out.close();
 
 	}
+
+	if(calcRotKeProfile_)
+	{
+		ofstream ROT("Analyse/RotKeProfile.txt",ios::out); ROT.close() ;
+		system ( "mkdir -p Analyse/RotKebins");
+		char spbins[50] ;
+
+		for ( unsigned int i=0;i<Nprb_Rot;++i)
+		{
+			sprintf(spbins,"Analyse/RotKebins/RotKe%05d.txt",i);
+			ofstream sb(spbins, ios::out);
+			sb.close();
+		}
+	}
+
 }
 
 void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
@@ -615,6 +641,7 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	printSystem();
 	followparticles();
 	//computeZparticules();
+	if(calcRotKeProfile_) RotationalKineticEnergyProfile();
 	if(calcAngleAtWall_) angleAtWall();
 	if(calcStress_profile) Stress_profile();
 	if(calcStress_profileX) Stress_profileX();
@@ -939,6 +966,51 @@ void shearP_CD_A::SF()
 	sf_<<time<<" "<<epsxy_<<" "<<sf()<<endl;
 	cout<<".Solid Fraction = "<<sf()<<endl;
 	sf_.close();
+}
+
+
+void shearP_CD_A::RotationalKineticEnergyProfile()
+{
+	unsigned int Nprobe = Nprb_Rot;
+
+	double ampProbe=( totalProbe_.h2() - totalProbe_.h1() ) / (double) (Nprobe);
+
+	vector < heightProbe *> lprobe(Nprobe);
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		lprobe[i]=new heightProbe( totalProbe_.h1() + (double) (i) * ampProbe,
+				totalProbe_.h1() + (double) (i+1) * ampProbe);
+	}
+
+	vector <double> RotKe(Nprobe,0.);
+
+	RotKeProfile( lprobe  , RotKe , *sys_->spl() );
+
+	ofstream RotProfile ( "Analyse/RotKeProfile.txt" , ios::out|ios::app );
+	if ( ! RotProfile ) cout<<"erreur creation de RotProfile"<<endl;
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		RotProfile<<time<<" "<<lprobe[i]->halfHeight()<<" "<<RotKe[i]<<endl;
+	}
+
+	//On sort un fichier pour chaque bins de suivi de vmoyen
+	system ( "mkdir -p Analyse/RotKebins");
+	// ofstream middle("Analyse/Spbins/SpeedMiddle.txt", ios::out|ios::app);
+
+	char spbins[50] ;
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		sprintf(spbins,"Analyse/RotKebins/RotKebins%05d.txt",i);
+		ofstream sb(spbins, ios::app);
+		sb<<time<<" "<<lprobe[i]->halfHeight()<<" "<<RotKe[i]<<endl;
+		sb.close();
+	}
+
+	RotProfile.close();
+
 }
 
 void shearP_CD_A::profiles(bool Speed, bool Solfrac)
@@ -3209,7 +3281,12 @@ void shearP_CD_A::printSystem()
 
 	double epaisseur = sys_->ldof(1)->lowerBody()->y() - sys_->ldof(0)->lowerBody()->y();
 
-	printSys<<time<<" "<<epsxy_<<" "<<vx_wall_sup/epaisseur<<" "<<epaisseur<<" "<< vx_wall_sup<<" "<<" "<<vx_wall_inf<<" "<<vy_wall_sup<<endl;
+	double ymin = sys_->ldof(0)->lowerBody()->y();
+	double ymax = sys_->ldof(1)->lowerBody()->y();
+	double yminProbe = totalProbe_.h1();
+	double ymaxProbe = totalProbe_.h2();
+	printSys<<time<<" "<<epsxy_<<" "<<vx_wall_sup/epaisseur<<" "<<epaisseur<<" "<< vx_wall_sup<<" "<<vx_wall_inf<<" "<<vy_wall_sup<<" "<<ymin<<" "<<ymax<<
+		" "<<yminProbe<<" "<<ymaxProbe<<endl;
 	printSys.close();
 }
 
@@ -3294,9 +3371,12 @@ void shearP_CD_A::writePS2( const char * fname)
 	double Ymin = sys_->spl()->ymin() + R;
 
 	double xmin_ = sys_->spl()->xmin() - 2.*R;
-	double ymin_ = sys_->spl()->ymin() - 2.*R;
+	double ymin_ = (sys_->ldof(0)->lowerBody())->ymin()- 2.*R;
 	double xmax_ = sys_->spl()->xmax() + 2.*R;
-	double ymax_ = sys_->spl()->ymax() + 4.*R; // dilatancy
+	double ymax_ = (sys_->ldof(1)->lowerBody())->ymin() + 2.*R; // dilatancy
+
+	cout<<"WRITEPS2 - bounds"<<endl;
+	cout<<ymax_<<" "<<ymin_<<endl;
 
 	double zoom = zoom_;
 	double x_offset = fabs(Xmin*zoom);
@@ -3884,18 +3964,22 @@ void shearP_CD_A::ProfilTemp()
 		double dev = 0.5*(max(s1,s2) - min(s1,s2));
 		double trace = 0.5*(max(s1,s2) + min(s1,s2));
 
-		TempP_<<time<<" "<<epsxy_<<" "<<i<<" "<<totalProbe_.h2()-lprobe[i]->halfHeight()<<" "<<trace<<" "<<dev<<" "<<majeure<<" "<<XS[i]<<" "<<YS[i]<<endl;
+		TempP_<<time<<" "<<epsxy_<<" "<<i<<" "<<lprobe[i]->halfHeight()<<" "<<trace<<" "<<dev<<" "<<majeure<<" "<<XS[i]<<" "<<YS[i]<<endl;
 	}
 
 	TempP_.close();
-
 	char spbins[50] ;
 
 	for ( unsigned int i=0;i<Nprobe;++i)
 	{
+		gdm::Tensor2x2 T(XS[i],XYS[i],XYS[i],YS[i]);
+		T.eigenValues();
+		double s1 = T.l1();
+		double s2 = T.l2();
+		double trace = 0.5*(max(s1,s2) + min(s1,s2));
 		sprintf(spbins,"Analyse/Tempbins/Tbin_%05d.his",i);
 		ofstream sb(spbins, ios::out|ios::app);
-		sb<<epsxy_<<" "<<lprobe[i]->halfHeight()<<" "<<XS[i]<<" "<<YS[i]<<endl;
+		sb<<time<<" "<<lprobe[i]->halfHeight()<<" "<<XS[i]<<" "<<YS[i]<<" "<<trace<<endl;
 		sb.close();
 	}
 

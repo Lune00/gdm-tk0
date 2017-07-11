@@ -149,6 +149,7 @@ int main (int argc, char * argv[])
 		cout<<"--- lecture du fichier Simu.sim"<<endl;
 		mySimu->read_data(fichsim.c_str());
 		mySimu->sys()->init();
+		//OK
 	
 		cout<<"--> lecture fichier sim ok "<<endl;
 		
@@ -189,9 +190,7 @@ int main (int argc, char * argv[])
 		}
 
 		mySimu->sysA()->initAnalyse();		
-		cout<<mySimu->spl()->lbody().size()<<endl;
 
-		
 		for( unsigned int i= Ndeb; i<=Nfin;i+=period)
 		{
 			if( format==3)
@@ -202,6 +201,7 @@ int main (int argc, char * argv[])
 			sprintf(nomFichier,"spl_nwk/spl_nwk_%.5d.his",i);
 
 			cout<<endl<<endl<<"--> Chargement  :  "<<nomFichier<<endl;
+			//Load history a checker
 						
 			mySimu->load_history(nomFichier);
 			cout<<"load_history() done"<<endl;

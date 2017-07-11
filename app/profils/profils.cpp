@@ -66,7 +66,7 @@ void profilMoyenStress(unsigned int Nbins)
 		cout <<"h = "<<h<<endl;	
 		//Output : 
 		ofstream pv("profils/profstress.txt",ios::out);
-		pv<<"# 2y/h-1 mu musquare"<<endl;
+//		pv<<"# 2y/h-1 mu musquare"<<endl;
 
 		for (unsigned int i = 0 ; i != Nbins ; i++ )
 		{
@@ -158,13 +158,13 @@ void profilMoyenShearRate(unsigned int Nbins)
 		cout <<"h = "<<h<<endl;	
 		//Output : 
 		ofstream pv("profils/profilshearrate.txt",ios::out);
-		pv<<"# 2y/h-1 vx/v dvx/v y vx dvx"<<endl;
+//		pv<<"# 2y/h-1 vx/v dvx/v y vx dvx"<<endl;
 
 		//Si symetrique !!!!
 		double shearRateImpose = 2 * v / h ;
 		for (unsigned int i = 2 ; i != Nbins-2 ; i++ )
 		{
-			pv << 2 * (y[i]-ymin) / h  - 1.<<" "<<vx[i]/shearRateImpose<<" "<<sqrt(vxsquare[i])/shearRateImpose<<" "<< y[i]<<" "<<vx[i]<<endl;
+			pv << 2 * (y[i]-ymin) / h  - 1.<<" "<<vx[i]/shearRateImpose<<" "<<sqrt(vxsquare[i])/shearRateImpose<<" "<< y[i]<<" "<<vx[i]<<" "<<sqrt(vxsquare[i])<<endl;
 		}
 		pv.close();
 
@@ -251,7 +251,7 @@ void profilMoyenVitesse(unsigned int Nbins)
 		cout <<"h = "<<h<<endl;	
 		//Output : 
 		ofstream pv("profils/profvitesse.txt",ios::out);
-		pv<<"# 2y/h-1 vx/v dvx/v y vx dvx"<<endl;
+//		pv<<"# 2y/h-1 vx/v dvx/v y vx dvx"<<endl;
 
 		for (unsigned int i = 2 ; i != Nbins-2 ; i++ )
 		{
@@ -343,12 +343,12 @@ void profilMoyenTemperature(unsigned int Nbins)
 		cout <<"h = "<<h<<endl;	
 		//Output : 
 		ofstream pv("profils/proftemperature.txt",ios::out);
-		pv<<"# 2y/h-1 trace dtrace"<<endl;
+//		pv<<"# 2y/h-1 trace dtrace"<<endl;
 
 		for (unsigned int i = 2 ; i != Nbins-2 ; i++ )
 		{
 			//	cout<<i<<" "<<vxsquare[i]<<" "<<vx[i]<<" "<<endl;
-			pv << 2 * (y[i]-ymin) / h  - 1.<<" "<<vx[i]<<" "<<sqrt(vxsquare[i]) / (double) tic<<endl;
+			pv << 2 * (y[i]-min(ymax,ymin)) / h  - 1.<<" "<<vx[i]<<" "<<sqrt(vxsquare[i]) / (double) tic<<endl;
 		}
 		pv.close();
 
@@ -418,7 +418,7 @@ void profilMoyenZ(unsigned int Nbins)
 		cout <<"h = "<<h<<endl;	
 		//Output : 
 		ofstream pv("profils/profZ.txt",ios::out);
-		pv<<"# 2y/h-1 Z dZ"<<endl;
+//		pv<<"# 2y/h-1 Z dZ"<<endl;
 
 		for (unsigned int i = 2 ; i != Nbins-2 ; i++ )
 		{

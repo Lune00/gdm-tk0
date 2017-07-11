@@ -161,6 +161,8 @@ void shearP_CD::init()
 	{
 		cout<<".Génération des dofs : NOT FIRST USE -> dof pré-générés"<<endl;
 		cout<<".Nombre de dofs : "<<ldof().size()<<endl;
+		cout<<"y(dof sup) = "<<ldof(1)->lowerBody()->ymin()<<endl;
+		cout<<"y(dof inf) = "<<ldof(0)->lowerBody()->ymin()<<endl;
 
 	}
 
@@ -221,11 +223,20 @@ void shearP_CD::init()
 	ldof(1)->ComputeImposedMass(Msysteme);
 
 	cout<<scientific<<".Speed of topPlate : "<<topXvalue_<<endl;
-
 	cout<<scientific<<".Mass of topPlate : "<<Msysteme<<endl;
 
 	cout<<".Nombre de pas (pas de temps 0.0001) pour l'essais pour 100% de Xdef = "<<spl_->boundWidth()/(topXvalue_*0.0001)<<endl;
+	cout<<"Rappel:"<<endl;
+	cout<<"y(dof sup) = "<<(ldof(1)->lowerBody())->ymin()<<endl;
+	cout<<"y(dof inf) = "<<(ldof(0)->lowerBody())->ymin()<<endl;
+	//On imprime les dofs
+	ofstream DOF("dofs.txt");
+//OK
+	for(unsigned int i=0 ;i<spl_->lbody().size();i++){
 
+		DOF<<spl_->body(i)->x()<<" "<<spl_->body(i)->y()<<endl;
+	}
+	DOF.close();
 }
 
 void shearP_CD::drive() 

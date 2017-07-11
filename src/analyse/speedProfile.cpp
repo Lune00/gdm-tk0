@@ -7,13 +7,13 @@ void speedProfile( vector < heightProbe* > & lprb,vector <double> & Xprofile,vec
 	unsigned int Nb = spl.lbody().size();
 	unsigned int Nprb = lprb.size();
 	vector <unsigned int> Nbod( lprb.size(),0);
-
 	cout<<"Nprb = "<<lprb.size()<<endl;
-
-
+	cout<<"Nombre de particules : "<<Nb<<endl;
+//		ofstream test("particules.txt");
 	for (unsigned int i=0;i<Nb; ++i)
 	{
 		unsigned int j=0;
+//		test<<spl.body(i)->x()<<" "<<spl.body(i)->y()<<endl;
 		while( j< Nprb )
 		{
 			if (  lprb[j]->containEntireBody(spl.body(i))  )
@@ -39,21 +39,16 @@ void speedProfile( vector < heightProbe* > & lprb,vector <double> & Xprofile,vec
 				//cout<<j<<" ";
 			}
 
-
 		}
 
-		//cout<<endl;
-		//getchar();
-
 	}
+//		test.close();
 
 	for (unsigned int i=0;i<Nprb; ++i)
 	{
-		//cout<<profile[i];
 		Xprofile[i]/=(double) (Nbod[i]);
 		Yprofile[i]/=(double) (Nbod[i]);
 		//cout<<" "<<profile[i]<<endl;
-
 	}
 
 
@@ -128,7 +123,7 @@ void zProfile( vector < heightProbe* > & lprb,vector <double> & Zprofile, Sample
 
 }
 
-void rotProfile( vector < heightProbe* > & lprb,vector <double> & ROT, Sample& spl)
+void RotKeProfile( vector < heightProbe* > & lprb,vector <double> & ROT, Sample& spl)
 {
 	unsigned int Nb = spl.lbody().size();
 	unsigned int Nprb = lprb.size();
@@ -148,7 +143,12 @@ void rotProfile( vector < heightProbe* > & lprb,vector <double> & ROT, Sample& s
 			if (  lprb[j]->containEntireBody(spl.body(i))  )
 			{
 				++Nbod[j];
-				ROT[j]+=(spl.body(i)->vrot());
+				double m = spl.body(i)->mass();
+				double r = spl.body(i)->sizeVerlet();
+				double w = spl.body(i)->vrot();
+				double I = 0.5 * m * r * r ;
+
+				ROT[j] += 0.5 * I * w * w  ;
 				//cout<<j<<" ";
 				break;
 			}
@@ -156,7 +156,12 @@ void rotProfile( vector < heightProbe* > & lprb,vector <double> & ROT, Sample& s
 			if ( lprb[j]->intersection( spl.body(i)) || lprb[j]->containCenter( spl.body(i)))
 			{
 				++Nbod[j];
-				ROT[j]+=(spl.body(i)->vrot());
+				double m = spl.body(i)->mass();
+				double r = spl.body(i)->sizeVerlet();
+				double w = spl.body(i)->vrot();
+				double I = 0.5 * m * r * r ;
+
+				ROT[j] += 0.5 * I * w * w  ;
 				j++;
 				//cout<<j<<" ";
 			}
@@ -168,8 +173,6 @@ void rotProfile( vector < heightProbe* > & lprb,vector <double> & ROT, Sample& s
 
 
 		}
-
-		//cout<<endl;
 		//getchar();
 
 	}
@@ -186,9 +189,6 @@ void rotProfile( vector < heightProbe* > & lprb,vector <double> & ROT, Sample& s
 		else{
 			ROT[i]/=(double) (Nbod[i]);
 		}
-
-		//cout<<" "<<profile[i]<<endl;
-
 	}
 
 
