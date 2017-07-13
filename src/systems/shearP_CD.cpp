@@ -163,7 +163,8 @@ void shearP_CD::init()
 		cout<<".Nombre de dofs : "<<ldof().size()<<endl;
 		cout<<"y(dof sup) = "<<ldof(1)->lowerBody()->ymin()<<endl;
 		cout<<"y(dof inf) = "<<ldof(0)->lowerBody()->ymin()<<endl;
-
+		cout<<"v_x(dof sup) = "<<ldof(1)->lowerBody()->vx()<<endl;
+		cout<<"v_x(dof inf) = "<<ldof(0)->lowerBody()->vx()<<endl;
 	}
 
 	//Imposer shear rate : H particule plus haute - particule plus basse
@@ -172,7 +173,6 @@ void shearP_CD::init()
 		//Store initial shearRate
 		shearRate_init=topXvalue_;
 		cout<<".Imposed shear rate : "<<topXvalue_<<endl;
-
 		double h = ldof(1)->lowerBody()->y() - ldof(0)->lowerBody()->y();
 		// h*=-1.;
 		cout<<".Sample thickness="<<h<<endl;
@@ -185,9 +185,20 @@ void shearP_CD::init()
 		cout<<".Imposed symetrical shear rate: "<<topXvalue_<<endl;
 		//topXvalue_ *= ldof(1)->mcy()-ldof(0)->mcy();
 		topXvalue_ *= 0.5;
+		if(ldof(1)->lowerBody()->vx() < 0. )
+		{
+			ldof(1)->affect(topXmode_, topYmode_, _VELOCITY, -topXvalue_, topYvalue_, 0.);
+			ldof(0)->affect(_VELOCITY, _VELOCITY, _VELOCITY,topXvalue_, 0.,  0.);
+		}
+		else
+		{
+			ldof(1)->affect(topXmode_, topYmode_, _VELOCITY, topXvalue_, topYvalue_, 0.);
+			ldof(0)->affect(topXmode_, topYmode_, _VELOCITY, -topXvalue_, 0., 0.);
+		}
 
-		ldof(1)->affect(topXmode_, topYmode_, _VELOCITY, topXvalue_, topYvalue_, 0.);
-		ldof(0)->affect(_VELOCITY, _VELOCITY, _VELOCITY,-topXvalue_, 0.,  0.);
+		cout<<"Affectation:"<<endl;
+		cout<<"v_x(dof sup) = "<<ldof(1)->lowerBody()->vx()<<endl;
+		cout<<"v_x(dof inf) = "<<ldof(0)->lowerBody()->vx()<<endl;
 	}
 	else
 	{
@@ -231,7 +242,7 @@ void shearP_CD::init()
 	cout<<"y(dof inf) = "<<(ldof(0)->lowerBody())->ymin()<<endl;
 	//On imprime les dofs
 	ofstream DOF("dofs.txt");
-//OK
+	//OK
 	for(unsigned int i=0 ;i<spl_->lbody().size();i++){
 
 		DOF<<spl_->body(i)->x()<<" "<<spl_->body(i)->y()<<endl;

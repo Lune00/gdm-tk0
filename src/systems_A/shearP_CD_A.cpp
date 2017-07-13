@@ -526,7 +526,9 @@ void shearP_CD_A::initAnalyse( )
 	if (calcTempprofile)
 	{
 		ofstream TPROFILE("Analyse/TempProfile.txt",ios::out);
+		ofstream AVT("Analyse/Temperature.txt",ios::out);
 		TPROFILE.close();
+		AVT.close();
 		system ( "mkdir -p Analyse/Tempbins");
 		char spbins[50] ;
 
@@ -1087,16 +1089,22 @@ void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 		}
 		//On sort un fichier pour chaque bins de suivi de vmoyen
 		system ( "mkdir -p Analyse/Spbins");
+		system ( "mkdir -p Analyse/Shearbins");
 		// ofstream middle("Analyse/Spbins/SpeedMiddle.txt", ios::out|ios::app);
 
 		char spbins[50] ;
+		char shearbins[50] ;
 
 		for ( unsigned int i=0;i<Nprobe;++i)
 		{
 			sprintf(spbins,"Analyse/Spbins/Sbin_%05d.his",i);
+			sprintf(shearbins,"Analyse/Shearbins/Shearbin_%05d.his",i);
 			ofstream sb(spbins, ios::out|ios::app);
+			ofstream shb(shearbins, ios::out|ios::app);
 			sb<<time<<" "<<lprobe[i]->halfHeight()<<" "<<XS[i]<<" "<<YS[i]<<endl;
+			shb<<time<<" "<<lprobe[i]->halfHeight()<<" "<<ShearRate[i]<<endl;
 			sb.close();
+			shb.close();
 		}
 
 		Sprofile.close();
@@ -3918,8 +3926,6 @@ void shearP_CD_A::angleAtWall()
 
 	}
 
-
-
 	aaw.close();
 
 }
@@ -3930,6 +3936,7 @@ void shearP_CD_A::ProfilTemp()
 	unsigned int Nprobe = NbinTemp_;
 
 	double ampProbe=( totalProbe_.h2() - totalProbe_.h1() ) / (double) (Nprobe);
+	double AverageTemperature=0.;
 
 	vector < heightProbe *> lprobe(Nprobe);
 
@@ -3949,6 +3956,7 @@ void shearP_CD_A::ProfilTemp()
 	TemperatureProfile( lprobe  , XS , YS ,XYS, *sys_->spl(), sys_);
 
 	ofstream TempP_ ( "Analyse/TempProfile.txt" , ios::out|ios::app );
+	ofstream AvTemp ( "Analyse/Temperature.txt" , ios::out|ios::app );
 
 	for ( unsigned int i=0;i<Nprobe;++i)
 	{
@@ -3963,9 +3971,13 @@ void shearP_CD_A::ProfilTemp()
 		double majeure=T.majorDirection();
 		double dev = 0.5*(max(s1,s2) - min(s1,s2));
 		double trace = 0.5*(max(s1,s2) + min(s1,s2));
+		AverageTemperature += trace;
 
 		TempP_<<time<<" "<<epsxy_<<" "<<i<<" "<<lprobe[i]->halfHeight()<<" "<<trace<<" "<<dev<<" "<<majeure<<" "<<XS[i]<<" "<<YS[i]<<endl;
 	}
+	AverageTemperature /= (double)Nprobe;
+	AvTemp<< time<<" "<<epsxy_<<" "<<AverageTemperature<<endl;
+	AvTemp.close();
 
 	TempP_.close();
 	char spbins[50] ;

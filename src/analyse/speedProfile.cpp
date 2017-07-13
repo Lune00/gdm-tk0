@@ -216,8 +216,9 @@ void TemperatureProfile( vector < heightProbe* > & lprb,vector <double> & Xprofi
 
 		while( j< Nprb )
 		{
-			if (  lprb[j]->containEntireBody(spl.body(i))  )
+			if (  lprb[j]->containEntireBody(spl.body(i)) )
 			{
+				if(spl.body(i)->bodyDof() != NULL) break;
 				double vxi=spl.body(i)->vx();
 				double vyi=spl.body(i)->vy();
 				double VX=Vxprofile[j];
@@ -230,8 +231,9 @@ void TemperatureProfile( vector < heightProbe* > & lprb,vector <double> & Xprofi
 				break;
 			}
 
-			if ( lprb[j]->intersection( spl.body(i)) || lprb[j]->containCenter( spl.body(i)))
+			if ( lprb[j]->intersection( spl.body(i)) || lprb[j]->containCenter( spl.body(i)) )
 			{
+				if(spl.body(i)->bodyDof() != NULL) break;
 				double vxi=spl.body(i)->vx();
 				double vyi=spl.body(i)->vy();
 				double VX=Vxprofile[j];
@@ -240,7 +242,6 @@ void TemperatureProfile( vector < heightProbe* > & lprb,vector <double> & Xprofi
 				Xprofile[j]+=(vxi-VX)*(vxi-VX);
 				Yprofile[j]+=(vyi-VY)*(vyi-VY);
 				XYprofile[j]+=(vxi-VX)*(vyi-VY);
-
 
 				j++;
 				//cout<<j<<" ";

@@ -69,14 +69,15 @@ int main(){
   //user
   //Paramètres echantillon et de la rugosite de la paroi
   double const r1 = 0.01 ;
-  double const r2 = 3 * r1 ;
+  double const r2 = 2 * r1 ;
   double const rmean = 0.5 * ( r1 + r2 ) ;
   double const R = 0.3 ; // R=rparoi/rmean
   double const u = 0.2 ; // lw = 2*rparoi + u * paroi
   double const rparoi = R * rmean ;
-  double const lw = 2. * rparoi ;// (1. + u ) * ( 2 * r1 );
+  double const K = 1.7 ;
+  double const lw = K * 2 * rparoi ;// (1. + u ) * ( 2 * r1 );
 
-  unsigned int nfree = 500;
+  unsigned int nfree = 3000;
   unsigned int nslice = 50 ;
 
   //GroupData:
@@ -89,13 +90,13 @@ int main(){
   double const rs = 0. ;
   // nombre de classes de particules differentes uniquement pour les particules libres  (assigner des valeurs de mu, cohesion differentes par ex)
   //si ngroup = 1 alors il y a 2 groupes : particules libres et parois
-  unsigned int ngroup = 3 ;
+  unsigned int ngroup = 1 ;
   //Par defaut les partois ont un groupe different
   unsigned int groupparoi = ngroup ; // par defaut
 
   //Assigne a chaque paire group1-group2 une valeur de mu_s (frottement sec) suivant une distribution normale N(mu_s_moyen,mu_s_variance)
-  double mu_s_moyen = 0.3 ;
-  double mu_s_variance = 0.1 ;
+  double mu_s_moyen = 0.0 ;
+  double mu_s_variance = 0.0 ;
   // le frottement par defaut (true) entre grains libres et parois est identique pour tous les groupes, sinon il suit la loi des combinaisons possibles
   // si mu_s_paroi_any est vrai alors le frottement entre (ngroup+1 <-> n) est egal a mu_s_moyen  
   bool mu_s_paroi_any = true ;
@@ -116,7 +117,7 @@ int main(){
   if(ngroup > 50 ) {cout<< "Attention, le nombre de groupe est élevé, il y a "<<ngroup*ngroup<<" possibilités d'interaction ! "<<endl;}
   cout<<"Rugosite apparente R : "<<R<<endl;
   cout<<"Espacement entre particules de la paroi lw : "<< lw <<endl;
-  cout<<"Angle de rugosite : "<<asin( lw / ( (2 * rmean) * ( 1 + R ) ) ) * 180. / M_PI <<" °"<<endl;
+  cout<<"Angle de rugosite : "<<asin( (K * R) / ( 1 + R ) ) * 180. / M_PI <<" °"<<endl;
 
   std::vector<Particule> sample(nfree);
   std::vector<Particule> paroi1;
@@ -230,7 +231,7 @@ int main(){
 
   if( ngroup != 0 ) { 
     for(std::vector<Particule>::iterator it = sample.begin() ; it!= sample.end(); it++){
-      unsigned int group = rand () % ngroup + 1;
+      unsigned int group = 0 ; //rand () % ngroup + 1;
       it->setgroup(group);
     }
 

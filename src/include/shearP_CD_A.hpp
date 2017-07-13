@@ -148,6 +148,7 @@ class shearP_CD_A : public System_A
     int Ninout;
     int NbinZ_;
     int NbinTemp_;
+    int Nprb_Rot;
 
     ///////////
     bool displaySample;
@@ -156,6 +157,7 @@ class shearP_CD_A : public System_A
     bool extractFN_;
     bool calcAngleAtWall_;
     bool calcShearRate_;
+    bool calcRotKeProfile_;
 
   public:
     void setFolder(std::string);
@@ -169,6 +171,7 @@ class shearP_CD_A : public System_A
     void profilZ();
     void Stress_profileX();
     void Stress_profile();
+    void RotationalKineticEnergyProfile(); // rapidement
 
     //void plug( shearP_CD * sys_in) {sys=sys_in;}
 
@@ -215,6 +218,7 @@ class shearP_CD_A : public System_A
       calcAngleAtWall_=false;
       calcShearRate_=false;
       calcTempprofile=false;
+      calcRotKeProfile_=false;
 
       fnmoy_=1.;
       Nanalyze_ = 0;
@@ -234,6 +238,7 @@ class shearP_CD_A : public System_A
       NbinZ_ = 1 ;
       NbinTemp_ = 1 ;
       Nprb_stressX = 0 ;
+      Nprb_Rot= 0 ;
     }
 
 

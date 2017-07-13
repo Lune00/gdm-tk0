@@ -146,7 +146,7 @@ void profilMoyenShearRate(unsigned int Nbins)
 
 		while(printSystem)
 		{
-			printSystem >> tr >> tr >> tr >> tr >> v >> tr >> tr ;
+			printSystem >> tr >> tr >> tr >> tr >> v >> tr >> tr >> tr >> tr >> tr >> tr ;
 		}
 		printSystem.close();
 		cout<<"Vitesse de la plaque supérieure : "<<v<<endl;
@@ -162,6 +162,7 @@ void profilMoyenShearRate(unsigned int Nbins)
 
 		//Si symetrique !!!!
 		double shearRateImpose = 2 * v / h ;
+		cout<<"Shear Rate impose : "<<shearRateImpose<<endl;
 		for (unsigned int i = 2 ; i != Nbins-2 ; i++ )
 		{
 			pv << 2 * (y[i]-ymin) / h  - 1.<<" "<<vx[i]/shearRateImpose<<" "<<sqrt(vxsquare[i])/shearRateImpose<<" "<< y[i]<<" "<<vx[i]<<" "<<sqrt(vxsquare[i])<<endl;
@@ -239,7 +240,7 @@ void profilMoyenVitesse(unsigned int Nbins)
 
 		while(printSystem)
 		{
-			printSystem >> tr >> tr >> tr >> tr >> v >> tr >> tr ;
+			printSystem >> tr >> tr >> tr >> tr >> v >> tr >> tr >> tr >> tr >> tr >> tr ;
 		}
 		printSystem.close();
 		cout<<"Vitesse de la plaque supérieure : "<<v<<endl;
@@ -332,7 +333,7 @@ void profilMoyenTemperature(unsigned int Nbins)
 
 		while(printSystem)
 		{
-			printSystem >> tr >> tr >> tr >> tr >> v >> tr >> tr ;
+			printSystem >> tr >> tr >> tr >> tr >> v >> tr >> tr >> tr >> tr >> tr >> tr ;
 		}
 		printSystem.close();
 		cout<<"Vitesse de la plaque supérieure : "<<v<<endl;
