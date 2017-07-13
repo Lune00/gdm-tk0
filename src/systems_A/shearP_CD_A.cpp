@@ -29,6 +29,7 @@ void shearP_CD_A::read_parameters(istream & is)
 		else if(token== "AngleAtWall") calcAngleAtWall_=true;
 		else if(token== "extractFN") extractFN_=true;
 		else if(token== "Fabric") calcFabric=true;
+		else if(token== "EnergieMode") calcEnergieMode_=true;
 		else if(token== "Angles") calcangles=true;
 		else if(token== "Fractal") calcfracdim=true;
 		else if(token== "Granulo") granulo=true;
@@ -451,6 +452,10 @@ void shearP_CD_A::initAnalyse( )
 	ofstream strain("Analyse/strain.txt",ios::out);
 	strain.close();	
 
+	if(calcEnergieMode_)
+	{
+		ofstream EM("Analyse/EnergieMode.txt",ios::out);
+	}
 	if(calcAngleAtWall_)
 	{
 		ofstream aaw("Analyse/angleswall.txt",ios::out);
@@ -643,6 +648,7 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	printSystem();
 	followparticles();
 	//computeZparticules();
+	if(calcEnergieMode_) EnergieModeDistWall();
 	if(calcRotKeProfile_) RotationalKineticEnergyProfile();
 	if(calcAngleAtWall_) angleAtWall();
 	if(calcStress_profile) Stress_profile();
@@ -4002,4 +4008,10 @@ void shearP_CD_A::ProfilTemp()
 	}
 
 	lprobe.clear();
+}
+
+
+void shearP_CD_A::EnergieModeDistWall()
+{
+
 }

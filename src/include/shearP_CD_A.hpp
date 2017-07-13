@@ -158,6 +158,7 @@ class shearP_CD_A : public System_A
     bool calcAngleAtWall_;
     bool calcShearRate_;
     bool calcRotKeProfile_;
+    bool calcEnergieMode_;
 
   public:
     void setFolder(std::string);
@@ -172,6 +173,7 @@ class shearP_CD_A : public System_A
     void Stress_profileX();
     void Stress_profile();
     void RotationalKineticEnergyProfile(); // rapidement
+    void EnergieModeDistWall(); // donne l energie cinetique en fonction de la distance a la paroi inferieure
 
     //void plug( shearP_CD * sys_in) {sys=sys_in;}
 
@@ -219,6 +221,7 @@ class shearP_CD_A : public System_A
       calcShearRate_=false;
       calcTempprofile=false;
       calcRotKeProfile_=false;
+      calcEnergieMode_=false;
 
       fnmoy_=1.;
       Nanalyze_ = 0;
