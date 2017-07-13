@@ -185,16 +185,8 @@ void shearP_CD::init()
 		cout<<".Imposed symetrical shear rate: "<<topXvalue_<<endl;
 		//topXvalue_ *= ldof(1)->mcy()-ldof(0)->mcy();
 		topXvalue_ *= 0.5;
-		if(ldof(1)->lowerBody()->vx() < 0. )
-		{
-			ldof(1)->affect(topXmode_, topYmode_, _VELOCITY, -topXvalue_, topYvalue_, 0.);
-			ldof(0)->affect(_VELOCITY, _VELOCITY, _VELOCITY,topXvalue_, 0.,  0.);
-		}
-		else
-		{
-			ldof(1)->affect(topXmode_, topYmode_, _VELOCITY, topXvalue_, topYvalue_, 0.);
-			ldof(0)->affect(topXmode_, topYmode_, _VELOCITY, -topXvalue_, 0., 0.);
-		}
+		ldof(1)->affect(topXmode_, topYmode_, _VELOCITY, topXvalue_, topYvalue_, 0.);
+		ldof(0)->affect(_VELOCITY, _VELOCITY, _VELOCITY, -topXvalue_, 0.,  0.);
 
 		cout<<"Affectation:"<<endl;
 		cout<<"v_x(dof sup) = "<<ldof(1)->lowerBody()->vx()<<endl;
