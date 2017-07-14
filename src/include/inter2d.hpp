@@ -4,6 +4,7 @@
 #include <string>
 #include "body2d.hpp"
 #include "dof.hpp"
+//#include "groupRelationData.hpp"
 //#include "dof.hpp"
 // definition d'identificateur de type int remplacement du type mentionné par un int
 #define _type_dkdk 0
@@ -13,6 +14,8 @@
 #define _type_rlrl 4
 #define _type_pgrl 5
 #define _type_dkdkco 6
+
+class GroupRelationData;
 
 class inter2d
 {
@@ -43,6 +46,7 @@ class inter2d
 		virtual void    Res()      = 0;
 		virtual void    Res(const double, const double, const double = 0.0) = 0;
 		virtual void    CDcoeff()  = 0;
+		virtual void    CDcoeff(GroupRelationData*) {} ;
 		virtual double  An(const double) = 0;
 		virtual double  At(const double) = 0;
 		virtual double  As(const double) = 0;

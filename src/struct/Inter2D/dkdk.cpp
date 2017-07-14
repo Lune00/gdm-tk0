@@ -227,14 +227,104 @@ void dkdk::Res(const double dfn, const double dft, const double dfs)
 	}
 }
 
+//WIP
+
+void dkdk::CDcoeff(GroupRelationData * gR) // CDcoeff(double en,double et) ou CDcoeff(grpRel&)
+{
+	double mn, mt, ms;
+
+//temporaire
+	//double en = 1.0;
+	//double et = 0.0;
+	unsigned int g1 = i_->grp();
+	unsigned int g2 = j_->grp();
+	//Recuperer les parametres
+	double mi,mj,momi,momj;
+
+	double en = gR->getParameter("en",g1,g2);
+	double et = gR->getParameter("et",g1,g2);
+	cout<<"en = "<<en<<" ----- et = "<<et<<endl;
+
+	double cin,cit,cjn,cjt;
+
+	//cin=cit=cjn=cjt=0;
+
+	if(i_->bodyDof() != NULL) 
+	{
+		mi   = i_->bodyDof()->m();
+		momi = i_->bodyDof()->mom();
+
+		double cix = x_ - i_->bodyDof()->mcx();
+		double ciy = y_ - i_->bodyDof()->mcy();
+		cin = cix * nx_ + ciy * ny_;
+		cit = cix * tx_ + ciy * ty_;
+	}
+	else 
+	{
+		mi   = i_->mass();
+		momi = i_->mom();
+		cin  = - i_->R();
+		cit=0;
+	}
+
+	if(j_->bodyDof() != NULL) 
+	{
+		mj   = j_->bodyDof()->m();
+		momj = j_->bodyDof()->mom();
+
+		double cjx = x_ -j_->bodyDof()->mcx();
+		double cjy = y_ -j_->bodyDof()->mcy();
+		cjn = cjx * nx_ + cjy * ny_;
+		cjt = cjx * tx_ + cjy * ty_;
+	}
+	else 
+	{
+		mj   = j_->mass();
+		momj = j_->mom();
+		cjn  = j_->R();
+		cjt=0;
+
+	}
+
+	mn = 1.0/(1.0/mi+1.0/mj
+		+ (cit*cit)/momi + (cjt*cjt)/momj);
+	facn0_ = (1.0 + en) * mn;
+	facn1_ = mn / mi;
+	facn2_ = mn / mj;
+	facn3_ = mn*cit/momi;
+	facn4_ = mn*cjt/momj;
+
+	//cout<<mn<<" "<<facn0_<<" "<<facn1_<<" "<<facn2_<<endl;
+	mt     = 1.0 / (1.0 / mi + 1.0 / mj 
+		+ (cin*cin)/momi + (cjn*cjn)/momj);
+	fact0_ = (1.0 + et) * mt;
+	fact1_ = mt / mi;
+	fact2_ = mt / mj;
+	fact3_ = mt * cin / momi;
+	fact4_ = mt * cjn / momj;
+
+	ms     = 1.0 / (1.0 / momi + 1.0 / momj);
+	facs0_ = (1.0 + et) * ms;
+	facs1_ = ms / momi;
+	facs2_ = ms / momj;
+
+}
+//Original
 void dkdk::CDcoeff() // CDcoeff(double en,double et) ou CDcoeff(grpRel&)
 {
 	double mn, mt, ms;
 
 //temporaire
-	double en = 0.0;
-	double et = 0.0;
+	double en = 1.0;
+	double et = 1.0;
+	//unsigned int g1 = i_->grp();
+	//unsigned int g2 = j_->grp();
+	//Recuperer les parametres
 	double mi,mj,momi,momj;
+
+	//double en = getParameter("en",g1,g2);
+	//double et = getParameter("et",g1,g2);
+	cout<<"en = "<<en<<" ----- et = "<<et<<endl;
 
 	double cin,cit,cjn,cjt;
 

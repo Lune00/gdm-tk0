@@ -4,6 +4,7 @@
 #include "body2d.hpp"
 #include "disk.hpp"
 #include "inter2d.hpp"
+#include "groupRelationData.hpp"
 
 //! \brief Interaction between two disks
 //! \author V. Richefeu
@@ -55,6 +56,7 @@ public:
   void   Res();
   void   Res(const double dfn, const double dft, const double dfs = 0.0);
   void   CDcoeff();
+  void   CDcoeff(GroupRelationData*);
   double An(const double dt);
   double At(const double dt);
   double As(const double dt);
