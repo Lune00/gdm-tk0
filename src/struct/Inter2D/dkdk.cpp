@@ -243,7 +243,12 @@ void dkdk::CDcoeff(GroupRelationData * gR) // CDcoeff(double en,double et) ou CD
 
 	double en = gR->getParameter("en",g1,g2);
 	double et = gR->getParameter("et",g1,g2);
-	cout<<"en = "<<en<<" ----- et = "<<et<<endl;
+	//cout<<"en = "<<en<<" ----- et = "<<et<<endl;
+/*	if(g1 == 2 || g2 ==2){
+		cout<<"Particule temoin"<<endl;
+		cout<<"mu "<<g1<<"/"<<g2<<" = "<<gR->getParameter("mu",g1,g2)<<endl;
+	}
+*/
 
 	double cin,cit,cjn,cjt;
 

@@ -527,6 +527,15 @@ void shearP_CD_A::initAnalyse( )
 	{
 		ofstream XZ_out("Analyse/ZProfile.txt",ios::out); XZ_out.close();
 		// ofstream FA_out("FA.txt",ios::out); FA_out.close();
+		system ( "mkdir -p Analyse/Zbins");
+		char spbins[50] ;
+
+		for ( unsigned int i=0;i<NbinTemp_;++i)
+		{
+			sprintf(spbins,"Analyse/Zbins/Zbin_%05d.his",i);
+			ofstream sb(spbins, ios::out);
+			sb.close();
+		}
 	}
 	if (calcTempprofile)
 	{
@@ -3367,6 +3376,16 @@ void shearP_CD_A::profilZ()
 
 	Zprofile.close();
 	Zinst.close();
+	char spbins[50] ;
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		sprintf(spbins,"Analyse/Zbins/Zbin_%05d.his",i);
+		ofstream sb(spbins, ios::out|ios::app);
+		sb<<time<<" "<<lprobe[i]->halfHeight()<<" "<<Zy[i]<<" "<<endl;
+		sb.close();
+	}
+
 }
 
 void shearP_CD_A::writePS2( const char * fname)

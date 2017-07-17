@@ -157,7 +157,7 @@ void profilMoyenShearRate(unsigned int Nbins)
 		double h = ymax - ymin ;
 		cout <<"h = "<<h<<endl;	
 		//Output : 
-		ofstream pv("profils/profilshearrate.txt",ios::out);
+		ofstream pv("profils/profshearrate.txt",ios::out);
 //		pv<<"# 2y/h-1 vx/v dvx/v y vx dvx"<<endl;
 
 		//Si symetrique !!!!
