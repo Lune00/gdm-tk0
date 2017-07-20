@@ -498,7 +498,7 @@ unsigned int CDalgo::iter_0()
 			{
 				rsij = grpRel_->getParameterQuickly(rsId,oxo->first()->grp(),oxo->second()->grp());
 				muij = grpRel_->getParameterQuickly(muId,oxo->first()->grp(),oxo->second()->grp());//coefficience de friction
-				cout<<"muij "<<oxo->first()->grp()<<" "<<oxo->second()->grp()<<" = "<<muij<<endl;
+				//cout<<"muij "<<oxo->first()->grp()<<" "<<oxo->second()->grp()<<" = "<<muij<<endl;
 				ahij=(grpRel_->getLaw(oxo->first()->grp(),oxo->second()->grp()))->fco(oxo);//Cohésion
 
 				//cerr<<"Appel de mu : "<< oxo->first()->grp()<< " "<< oxo->second()->grp()<< " : "<<muij<<endl;

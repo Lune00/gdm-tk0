@@ -651,6 +651,7 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	cout<<"------oooo><ooo-----shearP_CD_A::analyze() t= "<<t<<" ---------"<<endl;
 
 	char fname[100];
+	char fnamedv[100];
 
 	time=t;
 
@@ -697,8 +698,11 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 
 	if (displaySample || displayForce)
 	{
+		system("mkdir -p Analyse/PS2");
 		sprintf(fname,"Analyse/PS1/particles%.4i.ps",Nanalyze());
+		sprintf(fnamedv,"Analyse/PS2/particlesdv%.4i.ps",Nanalyze());
 		writePS2(fname);
+		writePS3(fnamedv);
 	}
 
 	cout<<"		Nombre de contacts = "<<sys_->nwk()->linter().size()<<endl;
@@ -3308,6 +3312,7 @@ void shearP_CD_A::printSystem()
 	double ymax = sys_->ldof(1)->lowerBody()->y();
 	double yminProbe = totalProbe_.h1();
 	double ymaxProbe = totalProbe_.h2();
+
 	printSys<<time<<" "<<epsxy_<<" "<<vx_wall_sup/epaisseur<<" "<<epaisseur<<" "<< vx_wall_sup<<" "<<vx_wall_inf<<" "<<vy_wall_sup<<" "<<ymin<<" "<<ymax<<
 		" "<<yminProbe<<" "<<ymaxProbe<<endl;
 	printSys.close();
@@ -3349,7 +3354,6 @@ void shearP_CD_A::computeZparticules()
 
 void shearP_CD_A::profilZ()
 {
-
 	cout<<".Connectivity Profile"<<endl;
 	unsigned int Nprobe = NbinZ_;
 	double ampProbe=( totalProbe_.h2() - totalProbe_.h1() ) / (double) (Nprobe);
@@ -3387,7 +3391,183 @@ void shearP_CD_A::profilZ()
 	}
 
 }
+//Vitesse fluctuante
+void shearP_CD_A::writePS3( const char * fname)
+{
 
+	bool displayforce = false ;
+	ofstream ps(fname);
+	sys_->spl()->updateBands();
+	sys_->spl()->radiusExtrema(1);
+	//Limits and scale factors :
+	double R = sys_->spl()->rmax();
+
+	double Xmin = sys_->spl()->xmin() + R;
+	double Ymin = sys_->spl()->ymin() + R;
+
+	double xmin_ = sys_->spl()->xmin() - 2.*R;
+	double ymin_ = (sys_->ldof(0)->lowerBody())->ymin()- 2.*R;
+	double xmax_ = sys_->spl()->xmax() + 2.*R;
+	double ymax_ = (sys_->ldof(1)->lowerBody())->ymin() + 2.*R; // dilatancy
+
+	cout<<"WRITEPS3 - bounds"<<endl;
+	cout<<ymax_<<" "<<ymin_<<endl;
+
+	double zoom = zoom_;
+	double x_offset = fabs(Xmin*zoom);
+	double y_offset = fabs(Ymin*zoom);
+	double v = fabs(sys_->ldof(0)->lowerBody()->vx()) * zoom;
+
+	//!------ Header for ps file	
+	ps<<"%!PS-Adobe-3.0 EPSF-3.0"<<endl;
+	//ps<<"%%BoundingBox:"<<" "<<"-30 -20 515 550"<<endl;
+	ps<<"%%BoundingBox:"<<" "<<x_offset + (xmin_ - sys_->spl()->bandWidth())*zoom<<" "<<y_offset + (ymin_ - sys_->spl()->bandWidth())*zoom<<" "
+		<<x_offset + (xmax_ + sys_->spl()->bandWidth())*zoom<<" "<<y_offset + (ymax_ )*zoom<<endl;
+	ps<<"%%Pages: 1"<<endl;
+	ps<<"0.1 setlinewidth 0. setgray "<<endl;
+	ps <<"0. 0. .23 setrgbcolor clippath fill"<<endl;
+	//ps << "/colordisk {0.3 0.8 1.0} def"<< endl;
+	ps << "/colordisk {0.3 0.7 1.0} def"<< endl;
+	ps << "/colordot {0. 0. 0.} def" <<endl;
+	ps << "/colorwall {1. 1. 1.} def" <<endl;
+
+	ps<< "/arrowhead {% stack: s x1 y1, current point: x0 y0"<<endl;
+	ps<< "	gsave"<<endl;
+	ps<< "	currentpoint "<<endl;
+	ps<< "	4 2 roll exch "<<endl;
+	ps<< "	4 -1 roll exch "<<endl;
+	ps<< "	sub 3 1 roll "<<endl;
+	ps<< "	sub exch "<<endl;
+	ps<< "	atan rotate "<<endl;
+	ps<< "	dup scale "<<endl;
+	ps<< "	-7 2 rlineto 1 -2 rlineto -1 -2 rlineto"<<endl;
+	ps<< "	closepath fill "<<endl;
+	ps<< "	grestore "<<endl;
+	ps<< "	newpath "<<endl;
+	ps<< "	} def "<<endl;
+	unsigned int N = sys_->spl()->lbody().size();
+
+	for(unsigned i=0 ; i< N ; ++i)
+	{
+		double x = x_offset + sys_->spl()->body(i)->x() * zoom;
+		double y = y_offset + sys_->spl()->body(i)->y() * zoom;
+		double r = sys_->spl()->body(i)->sizeVerlet() * zoom;
+		//double theta = sys_->spl()->body(i)->rot(); 
+		//double xrcostheta = x + r * cos(theta) * 0.8; 
+		//double yrcostheta = y + r * sin(theta) * 0.8; 
+
+		//double xrcosthetaO = x + r * cos(theta+180); 
+		//double yrcosthetaO = y + r * sin(theta+180); 
+
+
+		if(sys_->spl()->body(i)->bodyDof()==NULL){
+			ps <<"newpath "<<endl ;
+			ps <<x<<" "<<y<<" "<<r<<" colordisk setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore "<<endl; 
+			ps <<"stroke"<<endl;
+		}
+		else
+		{
+			ps <<"newpath "<<endl ;
+			ps <<x<<" "<<y<<" "<<r<<" colorwall setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore "<<endl; 
+			ps <<"stroke"<<endl;
+		}
+		//Draw vectors:
+
+
+	}
+	//Vectors:
+	for(unsigned i=0 ; i< N ; ++i)
+	{
+		double x = x_offset + sys_->spl()->body(i)->x() * zoom;
+		double y = y_offset + sys_->spl()->body(i)->y() * zoom;
+		double vx = sys_->spl()->body(i)->vx() * zoom; 
+		double vy = sys_->spl()->body(i)->vy() * zoom; 
+		double vnorme = sqrt( vx * vx + vy * vy);
+		double r = sys_->spl()->body(i)->sizeVerlet() * zoom;
+		double normv = 2. * r / ( vnorme);
+		double Linewidth = 10. ;
+		int headsize = 30 ;
+		double corrx = vx * normv * 0.1 ;
+		double corry = vy * normv * 0.1 ;
+
+		if(sys_->spl()->body(i)->bodyDof()==NULL){
+
+			ps<<"/coul_v {1 setlinecap 1 "<<1. - fabs(vx)/v<<" "<<1. -fabs(vx)/v<<" setrgbcolor} def"<<endl;
+			ps<<Linewidth<<" setlinewidth coul_v"<<endl;
+			ps <<"newpath "<<endl ;
+			ps <<x<<" "<<y<<" moveto "<<endl;
+			ps << x + vx * normv<<" "<<y + vy * normv<<" lineto stroke "<<endl;
+			ps <<"newpath "<<x + vx * normv + corrx<<" "<<y + vy * normv+ corry<<" moveto "<<headsize<<" "<<x <<" "<<y<<" arrowhead"<<endl;
+			ps<<"newpath"<<endl;
+		}
+	}
+
+	//Periodique :
+	//Left-band
+	/*cout<<"leftband.size = "<< sys_->spl()->leftband().size() <<endl;
+	  cout<<"rightband.size = "<< sys_->spl()->rightband().size() <<endl;
+	  for (unsigned int j=0 ; j<sys_->spl()->leftband().size() ; ++j)
+	  {
+	  ps	<<"newpath "<<x_offset + (sys_->spl()->body(sys_->spl()->leftband(j))->x() + sys_->spl()->boundWidth())*zoom<<" "
+	  <<y_offset + sys_->spl()->body(sys_->spl()->leftband(j))->y()*zoom<<" "<<sys_->spl()->body(sys_->spl()->leftband(j))->sizeVerlet()*zoom<<" " 
+	  <<"0.0 360.0 arc closepath 0.0 colordisk stroke" << endl;
+	  }
+	//Right-band
+	for (unsigned int j=0 ; j<sys_->spl()->rightband().size() ; ++j)
+	{
+	ps	<<"newpath "<<x_offset + (sys_->spl()->body(sys_->spl()->rightband(j))->x() - sys_->spl()->boundWidth())*zoom<<" "
+	<<y_offset + sys_->spl()->body(sys_->spl()->rightband(j))->y()*zoom<<" "<<sys_->spl()->body(sys_->spl()->rightband(j))->sizeVerlet()*zoom<<" " 
+	<<"0.0 360.0 arc closepath 0.0 colordisk stroke" << endl;
+	}
+
+
+	 */
+	//Network :
+	if(displayforce && !sys_->nwk()->clist().empty())
+	{
+
+		DataSet Fns;
+
+		for(unsigned i=0 ; i<sys_->nwk()->clist().size() ; ++i)
+		{
+			if ( sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() > 0. )
+			{
+				Fns.add(sys_->nwk()->inter(sys_->nwk()->clist(i))->fn());
+			}
+		}
+
+		Fns.extractValues();
+
+		double Fmean = Fns.Mean();
+		cerr<<"Fn mean = "<<Fmean<<endl;
+		double FnOverMeanMax = sys_->nwk()->inter(sys_->nwk()->clist(0))->fn()/Fmean ;
+		for(unsigned i=0 ; i<sys_->nwk()->clist().size() ; ++i)
+		{
+			int x1 = sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->x();
+			int x2 = sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->x();
+			if ( sys_->nwk()->inter(sys_->nwk()->clist(i))->fn()<0. || x1 > x2 ) continue;
+
+			//double factorFn = 1.5 ;
+			double fnrescale = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn()-Fns.min())/(Fns.min()+Fns.max());
+
+			//double Linewidth = fnrescale * factorFn * R * zoom;
+			double Linewidth = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() / Fmean) * 0.06 * R * zoom;
+			if ( (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() / Fmean) > FnOverMeanMax) FnOverMeanMax = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() / Fmean);
+			//double logcolor = log (fnrescale * 9 + 1) * R * zoom; 
+			ps<<"/coul_force {1 setlinecap 1 "<<1. - fnrescale<<" "<<1. -fnrescale<<" setrgbcolor} def"<<endl;
+
+			ps<<Linewidth<<" setlinewidth coul_force"<<endl;
+			ps<<sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->x()*zoom + x_offset<<" "
+				<<sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->y()*zoom + y_offset<<" "<<"moveto"<<" "
+				<<sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->x()*zoom + x_offset<<" "
+				<<sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->y()*zoom + y_offset<<" "<<" "<<"lineto stroke"<<endl;
+		}
+		cerr <<"max(Fn/Fmean)="<<FnOverMeanMax<<endl;
+	}
+
+
+	ps.close();
+}
 void shearP_CD_A::writePS2( const char * fname)
 {
 
@@ -3923,12 +4103,9 @@ void shearP_CD_A::Stress_profile()
 
 void shearP_CD_A::angleAtWall()
 {
-
 	cout<<"**** Angle at Walls analysis "<<endl;
-
 	unsigned int Nc = sys_->nwk()->clist().size(); //nb de contacts
 	double pi=4*atan(1.);
-
 	ofstream aaw("Analyse/angleswall.txt",ios::app);
 
 	for ( unsigned int i = 0 ; i < Nc ; i++) {
@@ -3950,9 +4127,7 @@ void shearP_CD_A::angleAtWall()
 		}
 
 	}
-
 	aaw.close();
-
 }
 
 void shearP_CD_A::ProfilTemp()

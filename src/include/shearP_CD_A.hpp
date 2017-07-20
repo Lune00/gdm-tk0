@@ -316,6 +316,7 @@ class shearP_CD_A : public System_A
     void followparticles();	
     void writePS(const char * fname);
     void writePS2(const char * fname);
+    void writePS3(const char * fname);
     void computeZparticules(); // calcule le nombre de contact par particule ->z_() 
     void averageangle();
     void angleAtWall();
