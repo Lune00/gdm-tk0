@@ -651,6 +651,7 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	cout<<"------oooo><ooo-----shearP_CD_A::analyze() t= "<<t<<" ---------"<<endl;
 
 	char fname[100];
+	char fnamev[100];
 	char fnamedv[100];
 
 	time=t;
@@ -699,10 +700,13 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	if (displaySample || displayForce)
 	{
 		system("mkdir -p Analyse/PS2");
+		system("mkdir -p Analyse/PS3");
 		sprintf(fname,"Analyse/PS1/particles%.4i.ps",Nanalyze());
-		sprintf(fnamedv,"Analyse/PS2/particlesdv%.4i.ps",Nanalyze());
-		writePS2(fname);
-		writePS3(fnamedv);
+		sprintf(fnamev,"Analyse/PS2/particlesv%.4i.ps",Nanalyze());
+		sprintf(fnamedv,"Analyse/PS3/particlesdv%.4i.ps",Nanalyze());
+		//writePS2(fname);
+		//writePS3(fnamev);
+		writePS4(fnamedv);
 	}
 
 	cout<<"		Nombre de contacts = "<<sys_->nwk()->linter().size()<<endl;
@@ -3391,11 +3395,11 @@ void shearP_CD_A::profilZ()
 	}
 
 }
-//Vitesse fluctuante
+
+//Vitesse vectors
 void shearP_CD_A::writePS3( const char * fname)
 {
 
-	bool displayforce = false ;
 	ofstream ps(fname);
 	sys_->spl()->updateBands();
 	sys_->spl()->radiusExtrema(1);
@@ -3484,9 +3488,13 @@ void shearP_CD_A::writePS3( const char * fname)
 		double vy = sys_->spl()->body(i)->vy() * zoom; 
 		double vnorme = sqrt( vx * vx + vy * vy);
 		double r = sys_->spl()->body(i)->sizeVerlet() * zoom;
+
 		double normv = 2. * r / ( vnorme);
 		double Linewidth = 10. ;
-		int headsize = 30 ;
+		//trouver un scale avec le rayon des particules
+		//le faire pour les fluctuations des vitesse
+		int headsize = 6 ;
+
 		double corrx = vx * normv * 0.1 ;
 		double corry = vy * normv * 0.1 ;
 
@@ -3519,55 +3527,193 @@ void shearP_CD_A::writePS3( const char * fname)
 	<<y_offset + sys_->spl()->body(sys_->spl()->rightband(j))->y()*zoom<<" "<<sys_->spl()->body(sys_->spl()->rightband(j))->sizeVerlet()*zoom<<" " 
 	<<"0.0 360.0 arc closepath 0.0 colordisk stroke" << endl;
 	}
-
-
 	 */
-	//Network :
-	if(displayforce && !sys_->nwk()->clist().empty())
+
+	ps.close();
+}
+
+//Vitesse fluctuante
+void shearP_CD_A::writePS4( const char * fname)
+{
+
+	ofstream ps(fname);
+	sys_->spl()->updateBands();
+	sys_->spl()->radiusExtrema(1);
+	//Limits and scale factors :
+	double R = sys_->spl()->rmax();
+
+	double Xmin = sys_->spl()->xmin() + R;
+	double Ymin = sys_->spl()->ymin() + R;
+
+	double xmin_ = sys_->spl()->xmin() - 2.*R;
+	double ymin_ = (sys_->ldof(0)->lowerBody())->ymin()- 2.*R;
+	double xmax_ = sys_->spl()->xmax() + 2.*R;
+	double ymax_ = (sys_->ldof(1)->lowerBody())->ymin() + 2.*R; // dilatancy
+
+	cout<<"WRITEPS4 - bounds"<<endl;
+	cout<<ymax_<<" "<<ymin_<<endl;
+
+	double zoom = zoom_;
+	double x_offset = fabs(Xmin*zoom);
+	double y_offset = fabs(Ymin*zoom);
+	double v = fabs(sys_->ldof(0)->lowerBody()->vx()) * zoom;
+
+	//!------ Header for ps file	
+	ps<<"%!PS-Adobe-3.0 EPSF-3.0"<<endl;
+	//ps<<"%%BoundingBox:"<<" "<<"-30 -20 515 550"<<endl;
+	ps<<"%%BoundingBox:"<<" "<<x_offset + (xmin_ - sys_->spl()->bandWidth())*zoom<<" "<<y_offset + (ymin_ - sys_->spl()->bandWidth())*zoom<<" "
+		<<x_offset + (xmax_ + sys_->spl()->bandWidth())*zoom<<" "<<y_offset + (ymax_ )*zoom<<endl;
+	ps<<"%%Pages: 1"<<endl;
+	ps<<"0.1 setlinewidth 0. setgray "<<endl;
+	ps <<"0. 0. .23 setrgbcolor clippath fill"<<endl;
+	//ps << "/colordisk {0.3 0.8 1.0} def"<< endl;
+	ps << "/colordisk {0.3 0.7 1.0} def"<< endl;
+	ps << "/colordot {0. 0. 0.} def" <<endl;
+	ps << "/colorwall {1. 1. 1.} def" <<endl;
+
+	ps<< "/arrowhead {% stack: s x1 y1, current point: x0 y0"<<endl;
+	ps<< "	gsave"<<endl;
+	ps<< "	currentpoint "<<endl;
+	ps<< "	4 2 roll exch "<<endl;
+	ps<< "	4 -1 roll exch "<<endl;
+	ps<< "	sub 3 1 roll "<<endl;
+	ps<< "	sub exch "<<endl;
+	ps<< "	atan rotate "<<endl;
+	ps<< "	dup scale "<<endl;
+	ps<< "	-7 2 rlineto 1 -2 rlineto -1 -2 rlineto"<<endl;
+	ps<< "	closepath fill "<<endl;
+	ps<< "	grestore "<<endl;
+	ps<< "	newpath "<<endl;
+	ps<< "	} def "<<endl;
+
+	unsigned int N = sys_->spl()->lbody().size();
+
+	//Calcul du profil de vitesse:
+	unsigned Nprobe = 50 ; // a passer en parametre plus tard
+
+	double ampProbe=( totalProbe_.h2() - totalProbe_.h1() ) / (double) (Nprobe);
+	vector < heightProbe *> lprobe(Nprobe);
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		lprobe[i]= new heightProbe( totalProbe_.h1() + (double) (i) * ampProbe,
+				totalProbe_.h1() + (double) (i+1) * ampProbe);
+	}
+
+	std::vector <double> XS(Nprobe,0.);
+	std::vector <double> YS(Nprobe,0.);
+	std::vector <double> ShearRate(Nprobe,0.);
+
+	speedProfile( lprobe  , XS , YS , *sys_->spl(), ShearRate, false  );
+
+	//On dessine les particules
+	for(unsigned i=0 ; i< N ; ++i)
+	{
+		double x = x_offset + sys_->spl()->body(i)->x() * zoom;
+		double y = y_offset + sys_->spl()->body(i)->y() * zoom;
+		double r = sys_->spl()->body(i)->sizeVerlet() * zoom;
+
+		if(sys_->spl()->body(i)->bodyDof()==NULL){
+			ps <<"newpath "<<endl ;
+			ps <<x<<" "<<y<<" "<<r<<" colordisk setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore "<<endl; 
+			ps <<"stroke"<<endl;
+		}
+		else
+		{
+			ps <<"newpath "<<endl ;
+			ps <<x<<" "<<y<<" "<<r<<" colorwall setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore "<<endl; 
+			ps <<"stroke"<<endl;
+		}
+	}
+
+	//On dessine les vecteurs
+	for(unsigned i=0 ; i< N ; ++i)
+	{
+		
+		double x = x_offset + sys_->spl()->body(i)->x() * zoom;
+		double y = y_offset + sys_->spl()->body(i)->y() * zoom;
+	//	double vx = sys_->spl()->body(i)->vx() * zoom; 
+	//	double vy = sys_->spl()->body(i)->vy() * zoom; 
+	//	double vnorme = sqrt( vx * vx + vy * vy);
+		double r = sys_->spl()->body(i)->sizeVerlet() * zoom;
+
+		double Linewidth = 10. ;
+		//trouver un scale avec le rayon des particules
+		//le faire pour les fluctuations des vitesse
+		int headsize = 6 ;
+
+
+		double dvx, dvy ;
+
+		if(sys_->spl()->body(i)->bodyDof()==NULL){
+
+			unsigned int k = 0 ;
+
+			while ( k < Nprobe)
+			{
+				if ( lprobe[k]->containCenter(sys_->spl()->body(i)) )
+				{
+					//Si dans le premier bin ou dernier proche des parois on prend pas en compte
+
+					if(k != 0 || k != Nprobe)
+					{
+						dvx=sqrt( (sys_->spl()->body(i)->vx()-XS[k])*(sys_->spl()->body(i)->vx()-XS[k]) );
+						dvy=sqrt( (sys_->spl()->body(i)->vy()-YS[k])*(sys_->spl()->body(i)->vy()-YS[k]) );
+						//Ici on print le vecteur
+						double normdv = sqrt( dvx * dvx + dvy * dvy );
+						double normv = 2. * r / normdv;
+
+						double corrx = dvx * normv * 0.1 ;
+						double corry = dvy * normv * 0.1 ;
+
+						ps<<"/coul_v {1 setlinecap 1 "<<1. - fabs(normdv)/v<<" "<<1. -fabs(normdv)/v<<" setrgbcolor} def"<<endl;
+						ps<<Linewidth<<" setlinewidth coul_v"<<endl;
+						ps <<"newpath "<<endl ;
+						ps <<x<<" "<<y<<" moveto "<<endl;
+						ps << x + dvx * normv<<" "<<y + dvy * normv<<" lineto stroke "<<endl;
+						ps <<"newpath "<<x + dvx * normv + corrx<<" "<<y + dvy * normv+ corry<<" moveto "<<headsize<<" "<<x <<" "<<y<<" arrowhead"<<endl;
+						ps<<"newpath"<<endl;
+					}
+
+
+					break;
+				}
+
+				else
+				{
+
+					k++;
+
+				}
+
+
+			}
+
+
+		}
+
+
+	}
+	//Vectors:
+	for(unsigned i=0 ; i< N ; ++i)
 	{
 
-		DataSet Fns;
+		if(sys_->spl()->body(i)->bodyDof()==NULL){
 
-		for(unsigned i=0 ; i<sys_->nwk()->clist().size() ; ++i)
-		{
-			if ( sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() > 0. )
-			{
-				Fns.add(sys_->nwk()->inter(sys_->nwk()->clist(i))->fn());
-			}
 		}
-
-		Fns.extractValues();
-
-		double Fmean = Fns.Mean();
-		cerr<<"Fn mean = "<<Fmean<<endl;
-		double FnOverMeanMax = sys_->nwk()->inter(sys_->nwk()->clist(0))->fn()/Fmean ;
-		for(unsigned i=0 ; i<sys_->nwk()->clist().size() ; ++i)
-		{
-			int x1 = sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->x();
-			int x2 = sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->x();
-			if ( sys_->nwk()->inter(sys_->nwk()->clist(i))->fn()<0. || x1 > x2 ) continue;
-
-			//double factorFn = 1.5 ;
-			double fnrescale = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn()-Fns.min())/(Fns.min()+Fns.max());
-
-			//double Linewidth = fnrescale * factorFn * R * zoom;
-			double Linewidth = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() / Fmean) * 0.06 * R * zoom;
-			if ( (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() / Fmean) > FnOverMeanMax) FnOverMeanMax = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() / Fmean);
-			//double logcolor = log (fnrescale * 9 + 1) * R * zoom; 
-			ps<<"/coul_force {1 setlinecap 1 "<<1. - fnrescale<<" "<<1. -fnrescale<<" setrgbcolor} def"<<endl;
-
-			ps<<Linewidth<<" setlinewidth coul_force"<<endl;
-			ps<<sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->x()*zoom + x_offset<<" "
-				<<sys_->nwk()->inter(sys_->nwk()->clist(i))->first()->y()*zoom + y_offset<<" "<<"moveto"<<" "
-				<<sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->x()*zoom + x_offset<<" "
-				<<sys_->nwk()->inter(sys_->nwk()->clist(i))->second()->y()*zoom + y_offset<<" "<<" "<<"lineto stroke"<<endl;
-		}
-		cerr <<"max(Fn/Fmean)="<<FnOverMeanMax<<endl;
 	}
 
 
 	ps.close();
+
+	for (std::vector< heightProbe * >::iterator it = lprobe.begin() ; it != lprobe.end(); ++it)
+	{
+		delete (*it);
+	}
+
+	lprobe.clear();
 }
+
 void shearP_CD_A::writePS2( const char * fname)
 {
 
