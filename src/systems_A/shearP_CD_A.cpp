@@ -705,7 +705,7 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 		sprintf(fnamev,"Analyse/PS2/particlesv%.4i.ps",Nanalyze());
 		sprintf(fnamedv,"Analyse/PS3/particlesdv%.4i.ps",Nanalyze());
 		//writePS2(fname);
-		//writePS3(fnamev);
+		writePS3(fnamev);
 		writePS4(fnamedv);
 	}
 
@@ -3397,6 +3397,8 @@ void shearP_CD_A::profilZ()
 }
 
 //Vitesse vectors
+//Il ne vaut mieux pas normaliser la longeur des flesches, mauvaise lecture !
+//Borner leurs tailles entre 0 et 2Rmax
 void shearP_CD_A::writePS3( const char * fname)
 {
 
@@ -3642,7 +3644,6 @@ void shearP_CD_A::writePS4( const char * fname)
 		//le faire pour les fluctuations des vitesse
 		int headsize = 6 ;
 
-
 		double dvx, dvy ;
 
 		if(sys_->spl()->body(i)->bodyDof()==NULL){
@@ -3659,14 +3660,17 @@ void shearP_CD_A::writePS4( const char * fname)
 					{
 						dvx=sqrt( (sys_->spl()->body(i)->vx()-XS[k])*(sys_->spl()->body(i)->vx()-XS[k]) );
 						dvy=sqrt( (sys_->spl()->body(i)->vy()-YS[k])*(sys_->spl()->body(i)->vy()-YS[k]) );
+						dvx *= zoom ;
+						dvy *= zoom ;
 						//Ici on print le vecteur
 						double normdv = sqrt( dvx * dvx + dvy * dvy );
 						double normv = 2. * r / normdv;
+						cout<<"normdv = "<<normdv<<" v = "<<v<<"dv/v="<<normdv/v<<endl;
 
 						double corrx = dvx * normv * 0.1 ;
 						double corry = dvy * normv * 0.1 ;
 
-						ps<<"/coul_v {1 setlinecap 1 "<<1. - fabs(normdv)/v<<" "<<1. -fabs(normdv)/v<<" setrgbcolor} def"<<endl;
+						ps<<"/coul_v {1 setlinecap 1 "<<1. - fabs(2. * normdv)/v<<" "<<1. -fabs(2. * normdv)/v<<" setrgbcolor} def"<<endl;
 						ps<<Linewidth<<" setlinewidth coul_v"<<endl;
 						ps <<"newpath "<<endl ;
 						ps <<x<<" "<<y<<" moveto "<<endl;
