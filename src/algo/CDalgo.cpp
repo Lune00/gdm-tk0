@@ -62,7 +62,7 @@ void CDalgo::speak()
 void CDalgo::look()
 {
 
-	cout<<"look"<<endl;
+	//cout<<"look"<<endl;
 // Contact list, local frames and relative velocities
 	contact();
 
@@ -266,10 +266,11 @@ void CDalgo::fres()
   }
 }
 
+// CETTE PROCEDURE QUI EST APPELEE DANS LE CODE!
 // Gauss-Seidel iteration, original procedure
 unsigned int CDalgo::iter_0()
 {
-	cout<<"iter_0"<<endl;
+	//cout<<"iter_0"<<endl;
 	// No-contact case
 	if (nwk_->clist().empty()) return 0;
 	unsigned int c;

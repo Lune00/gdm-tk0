@@ -706,7 +706,7 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 		sprintf(fnamedv,"Analyse/PS3/particlesdv%.4i.ps",Nanalyze());
 		//writePS2(fname);
 		writePS3(fnamev);
-		writePS4(fnamedv);
+		//writePS4(fnamedv);
 	}
 
 	cout<<"		Nombre de contacts = "<<sys_->nwk()->linter().size()<<endl;
@@ -3489,16 +3489,18 @@ void shearP_CD_A::writePS3( const char * fname)
 		double vx = sys_->spl()->body(i)->vx() * zoom; 
 		double vy = sys_->spl()->body(i)->vy() * zoom; 
 		double vnorme = sqrt( vx * vx + vy * vy);
-		double r = sys_->spl()->body(i)->sizeVerlet() * zoom;
+		//double r = sys_->spl()->body(i)->sizeVerlet() * zoom;
 
-		double normv = 2. * r / ( vnorme);
-		double Linewidth = 10. ;
+
+		double normv = vnorme/v * R;
+		double Linewidth = 8. ;
+		cout<<"normv = "<<normv<<endl;
 		//trouver un scale avec le rayon des particules
 		//le faire pour les fluctuations des vitesse
-		int headsize = 6 ;
+		int headsize = 7 ;
 
-		double corrx = vx * normv * 0.1 ;
-		double corry = vy * normv * 0.1 ;
+		double corrx = vx * normv * 0.05 ;
+		double corry = vy * normv * 0.05 ;
 
 		if(sys_->spl()->body(i)->bodyDof()==NULL){
 
