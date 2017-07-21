@@ -159,8 +159,10 @@ class shearP_CD_A : public System_A
     bool calcShearRate_;
     bool calcRotKeProfile_;
     bool calcEnergieMode_;
+    bool calcTwall_ ;
 
   public:
+
     void setFolder(std::string);
     void initAnalyse( );
     void analyse(double, unsigned int, unsigned int);
@@ -173,7 +175,6 @@ class shearP_CD_A : public System_A
     void Stress_profileX();
     void Stress_profile();
     void RotationalKineticEnergyProfile(); // rapidement
-    void EnergieModeDistWall(); // donne l energie cinetique en fonction de la distance a la paroi inferieure
 
     //void plug( shearP_CD * sys_in) {sys=sys_in;}
 
@@ -222,6 +223,7 @@ class shearP_CD_A : public System_A
       calcTempprofile=false;
       calcRotKeProfile_=false;
       calcEnergieMode_=false;
+      calcTwall_ = false ;
 
       fnmoy_=1.;
       Nanalyze_ = 0;
@@ -247,10 +249,7 @@ class shearP_CD_A : public System_A
 
     ~shearP_CD_A() { this->allFalse();	}
     shearP_CD_A(){this->allFalse();}
-
     shearP_CD_A(shearP_CD *sys_a) { this->allFalse();}
-
-
 
 
     heightProbe & totalProbe()  {return  totalProbe_;}
@@ -322,6 +321,7 @@ class shearP_CD_A : public System_A
     void averageangle();
     void angleAtWall();
     void ProfilTemp();
+    void Twall();
 
 
 

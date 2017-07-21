@@ -357,6 +357,80 @@ void profilMoyenTemperature(unsigned int Nbins)
 	}
 }
 
+void profilMoyenErot(unsigned int Nbins)
+{
+	double vx[Nbins];
+	double vxsquare[Nbins];
+	double y[Nbins];
+	std::fill_n(vx,Nbins,0.);
+	std::fill_n(vxsquare,Nbins,0.);
+
+
+	if( Nbins == 0 ) {
+		cerr<<"@profilMoyenZ le nombre de Nbins ne peut pas etre nul."<<endl;
+		return;
+	}
+
+	ifstream is("Analyse/RotKeProfile.txt");
+	if(!is.is_open()) {
+		cerr<<"@profilMoyenZ impossible ouvrir RotKeProfile.txt"<<endl;
+		return;
+	}
+	else
+	{
+		double time, yt , vxt ;
+		unsigned int j = 0 ;
+		unsigned int tic = 0 ;
+		//Pour l'instant on fait le profil de la trace
+		while(is)
+		{
+			if( j % Nbins  == 0 ){ j = 0 ; tic++ ; }
+
+			is >> time >> yt >> vxt  ; 
+
+			if(is.eof()) break;
+
+			vx[j] += vxt ;
+			vxsquare[j] += vxt * vxt ;
+			y[j] = yt ;
+			j++;
+			if(j==0) cout<<vx[0]<<" "<<vxsquare[0]<<endl;
+		}
+
+		tic--;
+		is.close();
+
+		for (unsigned int i = 0 ; i != Nbins ; i ++ )
+		{
+			vx[i]       /= (double) tic;
+			vxsquare[i] /= (double) tic;
+			vxsquare[i] -= vx[i] * vx[i] ;
+		}
+
+
+		//Normalisation par vitesse de la plaque / par h
+		//Sortir a la fois brut et normalise
+		//y/h vx/v sqrt(dvx)/v y vx dvx
+
+		double ymin,ymax;
+		ymin = y[0] ;
+		ymax = y[Nbins-1];
+		double h = ymax - ymin ;
+		cout <<"h = "<<h<<endl;	
+		//Output : 
+		ofstream pv("profils/profErot.txt",ios::out);
+//		pv<<"# 2y/h-1 Z dZ"<<endl;
+
+		for (unsigned int i = 2 ; i != Nbins-2 ; i++ )
+		{
+			//	cout<<i<<" "<<vxsquare[i]<<" "<<vx[i]<<" "<<endl;
+			pv << 2 * (y[i]-ymin) / h  - 1.<<" "<<vx[i]<<" "<<sqrt(vxsquare[i]) <<endl;
+		}
+		pv.close();
+
+
+	}
+}
 void profilMoyenZ(unsigned int Nbins)
 {
 	double vx[Nbins];
@@ -440,11 +514,14 @@ int main (int argc,char **argv)
 	bool calcProfileShear = false;
 	bool calcProfileTemp = false;
 	bool calcProfileZ = false;
+	bool calcProfileErot = false;
+
 	unsigned int NbinsV = 0 ;
 	unsigned int NbinsS = 0 ;
 	unsigned int NbinsSh = 0 ;
 	unsigned int NbinsST = 0 ;
 	unsigned int NbinsZ = 0 ;
+	unsigned int NbinsErot = 0 ;
 
 	system("mkdir -p profils");
 	string token;
@@ -473,6 +550,10 @@ int main (int argc,char **argv)
 			calcProfileZ = true ;
 			is>>NbinsZ;
 		}
+		if(token=="erot"){
+			calcProfileErot = true ;
+			is>>NbinsErot;
+		}
 		is>>token;
 	}
 
@@ -495,6 +576,10 @@ int main (int argc,char **argv)
 	if(calcProfileZ) {
 		cout<<".Calcul profil moyen de Z - Bins : "<<NbinsZ<<endl;
 		profilMoyenZ(NbinsZ);
+	}
+	if(calcProfileErot) {
+		cout<<".Calcul profil moyen d'Energie cinetique de rotation - Bins : "<<NbinsErot<<endl;
+		profilMoyenErot(NbinsErot);
 	}
 
 

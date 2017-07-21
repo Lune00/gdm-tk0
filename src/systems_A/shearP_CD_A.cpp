@@ -28,6 +28,7 @@ void shearP_CD_A::read_parameters(istream & is)
 		else if(token== "Solidfraction") calcsf=true;
 		else if(token== "AngleAtWall") calcAngleAtWall_=true;
 		else if(token== "extractFN") extractFN_=true;
+		else if(token== "Twall") calcTwall_=true;
 		else if(token== "Fabric") calcFabric=true;
 		else if(token== "EnergieMode") calcEnergieMode_=true;
 		else if(token== "Angles") calcangles=true;
@@ -452,9 +453,10 @@ void shearP_CD_A::initAnalyse( )
 	ofstream strain("Analyse/strain.txt",ios::out);
 	strain.close();	
 
-	if(calcEnergieMode_)
+	if(calcTwall_)
 	{
-		ofstream EM("Analyse/EnergieMode.txt",ios::out);
+		ofstream EM("Analyse/Twall.txt",ios::out);
+		EM.close();
 	}
 	if(calcAngleAtWall_)
 	{
@@ -659,7 +661,7 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	printSystem();
 	followparticles();
 	//computeZparticules();
-	if(calcEnergieMode_) EnergieModeDistWall();
+	if(calcTwall_) Twall();
 	if(calcRotKeProfile_) RotationalKineticEnergyProfile();
 	if(calcAngleAtWall_) angleAtWall();
 	if(calcStress_profile) Stress_profile();
@@ -704,7 +706,7 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 		sprintf(fname,"Analyse/PS1/particles%.4i.ps",Nanalyze());
 		sprintf(fnamev,"Analyse/PS2/particlesv%.4i.ps",Nanalyze());
 		sprintf(fnamedv,"Analyse/PS3/particlesdv%.4i.ps",Nanalyze());
-		//writePS2(fname);
+		writePS2(fname);
 		writePS3(fnamev);
 		//writePS4(fnamedv);
 	}
@@ -3484,6 +3486,8 @@ void shearP_CD_A::writePS3( const char * fname)
 	//Vectors:
 	for(unsigned i=0 ; i< N ; ++i)
 	{
+		if(sys_->spl()->body(i)->bodyDof()==NULL){
+
 		double x = x_offset + sys_->spl()->body(i)->x() * zoom;
 		double y = y_offset + sys_->spl()->body(i)->y() * zoom;
 		double vx = sys_->spl()->body(i)->vx() * zoom; 
@@ -3491,18 +3495,25 @@ void shearP_CD_A::writePS3( const char * fname)
 		double vnorme = sqrt( vx * vx + vy * vy);
 		//double r = sys_->spl()->body(i)->sizeVerlet() * zoom;
 
+		double normv ;
 
-		double normv = vnorme/v * R;
+		if( v == 0. ) {
+			normv = R ;
+		}
+		else
+		{
+			normv = vnorme/v * R;
+		}
+
 		double Linewidth = 8. ;
 		cout<<"normv = "<<normv<<endl;
 		//trouver un scale avec le rayon des particules
 		//le faire pour les fluctuations des vitesse
 		int headsize = 7 ;
 
-		double corrx = vx * normv * 0.05 ;
-		double corry = vy * normv * 0.05 ;
+		double corrx = vx * normv * 0.07 ;
+		double corry = vy * normv * 0.07 ;
 
-		if(sys_->spl()->body(i)->bodyDof()==NULL){
 
 			ps<<"/coul_v {1 setlinecap 1 "<<1. - fabs(vx)/v<<" "<<1. -fabs(vx)/v<<" setrgbcolor} def"<<endl;
 			ps<<Linewidth<<" setlinewidth coul_v"<<endl;
@@ -3633,12 +3644,12 @@ void shearP_CD_A::writePS4( const char * fname)
 	//On dessine les vecteurs
 	for(unsigned i=0 ; i< N ; ++i)
 	{
-		
+
 		double x = x_offset + sys_->spl()->body(i)->x() * zoom;
 		double y = y_offset + sys_->spl()->body(i)->y() * zoom;
-	//	double vx = sys_->spl()->body(i)->vx() * zoom; 
-	//	double vy = sys_->spl()->body(i)->vy() * zoom; 
-	//	double vnorme = sqrt( vx * vx + vy * vy);
+		//	double vx = sys_->spl()->body(i)->vx() * zoom; 
+		//	double vy = sys_->spl()->body(i)->vy() * zoom; 
+		//	double vnorme = sqrt( vx * vx + vy * vy);
 		double r = sys_->spl()->body(i)->sizeVerlet() * zoom;
 
 		double Linewidth = 10. ;
@@ -4357,7 +4368,68 @@ void shearP_CD_A::ProfilTemp()
 }
 
 
-void shearP_CD_A::EnergieModeDistWall()
+void shearP_CD_A::Twall()
 {
+	cout<<". Twall "<<endl;
 
+	unsigned int Nc = sys_->nwk()->clist().size(); //nb de contacts
+
+	//double pi=4*atan(1.);
+
+	ofstream particleswall("Analyse/particleswall.txt");
+	ofstream twall("Analyse/Twall.txt",ios::app);
+
+	double txx = 0. ;
+	double tyy = 0. ;
+	unsigned int tic = 0 ;
+
+	for ( unsigned int i = 0 ; i < Nc ; i++) {
+
+		unsigned int ni = sys_->nwk()->clist(i);
+
+		unsigned int id1 = sys_->nwk()->inter(ni)->first()->id();
+		unsigned int id2 = sys_->nwk()->inter(ni)->second()->id();
+
+		//Si contact avec une paroi:
+
+		if(sys_->spl()->body(id1)->bodyDof()!=NULL || sys_->spl()->body(id2)->bodyDof()!=NULL )
+		{
+			double dvx = 0. ;
+			double dvy = 0. ;
+
+			/*	double nx = sys_->nwk()->inter(ni)->nx();
+				double theta=acos(nx);
+				double fn = sys_->nwk()->inter(ni)->fn();
+
+				cout<<"Contact avec la paroi a un angle "<<theta*180./pi<<endl;
+				twall<<theta<<" "<<fn<<" "<<theta * fn<<endl;
+			 */
+			particleswall<<sys_->spl()->body(id1)->x()<<" "<<sys_->spl()->body(id1)->y()<<" "<<sys_->spl()->body(id1)->sizeVerlet()<<endl;
+			particleswall<<sys_->spl()->body(id2)->x()<<" "<<sys_->spl()->body(id2)->y()<<" "<<sys_->spl()->body(id2)->sizeVerlet()<<endl;
+
+			//On prend la particule libre au contact:
+			if(sys_->spl()->body(id1)->bodyDof()!=NULL)
+			{
+				dvx =	sys_->spl()->body(id1)->vx() - sys_->spl()->body(id2)->vx();
+				dvy =	sys_->spl()->body(id1)->vy() - sys_->spl()->body(id2)->vy();
+			}
+			else
+			{
+				dvx =	sys_->spl()->body(id2)->vx() - sys_->spl()->body(id1)->vx();
+				dvy =	sys_->spl()->body(id2)->vy() - sys_->spl()->body(id1)->vy();
+			}
+
+
+			txx += dvx * dvx ;
+			tyy += dvy * dvy ;
+			tic++;
+		}
+
+	}
+	double averageTxx = txx / (double) tic ;
+	double averageTyy = tyy / (double) tic ;
+	twall<<time<<" "<<averageTxx<<" "<<averageTyy<<endl;
+
+	twall.close();
+	particleswall.close();
 }
