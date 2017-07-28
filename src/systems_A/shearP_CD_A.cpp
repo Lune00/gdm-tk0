@@ -3734,7 +3734,7 @@ void shearP_CD_A::writePS4( const char * fname)
 void shearP_CD_A::writePS2( const char * fname)
 {
 
-	bool displayforce = false ;
+	bool displayforce = true ;
 
 	ofstream ps(fname);
 
@@ -4367,14 +4367,15 @@ void shearP_CD_A::ProfilTemp()
 	lprobe.clear();
 }
 
-
+//On y introduit aussi zwall
 void shearP_CD_A::Twall()
 {
-	cout<<". Twall "<<endl;
+	cout<<". Twall  && Zwall"<<endl;
 
 	unsigned int Nc = sys_->nwk()->clist().size(); //nb de contacts
 
 	//double pi=4*atan(1.);
+	computeZparticules();
 
 	ofstream particleswall("Analyse/particleswall.txt");
 	ofstream twall("Analyse/Twall.txt",ios::app);
@@ -4382,6 +4383,7 @@ void shearP_CD_A::Twall()
 	double txx = 0. ;
 	double tyy = 0. ;
 	unsigned int tic = 0 ;
+	double zwall = 0. ;
 
 	for ( unsigned int i = 0 ; i < Nc ; i++) {
 
@@ -4396,6 +4398,7 @@ void shearP_CD_A::Twall()
 		{
 			double dvx = 0. ;
 			double dvy = 0. ;
+			double zi = 0. ;
 
 			/*	double nx = sys_->nwk()->inter(ni)->nx();
 				double theta=acos(nx);
@@ -4408,27 +4411,51 @@ void shearP_CD_A::Twall()
 			particleswall<<sys_->spl()->body(id2)->x()<<" "<<sys_->spl()->body(id2)->y()<<" "<<sys_->spl()->body(id2)->sizeVerlet()<<endl;
 
 			//On prend la particule libre au contact:
+			//Je me suis gourre pour la temperature mais au carree car revient au meme
 			if(sys_->spl()->body(id1)->bodyDof()!=NULL)
 			{
 				dvx =	sys_->spl()->body(id1)->vx() - sys_->spl()->body(id2)->vx();
 				dvy =	sys_->spl()->body(id1)->vy() - sys_->spl()->body(id2)->vy();
+				zi = sys_->spl()->body(id2)->z() ;
+				//cout<<sys_->spl()->body(id2)->z()<<endl;
 			}
 			else
 			{
 				dvx =	sys_->spl()->body(id2)->vx() - sys_->spl()->body(id1)->vx();
 				dvy =	sys_->spl()->body(id2)->vy() - sys_->spl()->body(id1)->vy();
+				zi = sys_->spl()->body(id1)->z() ;
+				//cout<<sys_->spl()->body(id1)->z()<<endl;
 			}
 
 
+			//cout<<"zi="<<zi<<endl;
 			txx += dvx * dvx ;
 			tyy += dvy * dvy ;
+			zwall += zi ;
 			tic++;
 		}
 
 	}
 	double averageTxx = txx / (double) tic ;
 	double averageTyy = tyy / (double) tic ;
-	twall<<time<<" "<<averageTxx<<" "<<averageTyy<<endl;
+	double averageZwall = zwall / (double) tic ;
+	cout<<"Tic = "<<tic<<endl;
+	cout<<"zwall = "<<averageZwall<<endl;
+	
+	double window = 2. * sys_->spl()->rmax() ;
+	cout<<".Connectivity near wall (window)"<<endl;
+
+	vector < heightProbe * > lprobe(1);
+
+	lprobe[0]=new heightProbe( totalProbe_.h2() - window, totalProbe_.h2() ); 
+
+	vector <double> Zy(1,0.);
+
+	zProfile(lprobe , Zy , *sys_->spl() ) ;
+
+	double zwindow = Zy[0] ;
+
+	twall<<time<<" "<<averageTxx<<" "<<averageTyy<<" "<<averageZwall<<" "<<zwindow<<endl;
 
 	twall.close();
 	particleswall.close();
