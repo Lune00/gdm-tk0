@@ -322,6 +322,7 @@ class shearP_CD_A : public System_A
     void angleAtWall();
     void ProfilTemp();
     void Twall();
+    void Zwall();
 
 
 

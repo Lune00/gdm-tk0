@@ -58,6 +58,7 @@ bool near(const body2d* b1, const body2d* b2, const double dv)
 }
 
 // dkdk
+//dverlet : espace entre deux particules inferieur a dverlet?
 bool near(const disk* d1, const disk* d2, const double dv)
 {
   double lx  = d2->x() - d1->x();

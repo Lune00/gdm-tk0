@@ -82,6 +82,9 @@ void zProfile( vector < heightProbe* > & lprb,vector <double> & Zprofile, Sample
 
 	for (unsigned int i=0;i<Nb; ++i)
 	{
+		if( spl.body(i)->bodyDof() != NULL || spl.body(i)->z() == 0 ) continue;
+
+		
 		unsigned int j=0;
 		while( j< Nprb )
 		{

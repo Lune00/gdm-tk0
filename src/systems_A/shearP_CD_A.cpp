@@ -457,6 +457,13 @@ void shearP_CD_A::initAnalyse( )
 	{
 		ofstream EM("Analyse/Twall.txt",ios::out);
 		EM.close();
+		char filename[100];
+		for(unsigned int i = 1 ; i < 10 ; i++)
+		{
+			sprintf(filename,"Analyse/Zwall/Zwallr%02d.txt",i);
+			ofstream out(filename,ios::out);
+			out.close();
+		}
 	}
 	if(calcAngleAtWall_)
 	{
@@ -3506,7 +3513,7 @@ void shearP_CD_A::writePS3( const char * fname)
 		}
 
 		double Linewidth = 8. ;
-		cout<<"normv = "<<normv<<endl;
+		//cout<<"normv = "<<normv<<endl;
 		//trouver un scale avec le rayon des particules
 		//le faire pour les fluctuations des vitesse
 		int headsize = 7 ;
@@ -4384,6 +4391,7 @@ void shearP_CD_A::Twall()
 	double tyy = 0. ;
 	unsigned int tic = 0 ;
 	double zwall = 0. ;
+	unsigned int Ncwall = 0 ;
 
 	for ( unsigned int i = 0 ; i < Nc ; i++) {
 
@@ -4399,6 +4407,7 @@ void shearP_CD_A::Twall()
 			double dvx = 0. ;
 			double dvy = 0. ;
 			double zi = 0. ;
+			Ncwall++;
 
 			/*	double nx = sys_->nwk()->inter(ni)->nx();
 				double theta=acos(nx);
@@ -4441,13 +4450,18 @@ void shearP_CD_A::Twall()
 	double averageZwall = zwall / (double) tic ;
 	cout<<"Tic = "<<tic<<endl;
 	cout<<"zwall = "<<averageZwall<<endl;
+	//Original x 4 rmax
+	//Differentes fenetres:
+
 	
-	double window = 2. * sys_->spl()->rmax() ;
+	double window = 5. * sys_->spl()->rmax() ;
 	cout<<".Connectivity near wall (window)"<<endl;
+	cout<<"window = "<<window<<endl;
 
 	vector < heightProbe * > lprobe(1);
 
-	lprobe[0]=new heightProbe( totalProbe_.h2() - window, totalProbe_.h2() ); 
+	lprobe[0]= new heightProbe( totalProbe_.h1() , totalProbe_.h1() + window ); 
+	cout<<"Probe h1 = "<<lprobe[0]->h1()<<" -  h2 = "<<lprobe[0]->h2()<<endl;
 
 	vector <double> Zy(1,0.);
 
@@ -4455,8 +4469,41 @@ void shearP_CD_A::Twall()
 
 	double zwindow = Zy[0] ;
 
-	twall<<time<<" "<<averageTxx<<" "<<averageTyy<<" "<<averageZwall<<" "<<zwindow<<endl;
+	cout<<"zwindow = "<<zwindow<<endl;
+
+	twall<<time<<" "<<averageTxx<<" "<<averageTyy<<" "<<averageZwall<<" "<<zwindow<<" "<<Ncwall<<endl;
 
 	twall.close();
 	particleswall.close();
+	Zwall();
 }
+
+//Calcul Zwall en fonction d'une resolution spatiale au bord de la paroi inferieure
+void shearP_CD_A::Zwall()
+{
+	for(unsigned int i = 1 ; i < 10 ; i++)
+	{
+		char filename[100];
+		sprintf(filename,"Analyse/Zwallr%02d.txt",i);
+		ofstream o_zwall(filename,ios::app);
+
+		double window = i * ( sys_->spl()->rmax()) ;
+		cout<<"window = "<<window<<endl;
+		vector < heightProbe * > lprobe(1);
+
+		lprobe[0]= new heightProbe( totalProbe_.h1() , totalProbe_.h1() + window ); 
+		cout<<"Probe h1 = "<<lprobe[0]->h1()<<" -  h2 = "<<lprobe[0]->h2()<<endl;
+
+		vector <double> Zy(1,0.);
+
+		zProfile(lprobe , Zy , *sys_->spl() ) ;
+
+		double zwindow = Zy[0] ;
+		o_zwall<<time<<" "<<zwindow<<endl; 
+		o_zwall.close();
+	}
+}
+
+
+
+

@@ -236,7 +236,9 @@ void Network::retrieve(vector<fsafe> & fs)
 
 void Network::buildSuperList(Sample * spl,  GroupRelationData * grpRel)
 {
-	//cerr<<"---Building SuperList"<<endl;
+	
+	cerr<<"---Building SuperList"<<endl;
+	cerr<<"dsuperlist = "<<dsuperList_<<endl;
 	superList_.clear();//Reset le list des pairs particules 
 
 	unsigned int N=spl->lbody().size();
