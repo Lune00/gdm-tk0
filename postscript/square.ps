@@ -1,0 +1,25 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%Black square
+newpath
+10 10 moveto
+%rline aores on place le pinceau au point connecte
+90 0 rlineto
+0 90 rlineto
+-90 0 rlineto
+%On ferme le chemin: segment jusqu au dernier point moveto (origine ici)
+closepath
+%On specifie des trucs: 
+5 setlinewidth
+0 setgray
+%Si on veut remplir avec une couleur on utlise fill a la place de stroke(dessiner)
+fill
+%Grey square
+32.5 32.5 moveto
+45 0 rlineto
+0 45 rlineto
+-45 0 rlineto
+closepath
+5 setlinewidth
+0.7 setgray
+fill
+showpage

@@ -3458,20 +3458,33 @@ void shearP_CD_A::writePS3( const char * fname)
 	ps << "/colordot {0. 0. 0.} def" <<endl;
 	ps << "/colorwall {1. 1. 1.} def" <<endl;
 
-	ps<< "/arrowhead {% stack: s x1 y1, current point: x0 y0"<<endl;
-	ps<< "	gsave"<<endl;
-	ps<< "	currentpoint "<<endl;
-	ps<< "	4 2 roll exch "<<endl;
-	ps<< "	4 -1 roll exch "<<endl;
-	ps<< "	sub 3 1 roll "<<endl;
-	ps<< "	sub exch "<<endl;
-	ps<< "	atan rotate "<<endl;
-	ps<< "	dup scale "<<endl;
-	ps<< "	-7 2 rlineto 1 -2 rlineto -1 -2 rlineto"<<endl;
-	ps<< "	closepath fill "<<endl;
-	ps<< "	grestore "<<endl;
-	ps<< "	newpath "<<endl;
-	ps<< "	} def "<<endl;
+	ps<< "/arrowdict 14 dict def arrowdict begin"<<endl;
+	ps<< "/mtrx matrix def end"<<endl;
+	ps<< "/arrow"<<endl;
+	ps<< "{ arrowdict begin"<<endl;
+	ps<< "	/headlength exch def /halfheadthickness exch 2 div def /halfthickness exch 2 div def"<<endl;
+	ps<< "	/tipy exch def /tipx exch def"<<endl;
+	ps<< "	/taily exch def /tailx exch def"<<endl;
+	ps<< "	/dx tipx tailx sub def"<<endl;
+	ps<< "	/dy tipy taily sub def"<<endl;
+	ps<< "	/arrowlength dx dx mul dy dy mul add"<<endl;
+	ps<< "	sqrt def"<<endl;
+	ps<< "	/angle dy dx atan def"<<endl;
+	ps<< "	/base arrowlength headlength sub def"<<endl;
+	ps<< "	/savematrix mtrx currentmatrix def"<<endl;
+	ps<< "	tailx taily translate angle rotate"<<endl;
+	ps<< "	0 halfthickness neg moveto"<<endl;
+	ps<< "	base halfthickness neg lineto base halfheadthickness neg lineto arrowlength 0 lineto"<<endl;
+	ps<< "	base halfheadthickness lineto base halfthickness lineto"<<endl;
+	ps<< "	0 halfthickness lineto"<<endl;
+	ps<< "	closepath"<<endl;
+	ps<< "	savematrix setmatrix end"<<endl;
+	ps<< "} def"<<endl;
+
+	//example
+	//newpath
+	//10 10 20 20 2 3 3 arrow
+	//fill
 	unsigned int N = sys_->spl()->lbody().size();
 
 	for(unsigned i=0 ; i< N ; ++i)
@@ -3507,31 +3520,31 @@ void shearP_CD_A::writePS3( const char * fname)
 	{
 		if(sys_->spl()->body(i)->bodyDof()==NULL){
 
-		double x = x_offset + sys_->spl()->body(i)->x() * zoom;
-		double y = y_offset + sys_->spl()->body(i)->y() * zoom;
-		double vx = sys_->spl()->body(i)->vx() * zoom; 
-		double vy = sys_->spl()->body(i)->vy() * zoom; 
-		//double vnorme = sqrt( vx * vx + vy * vy);
-		//double r = sys_->spl()->body(i)->sizeVerlet() * zoom;
+			double x = x_offset + sys_->spl()->body(i)->x() * zoom;
+			double y = y_offset + sys_->spl()->body(i)->y() * zoom;
+			double vx = sys_->spl()->body(i)->vx() * zoom; 
+			double vy = sys_->spl()->body(i)->vy() * zoom; 
+			//double vnorme = sqrt( vx * vx + vy * vy);
+			//double r = sys_->spl()->body(i)->sizeVerlet() * zoom;
 
-		double normv ;
+			double normv ;
 
-		if( v < 1e-06 ) {
-			normv = R ;
-		}
-		else
-		{
-			normv = R ; //vnorme/v * R;
-		}
+			if( v < 1e-06 ) {
+				normv = R ;
+			}
+			else
+			{
+				normv = R ; //vnorme/v * R;
+			}
 
-		double Linewidth = 7. ;
-		//cout<<"normv = "<<normv<<endl;
-		//trouver un scale avec le rayon des particules
-		//le faire pour les fluctuations des vitesse
-		int headsize = 5 ;
+			double Linewidth = 7. ;
+			//cout<<"normv = "<<normv<<endl;
+			//trouver un scale avec le rayon des particules
+			//le faire pour les fluctuations des vitesse
+			int headsize = 5 ;
 
-		double corrx = vx * normv * 1.1 ;
-		double corry = vy * normv * 1.1 ;
+			double corrx = vx * normv * 1.1 ;
+			double corry = vy * normv * 1.1 ;
 
 
 			ps<<"/coul_v {1 setlinecap 1 "<<1. - fabs(vx)/v<<" "<<1. -fabs(vx)/v<<" setrgbcolor} def"<<endl;
