@@ -448,10 +448,20 @@ void shearP_CD_A::initAnalyse( )
 
 	system("mkdir -p Analyse");
 	system("mkdir -p Analyse/Anisotropies");
+
 	ofstream printSys("Analyse/system.txt",ios::out);
 
 	ofstream strain("Analyse/strain.txt",ios::out);
 	strain.close();	
+
+	ofstream particles("Analyse/particleswall.txt",ios::out);
+	particles.close();
+
+	ofstream glissant("Analyse/glissement.txt",ios::out);
+	glissant.close();
+	
+	ofstream printglissant("Analyse/contactglissant.txt",ios::out);
+	printglissant.close();
 
 	if(calcTwall_)
 	{
@@ -667,6 +677,8 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 
 	printSystem();
 	followparticles();
+	GlissementParoi();
+	Glissement();
 	//computeZparticules();
 	if(calcTwall_) Twall();
 	if(calcRotKeProfile_) RotationalKineticEnergyProfile();
@@ -3499,27 +3511,27 @@ void shearP_CD_A::writePS3( const char * fname)
 		double y = y_offset + sys_->spl()->body(i)->y() * zoom;
 		double vx = sys_->spl()->body(i)->vx() * zoom; 
 		double vy = sys_->spl()->body(i)->vy() * zoom; 
-		double vnorme = sqrt( vx * vx + vy * vy);
+		//double vnorme = sqrt( vx * vx + vy * vy);
 		//double r = sys_->spl()->body(i)->sizeVerlet() * zoom;
 
 		double normv ;
 
-		if( v == 0. ) {
+		if( v < 1e-06 ) {
 			normv = R ;
 		}
 		else
 		{
-			normv = vnorme/v * R;
+			normv = R ; //vnorme/v * R;
 		}
 
-		double Linewidth = 8. ;
+		double Linewidth = 7. ;
 		//cout<<"normv = "<<normv<<endl;
 		//trouver un scale avec le rayon des particules
 		//le faire pour les fluctuations des vitesse
-		int headsize = 7 ;
+		int headsize = 5 ;
 
-		double corrx = vx * normv * 0.07 ;
-		double corry = vy * normv * 0.07 ;
+		double corrx = vx * normv * 1.1 ;
+		double corry = vy * normv * 1.1 ;
 
 
 			ps<<"/coul_v {1 setlinecap 1 "<<1. - fabs(vx)/v<<" "<<1. -fabs(vx)/v<<" setrgbcolor} def"<<endl;
@@ -4374,23 +4386,19 @@ void shearP_CD_A::ProfilTemp()
 	lprobe.clear();
 }
 
+
+
 //On y introduit aussi zwall
 void shearP_CD_A::Twall()
 {
-	cout<<". Twall  && Zwall"<<endl;
+	cout<<".Twall && Zwall"<<endl;
 
 	unsigned int Nc = sys_->nwk()->clist().size(); //nb de contacts
-
-	//double pi=4*atan(1.);
-	computeZparticules();
-
-	ofstream particleswall("Analyse/particleswall.txt");
-	ofstream twall("Analyse/Twall.txt",ios::app);
+	ofstream twall("Analyse/Twall.txt");
 
 	double txx = 0. ;
 	double tyy = 0. ;
 	unsigned int tic = 0 ;
-	double zwall = 0. ;
 	unsigned int Ncwall = 0 ;
 
 	for ( unsigned int i = 0 ; i < Nc ; i++) {
@@ -4416,8 +4424,6 @@ void shearP_CD_A::Twall()
 				cout<<"Contact avec la paroi a un angle "<<theta*180./pi<<endl;
 				twall<<theta<<" "<<fn<<" "<<theta * fn<<endl;
 			 */
-			particleswall<<sys_->spl()->body(id1)->x()<<" "<<sys_->spl()->body(id1)->y()<<" "<<sys_->spl()->body(id1)->sizeVerlet()<<endl;
-			particleswall<<sys_->spl()->body(id2)->x()<<" "<<sys_->spl()->body(id2)->y()<<" "<<sys_->spl()->body(id2)->sizeVerlet()<<endl;
 
 			//On prend la particule libre au contact:
 			//Je me suis gourre pour la temperature mais au carree car revient au meme
@@ -4435,75 +4441,129 @@ void shearP_CD_A::Twall()
 				zi = sys_->spl()->body(id1)->z() ;
 				//cout<<sys_->spl()->body(id1)->z()<<endl;
 			}
-
-
 			//cout<<"zi="<<zi<<endl;
 			txx += dvx * dvx ;
 			tyy += dvy * dvy ;
-			zwall += zi ;
 			tic++;
 		}
 
 	}
 	double averageTxx = txx / (double) tic ;
 	double averageTyy = tyy / (double) tic ;
-	double averageZwall = zwall / (double) tic ;
-	cout<<"Tic = "<<tic<<endl;
-	cout<<"zwall = "<<averageZwall<<endl;
-	//Original x 4 rmax
-	//Differentes fenetres:
 
-	
-	double window = 5. * sys_->spl()->rmax() ;
-	cout<<".Connectivity near wall (window)"<<endl;
-	cout<<"window = "<<window<<endl;
-
-	vector < heightProbe * > lprobe(1);
-
-	lprobe[0]= new heightProbe( totalProbe_.h1() , totalProbe_.h1() + window ); 
-	cout<<"Probe h1 = "<<lprobe[0]->h1()<<" -  h2 = "<<lprobe[0]->h2()<<endl;
-
-	vector <double> Zy(1,0.);
-
-	zProfile(lprobe , Zy , *sys_->spl() ) ;
-
-	double zwindow = Zy[0] ;
-
-	cout<<"zwindow = "<<zwindow<<endl;
-
-	twall<<time<<" "<<averageTxx<<" "<<averageTyy<<" "<<averageZwall<<" "<<zwindow<<" "<<Ncwall<<endl;
-
+	twall<<time<<" "<<averageTxx<<" "<<averageTyy<<endl;
 	twall.close();
-	particleswall.close();
 	Zwall();
 }
 
 //Calcul Zwall en fonction d'une resolution spatiale au bord de la paroi inferieure
 void shearP_CD_A::Zwall()
 {
-	for(unsigned int i = 1 ; i < 10 ; i++)
+	for(unsigned int i = 1 ; i < 25 ; i++)
 	{
 		char filename[100];
 		sprintf(filename,"Analyse/Zwallr%02d.txt",i);
 		ofstream o_zwall(filename,ios::app);
-
 		double window = i * ( sys_->spl()->rmax()) ;
-		cout<<"window = "<<window<<endl;
 		vector < heightProbe * > lprobe(1);
-
 		lprobe[0]= new heightProbe( totalProbe_.h1() , totalProbe_.h1() + window ); 
-		cout<<"Probe h1 = "<<lprobe[0]->h1()<<" -  h2 = "<<lprobe[0]->h2()<<endl;
-
 		vector <double> Zy(1,0.);
-
 		zProfile(lprobe , Zy , *sys_->spl() ) ;
-
 		double zwindow = Zy[0] ;
 		o_zwall<<time<<" "<<zwindow<<endl; 
 		o_zwall.close();
 	}
 }
 
+void shearP_CD_A::Glissement()
+{
+	unsigned int Nc = sys_->nwk()->clist().size(); //nb de contacts
+	unsigned int Nmob = 0 ;
 
+	for ( unsigned int i = 0 ; i < Nc ; i++) {
 
+		unsigned int ni = sys_->nwk()->clist(i);
+		double ft = sys_->nwk()->inter(ni)->ft();
+		double fn = sys_->nwk()->inter(ni)->fn();
 
+		//Recuperer mu :
+
+		unsigned int muId = sys_->grpRel()->getId("mu");
+		double muij = sys_->grpRel()->getParameterQuickly(muId,sys_->nwk()->inter(ni)->first()->grp(),sys_->nwk()->inter(ni)->second()->grp());
+		double diff = fabs(muij*fn)-fabs(ft);
+		double precision =1e-06 ; 
+
+		if(fabs(diff) < precision) {
+			Nmob++;
+		}
+	}
+	double fracgliss = (double)Nmob/(double)Nc*100 ;
+	cerr<<"Contacts glissant bulk :"<<fracgliss<<" %"<<endl;
+	ofstream glissant("Analyse/glissement_bulk.txt",ios::app);
+	glissant<<time<<" "<<fracgliss<<endl;
+	glissant.close();
+}
+
+void shearP_CD_A::GlissementParoi()
+{
+	unsigned int Nc = sys_->nwk()->clist().size(); //nb de contacts
+	ofstream particleswall("Analyse/particleswall.txt");
+	unsigned int Ncwall = 0 ;
+	unsigned int Nmob = 0 ;
+	////double Dissipee = 0. ;
+
+	for ( unsigned int i = 0 ; i < Nc ; i++) {
+
+		unsigned int ni = sys_->nwk()->clist(i);
+
+		unsigned int id1 = sys_->nwk()->inter(ni)->first()->id();
+		unsigned int id2 = sys_->nwk()->inter(ni)->second()->id();
+
+		//Si contact avec une paroi:
+		//On peut calculer l'energie dissipee par frottement avec le changement de rugosite
+		if(sys_->spl()->body(id1)->bodyDof()!=NULL || sys_->spl()->body(id2)->bodyDof()!=NULL )
+		{
+			Ncwall++;
+			double ft = sys_->nwk()->inter(ni)->ft();
+			double fn = sys_->nwk()->inter(ni)->fn();
+			//Recuperer mu :
+
+			unsigned int muId = sys_->grpRel()->getId("mu");
+			double muij = sys_->grpRel()->getParameterQuickly(muId,sys_->nwk()->inter(ni)->first()->grp(),sys_->nwk()->inter(ni)->second()->grp());
+			double diff = fabs(muij*fn)-fabs(ft);
+			double precision =1e-06 ; 
+
+			//double R = sys_->spl()->body(id2)->sizeVerlet();
+			//double nx =sys_->nwk()->inter(ni)->nx() ; 
+			//double ny =sys_->nwk()->inter(ni)->ny() ; 
+			//double x = sys_->spl()->body(id2)->x();
+			//double y = sys_->spl()->body(id2)->y();
+
+			if(diff<precision) {
+				Nmob++;
+			}
+
+			//On print paroi inf:
+			if(sys_->spl()->body(id1)->bodyDof() != NULL){
+				if(sys_->spl()->body(id1)->bodyDof()->id()==0){
+					particleswall<<sys_->spl()->body(id1)->x()<<" "<<sys_->spl()->body(id1)->y()<<" "<<sys_->spl()->body(id1)->sizeVerlet()<<endl;
+					particleswall<<sys_->spl()->body(id2)->x()<<" "<<sys_->spl()->body(id2)->y()<<" "<<sys_->spl()->body(id2)->sizeVerlet()<<endl;
+				}
+			}
+			if(sys_->spl()->body(id2)->bodyDof() != NULL){
+				if(sys_->spl()->body(id2)->bodyDof()->id()==0){
+					particleswall<<sys_->spl()->body(id1)->x()<<" "<<sys_->spl()->body(id1)->y()<<" "<<sys_->spl()->body(id1)->sizeVerlet()<<endl;
+					particleswall<<sys_->spl()->body(id2)->x()<<" "<<sys_->spl()->body(id2)->y()<<" "<<sys_->spl()->body(id2)->sizeVerlet()<<endl;
+				}
+			}
+			//Si contact glissant mettre un point rouge
+		}
+
+	}
+	double fracgliss = (double)Nmob/(double)Ncwall*100 ;
+	cerr<<"Contacts glissant a la paroi :"<<fracgliss<<" %"<<endl;
+	ofstream glissant("Analyse/glissement_wall.txt",ios::app);
+	glissant<<time<<" "<<fracgliss<<endl;
+	glissant.close();
+	particleswall.close();
+}

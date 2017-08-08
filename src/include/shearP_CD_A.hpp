@@ -323,6 +323,8 @@ class shearP_CD_A : public System_A
     void ProfilTemp();
     void Twall();
     void Zwall();
+    void GlissementParoi();
+    void Glissement();
 
 
 

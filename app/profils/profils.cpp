@@ -349,7 +349,7 @@ void profilMoyenTemperature(unsigned int Nbins)
 		for (unsigned int i = 2 ; i != Nbins-2 ; i++ )
 		{
 			//	cout<<i<<" "<<vxsquare[i]<<" "<<vx[i]<<" "<<endl;
-			pv << 2 * (y[i]-min(ymax,ymin)) / h  - 1.<<" "<<vx[i]<<" "<<sqrt(vxsquare[i]) / (double) tic<<endl;
+			pv << 2 * (y[i]-min(ymax,ymin)) / h  - 1.<<" "<<vx[i]<<" "<<sqrt(vxsquare[i]) / (double) tic<<" "<<y[i]<<endl;
 		}
 		pv.close();
 
@@ -498,7 +498,7 @@ void profilMoyenZ(unsigned int Nbins)
 		for (unsigned int i = 2 ; i != Nbins-2 ; i++ )
 		{
 			//	cout<<i<<" "<<vxsquare[i]<<" "<<vx[i]<<" "<<endl;
-			pv << 2 * (y[i]-ymin) / h  - 1.<<" "<<vx[i]<<" "<<sqrt(vxsquare[i]) <<endl;
+			pv << 2 * (y[i]-ymin) / h  - 1.<<" "<<vx[i]<<" "<<sqrt(vxsquare[i]) <<" "<<y[i]<<endl;
 		}
 		pv.close();
 
