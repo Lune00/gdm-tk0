@@ -29,6 +29,7 @@ void shearP_CD_A::read_parameters(istream & is)
 		else if(token== "AngleAtWall") calcAngleAtWall_=true;
 		else if(token== "extractFN") extractFN_=true;
 		else if(token== "Twall") calcTwall_=true;
+		else if(token== "gnuplot") sortiegnuplot_=true;
 		else if(token== "Fabric") calcFabric=true;
 		else if(token== "EnergieMode") calcEnergieMode_=true;
 		else if(token== "Angles") calcangles=true;
@@ -462,6 +463,10 @@ void shearP_CD_A::initAnalyse( )
 	
 	ofstream printglissant("Analyse/contactglissant.txt",ios::out);
 	printglissant.close();
+	if(sortiegnuplot_)
+	{
+		system("mkdir -p Analyse/gnuplot");
+	}
 
 	if(calcTwall_)
 	{
@@ -679,6 +684,7 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	followparticles();
 	GlissementParoi();
 	Glissement();
+	if(sortiegnuplot_) gnuplot();
 	//computeZparticules();
 	if(calcTwall_) Twall();
 	if(calcRotKeProfile_) RotationalKineticEnergyProfile();
@@ -3443,7 +3449,8 @@ void shearP_CD_A::writePS3( const char * fname)
 	double zoom = zoom_;
 	double x_offset = fabs(Xmin*zoom);
 	double y_offset = fabs(Ymin*zoom);
-	double v = fabs(sys_->ldof(0)->lowerBody()->vx()) * zoom;
+	double v = fabs(sys_->ldof(0)->lowerBody()->vx()) ;
+	if( fabs(v) < 1e-6 ) v = 1. ;
 
 	//!------ Header for ps file	
 	ps<<"%!PS-Adobe-3.0 EPSF-3.0"<<endl;
@@ -3522,59 +3529,59 @@ void shearP_CD_A::writePS3( const char * fname)
 
 			double x = x_offset + sys_->spl()->body(i)->x() * zoom;
 			double y = y_offset + sys_->spl()->body(i)->y() * zoom;
-			double vx = sys_->spl()->body(i)->vx() * zoom; 
-			double vy = sys_->spl()->body(i)->vy() * zoom; 
-			//double vnorme = sqrt( vx * vx + vy * vy);
-			//double r = sys_->spl()->body(i)->sizeVerlet() * zoom;
+			double vx = sys_->spl()->body(i)->vx() ; 
+			double vy = sys_->spl()->body(i)->vy() ; 
+			double vnorme = sqrt( vx * vx + vy * vy);
+			cerr<<"vx="<<vx<<" v="<<v<<" --> vx/v="<<vx/v<<endl;
 
-			double normv ;
+			//On ramene entre 0 et v
+			vx /= v ;
+			vy /= v ;
 
-			if( v < 1e-06 ) {
-				normv = R ;
-			}
-			else
-			{
-				normv = R ; //vnorme/v * R;
-			}
+			double GREEN = (1 - fabs(vx));
+			double BLUE = (1-fabs(vx));
+			double RED = 1.;
 
-			double Linewidth = 7. ;
-			//cout<<"normv = "<<normv<<endl;
+			vx *= zoom;
+			vy *= zoom;
+			//On recalcule la norme pour la tete de fleche:
+			vnorme = sqrt(vx * vx + vy * vy) ;
 			//trouver un scale avec le rayon des particules
-			//le faire pour les fluctuations des vitesse
-			int headsize = 5 ;
+			int headsize = 0.2 * R ; //0.5 * vnorme ;
+			int tailthickness = 0.2 * R; //0.2 * vnorme ;
+			int headlength = 0.2 * R ; // 0.9 *  vnorme  ;
 
-			double corrx = vx * normv * 1.1 ;
-			double corry = vy * normv * 1.1 ;
+			if( GREEN < 0. ) GREEN = 0.;
+			if(BLUE < 0. ) BLUE = 0. ;
+			vx *= 3 ;
+			vy *= 3 ;
 
-
-			ps<<"/coul_v {1 setlinecap 1 "<<1. - fabs(vx)/v<<" "<<1. -fabs(vx)/v<<" setrgbcolor} def"<<endl;
-			ps<<Linewidth<<" setlinewidth coul_v"<<endl;
-			ps <<"newpath "<<endl ;
-			ps <<x<<" "<<y<<" moveto "<<endl;
-			ps << x + vx * normv<<" "<<y + vy * normv<<" lineto stroke "<<endl;
-			ps <<"newpath "<<x + vx * normv + corrx<<" "<<y + vy * normv+ corry<<" moveto "<<headsize<<" "<<x <<" "<<y<<" arrowhead"<<endl;
-			ps<<"newpath"<<endl;
+			ps<<"/coul_v {1 setlinecap "<<RED<<" "<<BLUE<<" "<<GREEN<<" setrgbcolor} def"<<endl;
+			ps <<"newpath "<<x<<" "<<y<<" "<<x + vx<<" "<<y + vy<<" "<<tailthickness<<" "<<headsize<<" "<<headlength<<" arrow ";
+			ps <<"coul_v fill "<<endl;
+			//ps <<"0 0 0 setrgbcolor fill "<<endl;
 		}
 	}
 
 	//Periodique :
 	//Left-band
-	/*cout<<"leftband.size = "<< sys_->spl()->leftband().size() <<endl;
-	  cout<<"rightband.size = "<< sys_->spl()->rightband().size() <<endl;
-	  for (unsigned int j=0 ; j<sys_->spl()->leftband().size() ; ++j)
-	  {
-	  ps	<<"newpath "<<x_offset + (sys_->spl()->body(sys_->spl()->leftband(j))->x() + sys_->spl()->boundWidth())*zoom<<" "
-	  <<y_offset + sys_->spl()->body(sys_->spl()->leftband(j))->y()*zoom<<" "<<sys_->spl()->body(sys_->spl()->leftband(j))->sizeVerlet()*zoom<<" " 
-	  <<"0.0 360.0 arc closepath 0.0 colordisk stroke" << endl;
-	  }
+
+	/*
+	for (unsigned int j=0 ; j<sys_->spl()->leftband().size() ; ++j)
+	{
+		ps	<<"newpath "<<x_offset + (sys_->spl()->body(sys_->spl()->leftband(j))->x() + sys_->spl()->boundWidth())*zoom<<" "
+			<<y_offset + sys_->spl()->body(sys_->spl()->leftband(j))->y()*zoom<<" "<<sys_->spl()->body(sys_->spl()->leftband(j))->sizeVerlet()*zoom<<" " 
+			<<"0.0 360.0 arc closepath 0.0 colorwall fill" << endl;
+	}
 	//Right-band
 	for (unsigned int j=0 ; j<sys_->spl()->rightband().size() ; ++j)
 	{
-	ps	<<"newpath "<<x_offset + (sys_->spl()->body(sys_->spl()->rightband(j))->x() - sys_->spl()->boundWidth())*zoom<<" "
-	<<y_offset + sys_->spl()->body(sys_->spl()->rightband(j))->y()*zoom<<" "<<sys_->spl()->body(sys_->spl()->rightband(j))->sizeVerlet()*zoom<<" " 
-	<<"0.0 360.0 arc closepath 0.0 colordisk stroke" << endl;
+		ps	<<"newpath "<<x_offset + (sys_->spl()->body(sys_->spl()->rightband(j))->x() - sys_->spl()->boundWidth())*zoom<<" "
+			<<y_offset + sys_->spl()->body(sys_->spl()->rightband(j))->y()*zoom<<" "<<sys_->spl()->body(sys_->spl()->rightband(j))->sizeVerlet()*zoom<<" " 
+			<<"0.0 360.0 arc closepath 0.0 colorwall stroke" << endl;
 	}
-	 */
+	*/
+
 
 	ps.close();
 }
@@ -4579,4 +4586,63 @@ void shearP_CD_A::GlissementParoi()
 	glissant<<time<<" "<<fracgliss<<endl;
 	glissant.close();
 	particleswall.close();
+}
+
+
+
+void shearP_CD_A::gnuplot()
+{
+	char f_sample[100];
+	char f_wall[100];
+	char f_bands[100];
+
+	sprintf(f_sample,"Analyse/gnuplot/sample%05d.txt",Nanalyze());
+	sprintf(f_wall,"Analyse/gnuplot/wall%05d.txt",Nanalyze());
+	sprintf(f_bands,"Analyse/gnuplot/bands%05d.txt",Nanalyze());
+
+	ofstream sample(f_sample);
+	ofstream wall(f_wall);
+	ofstream bands(f_bands);
+
+	sys_->spl()->updateBands();
+	//Sample:
+	for (unsigned int j=0 ; j<sys_->spl()->lbody().size() ; ++j)
+	{
+		double x = sys_->spl()->body(j)->x();
+		double y = sys_->spl()->body(j)->y();
+		double r = sys_->spl()->body(j)->sizeVerlet();
+		double vx = sys_->spl()->body(j)->vx();
+		double vy = sys_->spl()->body(j)->vy();
+
+		if (sys_->spl()->body(j)->bodyDof()==NULL)
+		{
+			sample<<x<<" "<<y<<" "<<r<<" "<<vx<<" "<<vy<<endl;
+		}
+		else
+		{
+			wall<<x<<" "<<y<<" "<<r<<" "<<vx<<" "<<vy<<endl;
+		}
+	}
+
+	//Bandes
+	for (unsigned int j=0 ; j<sys_->spl()->leftband().size() ; ++j)
+	{
+		double x =sys_->spl()->body(sys_->spl()->leftband(j))->x();
+		double y =sys_->spl()->body(sys_->spl()->leftband(j))->y();
+		double r =sys_->spl()->body(sys_->spl()->leftband(j))->sizeVerlet();
+		bands<<x<<" "<<y<<" "<<r<<endl;
+	}
+
+	for (unsigned int j=0 ; j<sys_->spl()->rightband().size() ; ++j)
+	{
+		double x =sys_->spl()->body(sys_->spl()->rightband(j))->x();
+		double y =sys_->spl()->body(sys_->spl()->rightband(j))->y();
+		double r =sys_->spl()->body(sys_->spl()->rightband(j))->sizeVerlet();
+		bands<<x<<" "<<y<<" "<<r<<endl;
+
+	}
+
+	bands.close();
+	sample.close();
+	wall.close();
 }

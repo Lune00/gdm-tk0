@@ -160,6 +160,7 @@ class shearP_CD_A : public System_A
     bool calcRotKeProfile_;
     bool calcEnergieMode_;
     bool calcTwall_ ;
+    bool sortiegnuplot_;
 
   public:
 
@@ -244,6 +245,7 @@ class shearP_CD_A : public System_A
       NbinTemp_ = 1 ;
       Nprb_stressX = 0 ;
       Nprb_Rot= 0 ;
+      sortiegnuplot_ = false;
     }
 
 
@@ -325,6 +327,7 @@ class shearP_CD_A : public System_A
     void Zwall();
     void GlissementParoi();
     void Glissement();
+    void gnuplot();
 
 
 
