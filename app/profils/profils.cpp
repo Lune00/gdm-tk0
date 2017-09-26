@@ -163,7 +163,7 @@ void profilMoyenShearRate(unsigned int Nbins)
 		//Si symetrique !!!!
 		double shearRateImpose = 2 * v / h ;
 		cout<<"Shear Rate impose : "<<shearRateImpose<<endl;
-		for (unsigned int i = 2 ; i != Nbins-2 ; i++ )
+		for (unsigned int i = 1 ; i != Nbins-1 ; i++ )
 		{
 			pv << 2 * (y[i]-ymin) / h  - 1.<<" "<<vx[i]/shearRateImpose<<" "<<sqrt(vxsquare[i])/shearRateImpose<<" "<< y[i]<<" "<<vx[i]<<" "<<sqrt(vxsquare[i])<<endl;
 		}
@@ -254,7 +254,7 @@ void profilMoyenVitesse(unsigned int Nbins)
 		ofstream pv("profils/profvitesse.txt",ios::out);
 //		pv<<"# 2y/h-1 vx/v dvx/v y vx dvx"<<endl;
 
-		for (unsigned int i = 2 ; i != Nbins-2 ; i++ )
+		for (unsigned int i = 1 ; i != Nbins-1 ; i++ )
 		{
 			//	cout<<i<<" "<<vxsquare[i]<<" "<<vx[i]<<" "<<endl;
 			pv << 2 * (y[i]-ymin) / h  - 1.<<" "<<vx[i]/v<<" "<<sqrt(vxsquare[i])/v<<" "<< y[i]<<" "<<vx[i]<<" "<<sqrt(vxsquare[i]) / (double) tic<<endl;
@@ -346,10 +346,10 @@ void profilMoyenTemperature(unsigned int Nbins)
 		ofstream pv("profils/proftemperature.txt",ios::out);
 //		pv<<"# 2y/h-1 trace dtrace"<<endl;
 
-		for (unsigned int i = 2 ; i != Nbins-2 ; i++ )
+		for (unsigned int i = 1 ; i != Nbins-1 ; i++ )
 		{
 			//	cout<<i<<" "<<vxsquare[i]<<" "<<vx[i]<<" "<<endl;
-			pv << 2 * (y[i]-min(ymax,ymin)) / h  - 1.<<" "<<vx[i]<<" "<<sqrt(vxsquare[i]) / (double) tic<<" "<<y[i]<<endl;
+			pv << 2 * (y[i]-min(ymax,ymin)) / h  - 1.<<" "<<vx[i]<<" "<<sqrt(vxsquare[i]) / (double) tic<<" "<<y[i]-min(ymax,ymin)-h*0.5<<" "<<y[i]<<endl;
 		}
 		pv.close();
 
@@ -495,7 +495,7 @@ void profilMoyenZ(unsigned int Nbins)
 		ofstream pv("profils/profZ.txt",ios::out);
 //		pv<<"# 2y/h-1 Z dZ"<<endl;
 
-		for (unsigned int i = 2 ; i != Nbins-2 ; i++ )
+		for (unsigned int i = 1 ; i != Nbins-1 ; i++ )
 		{
 			//	cout<<i<<" "<<vxsquare[i]<<" "<<vx[i]<<" "<<endl;
 			pv << 2 * (y[i]-ymin) / h  - 1.<<" "<<vx[i]<<" "<<sqrt(vxsquare[i]) <<" "<<y[i]<<endl;
