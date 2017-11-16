@@ -1,7 +1,8 @@
 #ifndef _polyg_hpp
 #define _polyg_hpp
 
-#include <math.h>
+//#include <math.h>
+#include <cmath>
 #include <vector>
 #include "body2d.hpp"
 #include "vertex.hpp"

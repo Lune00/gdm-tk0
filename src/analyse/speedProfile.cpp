@@ -2,60 +2,75 @@
 
 
 // For disk only
-void speedProfile( vector < heightProbe* > & lprb,vector <double> & Xprofile,vector <double> & Yprofile, Sample& spl)
+void speedProfile( vector < heightProbe* > & lprb,vector <double> & Xprofile,vector <double> & Yprofile, Sample& spl, vector <double>& ShearRateprofile, bool shearrateProfile)
 {
 	unsigned int Nb = spl.lbody().size();
 	unsigned int Nprb = lprb.size();
 	vector <unsigned int> Nbod( lprb.size(),0);
-		
 	cout<<"Nprb = "<<lprb.size()<<endl;
-	
-	
+	cout<<"Nombre de particules : "<<Nb<<endl;
+//		ofstream test("particules.txt");
 	for (unsigned int i=0;i<Nb; ++i)
 	{
 		unsigned int j=0;
+//		test<<spl.body(i)->x()<<" "<<spl.body(i)->y()<<endl;
 		while( j< Nprb )
 		{
 			if (  lprb[j]->containEntireBody(spl.body(i))  )
-				{
-					++Nbod[j];
-					Xprofile[j]+=spl.body(i)->vx();
-					Yprofile[j]+=spl.body(i)->vy();
-					//cout<<j<<" ";
-					break;
-				}
-				
+			{
+				++Nbod[j];
+				Xprofile[j]+=spl.body(i)->vx();
+				Yprofile[j]+=spl.body(i)->vy();
+				//cout<<j<<" ";
+				break;
+			}
+
 			if ( lprb[j]->intersection( spl.body(i)) || lprb[j]->containCenter( spl.body(i)))
-				{
-					++Nbod[j];
-					Xprofile[j]+=spl.body(i)->vx();
-					Yprofile[j]+=spl.body(i)->vy();
-					j++;
-					//cout<<j<<" ";
-				}
+			{
+				++Nbod[j];
+				Xprofile[j]+=spl.body(i)->vx();
+				Yprofile[j]+=spl.body(i)->vy();
+				j++;
+				//cout<<j<<" ";
+			}
 			else
-				{
+			{
 				++j;
 				//cout<<j<<" ";
-				}
-				
-			
+			}
+
 		}
-		
-		//cout<<endl;
-		//getchar();
 
 	}
-	
+//		test.close();
+
 	for (unsigned int i=0;i<Nprb; ++i)
 	{
-		//cout<<profile[i];
 		Xprofile[i]/=(double) (Nbod[i]);
 		Yprofile[i]/=(double) (Nbod[i]);
 		//cout<<" "<<profile[i]<<endl;
+	}
+
+
+	if(shearrateProfile && Nprb > 50)
+	{
+
+		double dy = lprb[1]->halfHeight()-lprb[0]->halfHeight(); 
+
+		//Derivee le profile de vitesse
+		// Le shear rate a Nprb - 1 points
+		for (unsigned int i=1;i<Nprb-1; ++i)
+		{
+			double vyup = Xprofile[i+1];
+			double vydown= Xprofile[i-1];
+
+			ShearRateprofile[i]= (vyup - vydown)/( 2. * dy ) ;
+			//cout<<" "<<profile[i]<<endl;
+
+		}
 
 	}
-	
+
 }
 
 void zProfile( vector < heightProbe* > & lprb,vector <double> & Zprofile, Sample& spl)
@@ -63,41 +78,44 @@ void zProfile( vector < heightProbe* > & lprb,vector <double> & Zprofile, Sample
 	unsigned int Nb = spl.lbody().size();
 	unsigned int Nprb = lprb.size();
 	vector <unsigned int> Nbod( lprb.size(),0);
-		
-	
+
+
 	for (unsigned int i=0;i<Nb; ++i)
 	{
+		if( spl.body(i)->bodyDof() != NULL || spl.body(i)->z() == 0 ) continue;
+
+		
 		unsigned int j=0;
 		while( j< Nprb )
 		{
 			if (  lprb[j]->containEntireBody(spl.body(i))  )
-				{
-					++Nbod[j];
-					Zprofile[j]+=spl.body(i)->z();
-					break;
-				}
-				
+			{
+				++Nbod[j];
+				Zprofile[j]+=spl.body(i)->z();
+				break;
+			}
+
 			if ( lprb[j]->intersection( spl.body(i)) || lprb[j]->containCenter( spl.body(i)))
-				{
-					++Nbod[j];
-					Zprofile[j]+=spl.body(i)->z();
-					j++;
-					//cout<<j<<" ";
-				}
+			{
+				++Nbod[j];
+				Zprofile[j]+=spl.body(i)->z();
+				j++;
+				//cout<<j<<" ";
+			}
 			else
-				{
+			{
 				++j;
 				//cout<<j<<" ";
-				}
-				
-			
+			}
+
+
 		}
-		
+
 		//cout<<endl;
 		//getchar();
 
 	}
-	
+
 	for (unsigned int i=0;i<Nprb; ++i)
 	{
 		//cout<<profile[i];
@@ -105,5 +123,166 @@ void zProfile( vector < heightProbe* > & lprb,vector <double> & Zprofile, Sample
 		//cout<<" "<<profile[i]<<endl;
 
 	}
-	
+
 }
+
+void RotKeProfile( vector < heightProbe* > & lprb,vector <double> & ROT, Sample& spl)
+{
+	unsigned int Nb = spl.lbody().size();
+	unsigned int Nprb = lprb.size();
+	vector <unsigned int> Nbod( lprb.size(),0);
+
+	cout<<"Nprb = "<<lprb.size()<<endl;
+
+	for (unsigned int i=0;i<Nb; ++i)
+	{
+
+
+		if( spl.body(i)->bodyDof()!=NULL ) continue;
+
+		unsigned int j=0;
+		while( j< Nprb )
+		{
+			if (  lprb[j]->containEntireBody(spl.body(i))  )
+			{
+				++Nbod[j];
+				double m = spl.body(i)->mass();
+				double r = spl.body(i)->sizeVerlet();
+				double w = spl.body(i)->vrot();
+				double I = 0.5 * m * r * r ;
+
+				ROT[j] += 0.5 * I * w * w  ;
+				//cout<<j<<" ";
+				break;
+			}
+
+			if ( lprb[j]->intersection( spl.body(i)) || lprb[j]->containCenter( spl.body(i)))
+			{
+				++Nbod[j];
+				double m = spl.body(i)->mass();
+				double r = spl.body(i)->sizeVerlet();
+				double w = spl.body(i)->vrot();
+				double I = 0.5 * m * r * r ;
+
+				ROT[j] += 0.5 * I * w * w  ;
+				j++;
+				//cout<<j<<" ";
+			}
+			else
+			{
+				++j;
+				//cout<<j<<" ";
+			}
+
+
+		}
+		//getchar();
+
+	}
+
+	for (unsigned int i=0;i<Nprb; ++i)
+	{
+		//cout<<Nbod[i]<<" "<<lprb[i]->h2()<<endl;
+
+		if(Nbod[i]==0) {
+			ROT[i]=0.;
+
+		}
+
+		else{
+			ROT[i]/=(double) (Nbod[i]);
+		}
+	}
+
+
+}
+
+//Profils de fluctuations vitesses pour chaque composante x et y , temperature dans les deux directions de l'espace
+void TemperatureProfile( vector < heightProbe* > & lprb,vector <double> & Xprofile,vector <double> & Yprofile, vector <double> & XYprofile, Sample& spl, System* sys_)
+{
+	unsigned int Nb = spl.lbody().size();
+	unsigned int Nprb = lprb.size();
+	vector <unsigned int> Nbod( lprb.size(),0);
+
+	cout<<"Nprb = "<<lprb.size()<<endl;
+
+	vector <double> Vxprofile(lprb.size(),0.);
+	vector <double> Vyprofile(lprb.size(),0.);
+	vector <double> Shear(lprb.size(),0.);
+
+	//Construction du profil de vitesse moyen:
+	speedProfile( lprb, Vxprofile, Vyprofile, spl, Shear, false) ;
+
+	for (unsigned int i=0;i<Nb; ++i)
+	{
+		unsigned int j=0;
+
+		while( j< Nprb )
+		{
+			if (  lprb[j]->containEntireBody(spl.body(i)) )
+			{
+				if(spl.body(i)->bodyDof() != NULL) break;
+				double vxi=spl.body(i)->vx();
+				double vyi=spl.body(i)->vy();
+				double VX=Vxprofile[j];
+				double VY=0.;//Vyprofile[j];
+
+				++Nbod[j];
+				Xprofile[j]+=(vxi-VX)*(vxi-VX);
+				Yprofile[j]+=(vyi-VY)*(vyi-VY);
+				XYprofile[j]+=(vxi-VX)*(vyi-VY);
+				break;
+			}
+
+			if ( lprb[j]->intersection( spl.body(i)) || lprb[j]->containCenter( spl.body(i)) )
+			{
+				if(spl.body(i)->bodyDof() != NULL) break;
+				double vxi=spl.body(i)->vx();
+				double vyi=spl.body(i)->vy();
+				double VX=Vxprofile[j];
+				double VY=0.;//Vyprofile[j];
+				++Nbod[j];
+				Xprofile[j]+=(vxi-VX)*(vxi-VX);
+				Yprofile[j]+=(vyi-VY)*(vyi-VY);
+				XYprofile[j]+=(vxi-VX)*(vyi-VY);
+
+				j++;
+				//cout<<j<<" ";
+			}
+			else
+			{
+				++j;
+				//cout<<j<<" ";
+			}
+
+
+		}
+
+		//cout<<endl;
+		//getchar();
+
+	}
+
+	for (unsigned int i=0;i<Nprb; ++i)
+	{
+		//cout<<Nbod[i]<<" "<<lprb[i]->h2()<<endl;
+
+		if(Nbod[i]==0) {
+			Xprofile[i]=0.;
+			Yprofile[i]=0.;
+			XYprofile[i]=0.;
+
+		}
+
+		else{
+			Xprofile[i]/=(double) (Nbod[i]);
+			Yprofile[i]/=(double) (Nbod[i]);
+			XYprofile[i]/=(double) (Nbod[i]);
+		}
+
+		//cout<<" "<<profile[i]<<endl;
+
+	}
+
+}
+

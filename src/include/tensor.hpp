@@ -26,6 +26,7 @@ public:
       
 	Tensor2x2() : xx_(0.0), xy_(0.0), yx_(0.0), yy_(0.0), l1_(0.0), l2_(0.0){ name_ = "noName";}
     Tensor2x2(string name) : name_(name), xx_(0.0), xy_(0.0), yx_(0.0), yy_(0.0), l1_(0.0), l2_(0.0) { }
+    Tensor2x2(double xx, double xy, double yx, double yy);
 //	~Tensor2x2()
 //		{cout<<" destruction de " <<name_<<endl;}
 //	void adresse() {cout<<"adresse de "<<name_<<" "<<this<<endl;};

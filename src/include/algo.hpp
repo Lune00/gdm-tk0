@@ -29,10 +29,11 @@ protected:
 public:
 
 	Algo(Sample* spl, Network* nwk, System* sys, GroupData* grpDat, GroupRelationData* grpRel) 
-		: spl_(spl), nwk_(nwk), sys_(sys), grpDat_(grpDat), grpRel_(grpRel){ } 
+		: spl_(spl), nwk_(nwk), sys_(sys), grpDat_(grpDat), grpRel_(grpRel){cout<<"Constructeur Algo"<<endl; } 
 
 	Algo() 
 	{
+		cout<<"Constructeur Algo par defaut"<<endl;
 		speakLevel_ = 1;
 		spl_    = 0;
 		nwk_    = 0;

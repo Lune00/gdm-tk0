@@ -109,8 +109,9 @@ int main (int argc, char * argv[])
 		//lecture du fichier time
 		vector <double> t;
 		double temp1,temp2;
-		ifstream time(fichtemps);
+		ifstream time(fichtemps.c_str());
 		string line;
+
 		if(!time.is_open())
 		{
 			cerr << "Fichier de temps manquant  " << time << endl;
@@ -129,11 +130,10 @@ int main (int argc, char * argv[])
 		}
 		time.close();
 		
-		
 		Simulation * mySimu= new Simulation();
 
 		//On réécrit le fichier temps:
-		ofstream timereset(fichtemps);
+		ofstream timereset(fichtemps.c_str());
 		unsigned int indice=0;
 		if(timereset.is_open()){
 			for(std::vector<double>::iterator it = t.begin();it != t.end();++it){
@@ -146,9 +146,12 @@ int main (int argc, char * argv[])
 
 		//Lecture des parametres syteme dans fichier Sim
 		//Le spl et nwk sont normalement vide... a remplir par la suite
+		cout<<"--- lecture du fichier Simu.sim"<<endl;
 		mySimu->read_data(fichsim.c_str());
+		mySimu->sys()->init();
+		//OK
 	
-		cout<<" --- lecture fichier sim ok "<<endl;
+		cout<<"--> lecture fichier sim ok "<<endl;
 		
 		//Lecture du fichier de commande contenant les grandeurs a evaluer
 		ifstream com(fichcom.c_str());
@@ -168,9 +171,9 @@ int main (int argc, char * argv[])
 				com >> token;
 			}
 		}
-		cout<<" --- lecture fichier de commande ok "<<endl;
+		cout<<"--> lecture fichier de commande ok "<<endl;
 		
-		cout<<" --- lecture fichier temps ok "<<endl;
+		cout<<"--> lecture fichier temps ok "<<endl;
 		
 	//	ofstream analyze("Analyze.txt",ios::out);
 		
@@ -185,19 +188,9 @@ int main (int argc, char * argv[])
 			cout<<" Bad format = "<<format<<endl;
 			exit(0);
 		}
-		
-		cout<<endl<<endl<<"************+++++ Chargement  :  "<<nomFichier<<endl;
 
-		//mySimu->load_history(nomFichier );
-		//mySimu->algo()->algoFill();
-		
-//		std::string dirAna(princDir);
-	
-		
-		mySimu->sys()->init();
 		mySimu->sysA()->initAnalyse();		
 
-		
 		for( unsigned int i= Ndeb; i<=Nfin;i+=period)
 		{
 			if( format==3)
@@ -207,17 +200,22 @@ int main (int argc, char * argv[])
 			else if (format==5)
 			sprintf(nomFichier,"spl_nwk/spl_nwk_%.5d.his",i);
 
-			cout<<endl<<endl<<"************ Chargement  :  "<<nomFichier<<endl;
+			cout<<endl<<endl<<"--> Chargement  :  "<<nomFichier<<endl;
+			//Load history a checker
 						
 			mySimu->load_history(nomFichier);
-		//	cout<<"load_history() done"<<endl;
+			cout<<"load_history() done"<<endl;
 			mySimu->algo()->algoFill();
-		//	cout<<"algoFill() done"<<endl;	
+			cout<<"algoFill() done"<<endl;	
 			mySimu->sysA()->plugRef();
+			cout<<"plugRef() done"<<endl;
+			cout<<"t["<<i<<"]="<<t[i]<<endl;
 			mySimu->sysA()->analyse(t[i],1,1);
+			cout<<"analyse done"<<endl;
 			
 			cout<<"*o*0ro*************0******^r******0********1**"<<endl;
 		}
+	//	delete mySimu ;
 		
 	}
 	

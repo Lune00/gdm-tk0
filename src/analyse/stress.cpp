@@ -4,7 +4,6 @@ gdm::Tensor2x2 * StressInProbe(Probe & prb, Sample& spl, Network& nwk)
 {
 	unsigned int Nc = nwk.clist().size();
 	
-	cout<<"nc = "<<Nc<<endl;
 	if (Nc == 0) 
 	{
 		cout<<"clist  is empty";
@@ -46,9 +45,7 @@ gdm::Tensor2x2 * StressInProbe(Probe & prb, Sample& spl, Network& nwk)
 		}
 
 //cout<<" S1 et S1 "<<S->l1()<<" "<<S->l2()<<endl;
-
 	}
-	cout<<" nc = "<<nc<<endl;
 	S->scalarMult( 1./prb.area() );
 	return S;
 }

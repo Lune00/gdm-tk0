@@ -24,6 +24,7 @@
 #include "tensor.hpp"
 #include "speedProfile.hpp"
 #include "dataSet.hpp"
+#include "tensor.hpp"
 //#include "pointSet.hpp"
 #include "NRsource.hpp"
 
@@ -83,6 +84,7 @@ class shearP_CD_A : public System_A
     double lmoy_;
 
     bool calcsf;
+    bool calcStress_profile;
     bool calcFabric ;
     bool plotFA;
     bool calcforcesA ;
@@ -90,6 +92,7 @@ class shearP_CD_A : public System_A
     bool calcforcesAC ;
     bool calcz ;
     bool calczp;
+    bool calcangles;
 
     bool calcZprofile;
     bool calcfn;
@@ -114,6 +117,8 @@ class shearP_CD_A : public System_A
     bool calcgranulopdf;
     bool exportDistribution;
     bool calcinout;
+    bool calcStress_profileX;
+    bool calcTempprofile;
     //bool filter;
 
     bool removeR;
@@ -126,6 +131,7 @@ class shearP_CD_A : public System_A
 
     unsigned int Nbincor_;
     unsigned int Npointps;
+    unsigned int Nprb_stressX;
     int NbinFN;
     int NbinL;
     int NbinFA;
@@ -141,23 +147,35 @@ class shearP_CD_A : public System_A
     int Nq_;
     int Ninout;
     int NbinZ_;
-
+    int NbinTemp_;
+    int Nprb_Rot;
 
     ///////////
-    bool ContactMesh_;
     bool displaySample;
     bool displayForce;
     double zoom_;
+    bool extractFN_;
+    bool calcAngleAtWall_;
+    bool calcShearRate_;
+    bool calcRotKeProfile_;
+    bool calcEnergieMode_;
+    bool calcTwall_ ;
+    bool sortiegnuplot_;
 
   public:
+
     void setFolder(std::string);
     void initAnalyse( );
     void analyse(double, unsigned int, unsigned int);
     void read_parameters(istream &);
     void plugRef();
     void printSystem();
+    void extractFN(); //sort toutes les forces dans un fichier en cumule
 
     void profilZ();
+    void Stress_profileX();
+    void Stress_profile();
+    void RotationalKineticEnergyProfile(); // rapidement
 
     //void plug( shearP_CD * sys_in) {sys=sys_in;}
 
@@ -171,6 +189,7 @@ class shearP_CD_A : public System_A
       calcSprofile=false;
       calcZprofile=false;
       calcFC=false;
+      extractFN_ = false;
       calczg=false;
       calcdef=false;
       calcSFprofile=false;
@@ -196,8 +215,16 @@ class shearP_CD_A : public System_A
       calcpartiaNormalForcestress=false;
       displaySample=false;
       displayForce=false;
-      ContactMesh_=false;
       calcgap=calcdef=true;
+      calcangles=false;
+      calcStress_profileX=false;
+      calcStress_profile=false;
+      calcAngleAtWall_=false;
+      calcShearRate_=false;
+      calcTempprofile=false;
+      calcRotKeProfile_=false;
+      calcEnergieMode_=false;
+      calcTwall_ = false ;
 
       fnmoy_=1.;
       Nanalyze_ = 0;
@@ -215,15 +242,16 @@ class shearP_CD_A : public System_A
       time = 0. ;
       partref = NULL ;
       NbinZ_ = 1 ;
+      NbinTemp_ = 1 ;
+      Nprb_stressX = 0 ;
+      Nprb_Rot= 0 ;
+      sortiegnuplot_ = false;
     }
 
 
     ~shearP_CD_A() { this->allFalse();	}
     shearP_CD_A(){this->allFalse();}
-
     shearP_CD_A(shearP_CD *sys_a) { this->allFalse();}
-
-
 
 
     heightProbe & totalProbe()  {return  totalProbe_;}
@@ -289,8 +317,17 @@ class shearP_CD_A : public System_A
     void followparticles();	
     void writePS(const char * fname);
     void writePS2(const char * fname);
+    void writePS3(const char * fname);
+    void writePS4(const char * fname);
     void computeZparticules(); // calcule le nombre de contact par particule ->z_() 
-    //void filterGap();
+    void averageangle();
+    void angleAtWall();
+    void ProfilTemp();
+    void Twall();
+    void Zwall();
+    void GlissementParoi();
+    void Glissement();
+    void gnuplot();
 
 
 

@@ -161,7 +161,10 @@ void shearP_CD::init()
 	{
 		cout<<".Génération des dofs : NOT FIRST USE -> dof pré-générés"<<endl;
 		cout<<".Nombre de dofs : "<<ldof().size()<<endl;
-
+		cout<<"y(dof sup) = "<<ldof(1)->lowerBody()->ymin()<<endl;
+		cout<<"y(dof inf) = "<<ldof(0)->lowerBody()->ymin()<<endl;
+		cout<<"v_x(dof sup) = "<<ldof(1)->lowerBody()->vx()<<endl;
+		cout<<"v_x(dof inf) = "<<ldof(0)->lowerBody()->vx()<<endl;
 	}
 
 	//Imposer shear rate : H particule plus haute - particule plus basse
@@ -170,7 +173,6 @@ void shearP_CD::init()
 		//Store initial shearRate
 		shearRate_init=topXvalue_;
 		cout<<".Imposed shear rate : "<<topXvalue_<<endl;
-
 		double h = ldof(1)->lowerBody()->y() - ldof(0)->lowerBody()->y();
 		// h*=-1.;
 		cout<<".Sample thickness="<<h<<endl;
@@ -183,9 +185,12 @@ void shearP_CD::init()
 		cout<<".Imposed symetrical shear rate: "<<topXvalue_<<endl;
 		//topXvalue_ *= ldof(1)->mcy()-ldof(0)->mcy();
 		topXvalue_ *= 0.5;
-
 		ldof(1)->affect(topXmode_, topYmode_, _VELOCITY, topXvalue_, topYvalue_, 0.);
-		ldof(0)->affect(_VELOCITY, _VELOCITY, _VELOCITY,-topXvalue_, 0.,  0.);
+		ldof(0)->affect(_VELOCITY, _VELOCITY, _VELOCITY, -topXvalue_, 0.,  0.);
+
+		cout<<"Affectation:"<<endl;
+		cout<<"v_x(dof sup) = "<<ldof(1)->lowerBody()->vx()<<endl;
+		cout<<"v_x(dof inf) = "<<ldof(0)->lowerBody()->vx()<<endl;
 	}
 	else
 	{
@@ -203,29 +208,38 @@ void shearP_CD::init()
 	}
 	spl_->updateBands();//Id based
 
-	cout<<endl<<".Taille zone périodique (d)="<<spl_->boundWidth()/(spl_->rmin()+spl_->rmax())<<endl;
+	cout<<".Taille zone périodique (d)="<<spl_->boundWidth()/(spl_->rmin()+spl_->rmax())<<endl;
 	cout<<".Taille des bandes periodiques (d) : "<<spl_->bandWidth()/(spl_->rmin()+spl_->rmax())<<endl;
 	cout<<scientific<<"Rmin = "<<spl_->rmin()<<" Rmax ="<<spl_->rmax()<<endl;
 	cout<<"Rmax/Rmin = "<<spl_->rmax()/spl_->rmin()<<endl;
 
 	//Impose une masse a la paroi libre egale à celle du système:
 
-	double Mparoi=0.;
+	double Msysteme=0.;
 
 	for(unsigned int i=0 ;i<spl_->lbody().size();i++){
 
-		if (spl_->body(i)->bodyDof() == NULL)  Mparoi += spl_->body(i)->mass();
+		if (spl_->body(i)->bodyDof() == NULL)  Msysteme += spl_->body(i)->mass();
 
 	}
 
-	ldof(1)->ComputeImposedMass(Mparoi);
+	ldof(1)->ComputeImposedMass(Msysteme);
 
 	cout<<scientific<<".Speed of topPlate : "<<topXvalue_<<endl;
-
-	cout<<scientific<<".Mass of topPlate : "<<Mparoi<<endl;
+	cout<<scientific<<".Mass of topPlate : "<<Msysteme<<endl;
 
 	cout<<".Nombre de pas (pas de temps 0.0001) pour l'essais pour 100% de Xdef = "<<spl_->boundWidth()/(topXvalue_*0.0001)<<endl;
+	cout<<"Rappel:"<<endl;
+	cout<<"y(dof sup) = "<<(ldof(1)->lowerBody())->ymin()<<endl;
+	cout<<"y(dof inf) = "<<(ldof(0)->lowerBody())->ymin()<<endl;
+	//On imprime les dofs
+	ofstream DOF("dofs.txt");
+	//OK
+	for(unsigned int i=0 ;i<spl_->lbody().size();i++){
 
+		DOF<<spl_->body(i)->x()<<" "<<spl_->body(i)->y()<<endl;
+	}
+	DOF.close();
 }
 
 void shearP_CD::drive() 
@@ -419,8 +433,6 @@ void shearP_CD::SetUnity()
 	}
 	else if (Unit_ == "Rmax" || Unit_ == "Rmin")
 	{
-		int a = topPlateThickness_ ;
-		cerr << "DBG TTTTTTTTTTTTTTTTTTTTTTTTTTTT a:" << a << endl ;
 		if (topPlateThickness_ == 0.)		{ topPlateThickness_ = 2.;		}
 		if (bottomPlateThickness_ == 0.)	{ bottomPlateThickness_ = 2.;	}
 		if (bandwidth_ == 0.)				{ bandwidth_ = 2.;				}
@@ -500,3 +512,23 @@ void shearP_CD::updateShear(){
 		ldof(0)->affect(_VELOCITY, _VELOCITY, _VELOCITY, 0., 0., 0.);
 	}
 }
+void shearP_CD::printMetrics()
+{
+	double xmin,xmax,ymin,ymax;
+	ofstream metrics("Analyse/metrics.txt");
+	double rmean = spl()->rmoy();
+	xmin = spl()->leftBoundary();
+	xmax = spl()->rightBoundary();
+	ymin = ldof(0)->lowerBody()->y();
+	ymax = ldof(1)->lowerBody()->y();
+	double bandwidth = spl()->bandWidth();
+	metrics << "xmin "<<xmin<<endl;
+	metrics << "xmax "<<xmax<<endl;
+	metrics << "ymin "<<ymin<<endl;
+	metrics << "ymax "<<ymax<<endl;
+	metrics << "bw "<<bandwidth<<endl;
+	metrics << "rmean "<<rmean<<endl;
+	metrics.close();
+}
+
+

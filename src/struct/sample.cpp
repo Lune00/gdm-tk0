@@ -59,6 +59,7 @@ vector<dof*> Sample::read(istream & is)
 
 		is >> type;
 	}
+	cout<<"Lecture termine : "<<lbody_.size()<<endl;
 	return (ldof);
 }
 

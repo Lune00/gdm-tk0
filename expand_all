@@ -1,19 +1,18 @@
 #!/bin/bash
 
-
 PATH1=/Users/schuhmacher/bin
 
 gdm=gdm_run_2D_0
 SNA=SNA_2D_0
 profils=Profils_0
-
-echo $SNA
+continu=continu_0
 
 mkdir -p lib
 
 #Compilation sources
 cd src
 make clean
+make cleanlib
 make
 
 #Compilation gdm run
@@ -31,12 +30,13 @@ echo " "
 
 echo "==================--======================="
 echo "Copie vers : " $PATH1
-echo "Executables a copier: $gdm / $SNA / $profils "
+echo "Executables a copier: $gdm / $SNA / $profils / $continu "
 echo "==================--======================="
 
 cp app/gdm_run/gdm_run $PATH1/$gdm
 cp app/SNA/SNA $PATH1/$SNA
 cp app/profils/profils $PATH1/$profils
+cp app/continu/continu $PATH1/$continu
 
 echo "done"
 

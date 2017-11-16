@@ -4,133 +4,60 @@
 #include <sstream>
 #include <vector>
 #include <iomanip>
+#include <algorithm>
 #include "simulation.hpp"
 #include "system.hpp"
 #include "dataSet.hpp"
-#include<algorithm>
+#include "vecteur.hpp"
+#include "grid.hpp"
+#include "champmanager.hpp"
 
 
-
-
-void profilMoyenVitesse(unsigned int Nbins)
-{
-	double vx[Nbins];
-	double vxsquare[Nbins];
-	double y[Nbins];
-	std::fill_n(vx,Nbins,0.);
-	std::fill_n(vxsquare,Nbins,0.);
-
-
-	if( Nbins == 0 ) {
-		cerr<<"@profilMoyenVitesse le nombre de Nbins ne peut pas etre nul."<<endl;
-		return;
-	}
-
-	ifstream is("Analyse/SProfile.txt");
-	if(!is.is_open()) {
-		cerr<<"@profilMoyenVitesse impossible ouvrir SProfile.txt"<<endl;
-		return;
-	}
-	else
-	{
-		double time, yt , vxt ;
-		unsigned int j = 0 ;
-		unsigned int tic = 0 ;
-		double tr;
-		//?
-		while(is)
-		{
-			if( j % Nbins  == 0 ){ j = 0 ; tic++ ; }
-
-			is >> time >> yt >> vxt >> tr ; 
-
-			if(is.eof()) break;
-
-			vx[j] += vxt ;
-			vxsquare[j] += vxt * vxt ;
-			y[j] = yt ;
-			j++;
-			if(j==0) cout<<vx[0]<<" "<<vxsquare[0]<<endl;
-		}
-
-		tic--;
-		is.close();
-
-		for (unsigned int i = 0 ; i != Nbins ; i ++ )
-		{
-			vx[i]       /= (double) tic;
-			vxsquare[i] /= (double) tic;
-			vxsquare[i] -= vx[i] * vx[i] ;
-		}
-
-
-		//Normalisation par vitesse de la plaque / par h
-		//Sortir a la fois brut et normalise
-		//y/h vx/v sqrt(dvx)/v y vx dvx
-
-		double v ;
-		ifstream printSystem("Analyse/system.txt");
-
-		if(!printSystem.is_open()){
-			cerr<<"@profilMoyenVitesse fichier Analyse/system.txt manquant pour la normalisation"<<endl;
-			return;
-		}
-
-		while(printSystem)
-		{
-			printSystem >> tr >> tr >> tr >> tr >> v >> tr >> tr ;
-		}
-		printSystem.close();
-		cout<<"Vitesse de la plaque supérieure : "<<v<<endl;
-
-		double ymin,ymax;
-		ymin = y[0] ;
-		ymax = y[Nbins-1];
-		double h = ymax - ymin ;
-		cout <<"h = "<<h<<endl;	
-		//Output : 
-		ofstream pv("profils/profvitesse.txt",ios::out);
-		pv<<"# 2y/h-1 vx/v dvx/v y vx dvx"<<endl;
-
-		for (unsigned int i = 0 ; i != Nbins ; i++ )
-		{
-		//	cout<<i<<" "<<vxsquare[i]<<" "<<vx[i]<<" "<<endl;
-			pv << 2 * (y[i]-ymin) / h  - 1.<<" "<<vx[i]/v<<" "<<sqrt(vxsquare[i])/v<<" "<< y[i]<<" "<<vx[i]<<" "<<sqrt(vxsquare[i]) / (double) tic<<endl;
-		}
-		pv.close();
-
-
-	}
-
-
-}
 int main (int argc,char **argv)
 {
-
-
-	bool calcProfilVitesse = false;
-	unsigned int NbinsV = 0 ;
-
-	system("mkdir -p profils");
-	string token;
+	//Config utilisateur;
+	//Gestionnaire de Champs;
+	Config parametres;
+	ChampManager MesChamps;
 
 	ifstream is(argv[1]);
+	//Initialisation des parametres:
+	parametres.init(is) ;
 
-	is>>token;
-	while(is)
-	{
-		if(token=="vitesse"){
-			calcProfilVitesse = true ;
-			is>>NbinsV;
-		}
-		is>>token;
+	//Initialisation grille:
+	Grid grid(parametres);
+	//Check recouvrement:
+	if(grid.check(parametres) == 1 ) return 0 ;
+
+	grid.writeGrid("grid.txt");
+
+	return 0 ;
+	//Initialisation des champs:
+	MesChamps.initChamps(parametres);
+
+	Simulation * mySimu = new Simulation();
+	mySimu->read_data(parametres.getfichsim().c_str());
+
+	char nomFichier[100];
+
+	for (int i = parametres.getistart() ; i != parametres.getiend(); i+=parametres.getdi()){
+
+		sprintf(nomFichier,"spl_nwk/spl_nwk_%.4d.his",i);
+		cerr<<"****** Chargement : "<<nomFichier<<endl;
+
+		mySimu->load_history(nomFichier);
+		mySimu->algo()->algoFill();
+		//Particle repartition on grid:
+		grid.repartition(*(mySimu->spl()));
+		//Calcul des champs
+		MesChamps.calculChamps(grid,*(mySimu->spl()));
+		MesChamps.writeChamps(grid);
+		//Clear grille:
+		grid.writeGrid("grid_size.txt");
+		grid.clearPoints();
 	}
 
-	if(calcProfilVitesse) {
-		cout<<".Calcul profil moyen de vitesse - Bins : "<<NbinsV<<endl;
-		profilMoyenVitesse(NbinsV);
-	}
-
+	delete mySimu ;
 
 	return 0;
 }

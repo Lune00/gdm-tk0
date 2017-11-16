@@ -55,6 +55,7 @@ double GroupData::getParameter(string name, unsigned int g) const
     return 0.0;
   }
 
+  //cout<<"Groupe du body : "<<g<<" Ngrp_ : "<<ngrp_<<endl;
   // Retrieve the value
   if (g < ngrp_)
   {
@@ -164,11 +165,15 @@ void GroupData::read(istream & is)
 
     is >> token;
   }
+
+
+  cout<<"Fin de lecture de GroupData dans Simu.sim"<<endl;
+  cout<<"Nombre de groupes : "<<ngrp_<<endl;
 }
 //Lecture a partir de group.ini s'il existe
 void GroupData::read(const char * fname)
 {
-  cerr<<"On est dans GroupData::read(const char*)"<<endl;
+  cerr<<"GroupData::read a partir du fichier :"<<fname<<endl;
   ifstream datafile(fname);
   if(!datafile)
   {
@@ -202,7 +207,7 @@ void GroupData::read(const char * fname)
 	  string parName;
 	  double value;
 	  datafile >> parName >> value;
-	  cerr<<"setall : "<<parName<<" "<<ngrp_<<endl;
+	  cerr<<"setall "<<parName<<" to "<<ngrp_<<" groups, value = "<<value<<endl;
 	  for (unsigned int g=0;g<ngrp_;++g)
 	  {
 	    setParameter(parName,g,value);

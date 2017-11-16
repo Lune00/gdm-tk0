@@ -179,13 +179,13 @@ void history_write(unsigned int number, Sample& spl, Network& nwk, GroupRelation
   if(TwoFiles || !saveNetwork)
   {
       system("mkdir -p spl");
-      sprintf(name,"spl/spl_%04d.his",number);
+      sprintf(name,"spl/spl_%05d.his",number);
   }
     
   else
   {
       system("mkdir -p spl_nwk");
-      sprintf(name,"spl_nwk/spl_nwk_%04d.his",number);
+      sprintf(name,"spl_nwk/spl_nwk_%05d.his",number);
   
   }
     

@@ -108,6 +108,7 @@ void Simulation::read_data(const char* name)
 	else if (token == "nHist")          datafile >> nHist_;
 	else if (token == "nAnalyse")       datafile >> nAnalyse_;
 	else if (token == "nstartAnalyse")       datafile >> nstartAna_;
+	else if (token == "nprintMetrics")       datafile >> nprintMetrics_;
 	else if (token == "historyNetwork") historyNetwork_ = true;
 	else if (token == "numFileHist")    datafile >> numFileHist_;
 	else if (token == "twoFilesHist")   twoFilesHist_ = true;
@@ -326,6 +327,10 @@ void Simulation::run()
     {
       sys_->perturbation();
     }
+    if(ns_ == nprintMetrics_)
+    {
+	    sys_->printMetrics();
+    }
 
   }
   cerr<<"La simulation est terminee."<<endl;
@@ -360,7 +365,7 @@ void Simulation::load_history(const char * fname )
 
   this->nwk()->associate(*this->spl());
   //cout<<"taille bande spl = "<<this->spl()->leftband().size()<<endl;
-  cout<<"taille nwk = "<<this->nwk()->linter().size()<<endl;
+  //cout<<"taille nwk = "<<this->nwk()->linter().size()<<endl;
   // Compute the data that have not been saved
   for (unsigned int k=0 ; k < this->nwk()->linter().size() ; ++k)
   {	

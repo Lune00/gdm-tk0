@@ -1,0 +1,30 @@
+%Trace une fleche
+/arrowdict 14 dict def arrowdict begin
+/mtrx matrix def end
+/arrow
+{ arrowdict begin
+	/headlength exch def /halfheadthickness exch 2 div def /halfthickness exch 2 div def
+	/tipy exch def /tipx exch def
+	/taily exch def /tailx exch def
+	/dx tipx tailx sub def
+	/dy tipy taily sub def
+	/arrowlength dx dx mul dy dy mul add
+	sqrt def
+	/angle dy dx atan def
+	/base arrowlength headlength sub def
+	/savematrix mtrx currentmatrix def
+	tailx taily translate angle rotate
+	0 halfthickness neg moveto
+	base halfthickness neg lineto base halfheadthickness neg lineto arrowlength 0 lineto
+	base halfheadthickness lineto base halfthickness lineto
+	0 halfthickness lineto
+	closepath
+	savematrix setmatrix end
+} def
+%Prend 7 arguments: x y (queue) x y (tete) epaisseurQueue epaisseurBaseFleche LongueurTete
+
+newpath
+200 200 250 250 10 2 60 arrow
+%0.65 setgray
+1 0 1 setrgbcolor
+fill

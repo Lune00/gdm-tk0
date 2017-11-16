@@ -1,12 +1,8 @@
 #include "shearP_CD_A.hpp"
-
 void shearP_CD_A::plugRef()
 {
 	partref=sys_->spl()->body(partrefId);
-
 }
-
-
 
 void shearP_CD_A::read_parameters(istream & is)
 {
@@ -30,7 +26,13 @@ void shearP_CD_A::read_parameters(istream & is)
 		else if(token== "Sample") displaySample=true;
 		else if(token== "Force") displayForce=true;
 		else if(token== "Solidfraction") calcsf=true;
+		else if(token== "AngleAtWall") calcAngleAtWall_=true;
+		else if(token== "extractFN") extractFN_=true;
+		else if(token== "Twall") calcTwall_=true;
+		else if(token== "gnuplot") sortiegnuplot_=true;
 		else if(token== "Fabric") calcFabric=true;
+		else if(token== "EnergieMode") calcEnergieMode_=true;
+		else if(token== "Angles") calcangles=true;
 		else if(token== "Fractal") calcfracdim=true;
 		else if(token== "Granulo") granulo=true;
 		else if(token== "Inout")
@@ -74,6 +76,16 @@ void shearP_CD_A::read_parameters(istream & is)
 			else
 			{
 				cout<<" @shearP_CD_A :Forcesanisotropy : missing plot command : "<<endl;
+			}
+		}
+		else if(token=="StressProfileX")
+		{
+			calcStress_profileX=true;
+			is >> Nprb_stressX;
+			if( Nprb_stressX == 0 )
+			{
+				cout<<" @ shearP_CD_A: Nprb_ undefined for StressProfile option"<<endl;
+				exit(0);
 			}
 		}
 		else if(token== "FCA")
@@ -251,6 +263,18 @@ void shearP_CD_A::read_parameters(istream & is)
 				exit(0);
 			}
 		} 
+
+		else if(token=="RotKeProfile") 
+		{
+			calcRotKeProfile_=true;
+			is >> Nprb_Rot;
+			if ( Nprb_Rot == 0 )
+			{
+				cout<<" @ shearP_CD_A : Nprb_Rot undefined "<<endl;
+				exit(0);
+			}
+		} 
+		
 		else if(token=="Zprofile") 
 		{
 			calcZprofile=true;
@@ -261,6 +285,17 @@ void shearP_CD_A::read_parameters(istream & is)
 				exit(0);
 			}
 		} 
+		else if(token=="TempProfile") 
+		{
+			calcTempprofile=true;
+			is >> NbinTemp_;
+			if ( NbinTemp_ <= 0 )
+			{
+				cout<<" @ shearP_CD_A : Nprb_ undefined "<<endl;
+				exit(0);
+			}
+		} 
+
 		else if(token=="SFprofile") 
 		{
 			calcSFprofile=true;
@@ -271,6 +306,17 @@ void shearP_CD_A::read_parameters(istream & is)
 				exit(0);
 			}
 		} 
+
+		else if(token=="StressProfile")
+		{
+			calcStress_profile=true;
+			is >> Nprb_;
+			if( Nprb_ == 0 )
+			{
+				cout<<" @ shearP_CD_A: Nprb_ undefined for StressProfile option"<<endl;
+				exit(0);
+			}
+		}
 
 		else if(token=="Globalstress") calcglobalstress=true;
 		else if(token=="PartialLengthStress")
@@ -370,9 +416,12 @@ void shearP_CD_A::initAnalyse( )
 
 
 	totalProbe_.width() = sys_->spl()->boundWidth();
-	totalProbe_.h1()= (sys_->ldof(0)->lowerBody())->ymin()+sys_->spl()->rmax();//sys_->spl()->body(0)->y()+sys_->spl()->rmax();
-	totalProbe_.h2()= (sys_->ldof(1)->lowerBody())->ymin()-sys_->spl()->rmax();//-sys_->spl()->rmax();
+	//totalProbe_.h1()= (sys_->ldof(0)->lowerBody())->ymin()+ys_->spl()->rmax();//sys_->spl()->body(0)->y()+sys_->spl()->rmax();
+	totalProbe_.h1()= (sys_->ldof(0)->lowerBody())->ymin();//sys_->spl()->body(0)->y()+sys_->spl()->rmax();
+	//totalProbe_.h2()= (sys_->ldof(1)->lowerBody())->ymin()-sys_->spl()->rmax();//-sys_->spl()->rmax();
+	totalProbe_.h2()= (sys_->ldof(1)->lowerBody())->ymin();//-sys_->spl()->rmax();
 
+	cout<<"h2="<<totalProbe_.h2()<<" h1="<<totalProbe_.h1()<<endl;
 
 	//Rectangular probe:
 
@@ -394,23 +443,57 @@ void shearP_CD_A::initAnalyse( )
 	p_ymax=totalProbe_R.y()+totalProbe_R.hh();
 	rmax=sys_->spl()->rmax();
 	//Ecriture des dimensions de la probe:
-
-	cout<<"Probe position :"<<totalProbe_R.x()<<" "<<totalProbe_R.y()<<endl;
 	cout<<string(100,'*')<<endl;
 
 	Vinit_=totalProbe_.area();
 
 	system("mkdir -p Analyse");
 	system("mkdir -p Analyse/Anisotropies");
+
 	ofstream printSys("Analyse/system.txt",ios::out);
 
 	ofstream strain("Analyse/strain.txt",ios::out);
 	strain.close();	
 
+	ofstream particles("Analyse/particleswall.txt",ios::out);
+	particles.close();
+
+	ofstream glissant("Analyse/glissement.txt",ios::out);
+	glissant.close();
+	
+	ofstream printglissant("Analyse/contactglissant.txt",ios::out);
+	printglissant.close();
+	if(sortiegnuplot_)
+	{
+		system("mkdir -p Analyse/gnuplot");
+	}
+
+	if(calcTwall_)
+	{
+		ofstream EM("Analyse/Twall.txt",ios::out);
+		EM.close();
+		char filename[100];
+		for(unsigned int i = 1 ; i < 10 ; i++)
+		{
+			sprintf(filename,"Analyse/Zwall/Zwallr%02d.txt",i);
+			ofstream out(filename,ios::out);
+			out.close();
+		}
+	}
+	if(calcAngleAtWall_)
+	{
+		ofstream aaw("Analyse/angleswall.txt",ios::out);
+		aaw.close();
+	}
 	if(calcinout)
 	{
 		ofstream inout("Analyse/inout_time.txt",ios::out);
 		inout.close();
+	}
+	if(extractFN_)
+	{
+		ofstream exFN("Analyse/fn.txt",ios::out);
+		exFN.close();
 	}
 
 	if ( calcforcesA ) 
@@ -420,6 +503,20 @@ void shearP_CD_A::initAnalyse( )
 		FA_out.close();
 		ofstream DPM_out("Analyse/Anisotropies/F_DPM.txt",ios::out); FA_out.close();
 		// ofstream FA_out("FA.txt",ios::out); FA_out.close();
+	}
+	if(calcStress_profileX)
+	{
+		system ("mkdir -p Analyse/ProfilX");
+
+		ofstream XXSS_out("Analyse/ProfileX.txt",ios::out); XXSS_out.close();
+
+		char tprofil[100];
+		for (unsigned int i = 0; i < Nprb_stressX; i++) {
+
+			sprintf(tprofil,"Analyse/ProfilX/Profilx%05d.txt",i);
+			ofstream tprofilO(tprofil,ios::out);
+			tprofilO.close();
+		}
 	}
 	if ( calcforcesAC ) 
 	{
@@ -454,11 +551,47 @@ void shearP_CD_A::initAnalyse( )
 	{
 		ofstream XZ_out("Analyse/ZProfile.txt",ios::out); XZ_out.close();
 		// ofstream FA_out("FA.txt",ios::out); FA_out.close();
+		system ( "mkdir -p Analyse/Zbins");
+		char spbins[50] ;
+
+		for ( int i=0;i<NbinTemp_;++i)
+		{
+			sprintf(spbins,"Analyse/Zbins/Zbin_%05d.his",i);
+			ofstream sb(spbins, ios::out);
+			sb.close();
+		}
+	}
+	if (calcTempprofile)
+	{
+		ofstream TPROFILE("Analyse/TempProfile.txt",ios::out);
+		ofstream AVT("Analyse/Temperature.txt",ios::out);
+		TPROFILE.close();
+		AVT.close();
+		system ( "mkdir -p Analyse/Tempbins");
+		char spbins[50] ;
+
+		for ( int i=0;i<NbinTemp_;++i)
+		{
+			sprintf(spbins,"Analyse/Tempbins/Tbin_%05d.his",i);
+			ofstream sb(spbins, ios::out);
+			sb.close();
+		}
 	}
 	if ( calcSprofile ) 
 	{
 		ofstream XS_out("Analyse/SProfile.txt",ios::out); XS_out.close();
 		// ofstream FA_out("FA.txt",ios::out); FA_out.close();
+		system ( "mkdir -p Analyse/Spbins");
+		char spbins[50] ;
+
+		for ( int i=0;i<Nprb_;++i)
+		{
+			sprintf(spbins,"Analyse/Spbins/Sbin_%05d.his",i);
+			ofstream sb(spbins, ios::out);
+			sb.close();
+		}
+		ofstream ShearProfile ( "Analyse/ShearProfile.txt" , ios::out);
+		ShearProfile.close();
 	}
 
 	if(calcFabric)
@@ -470,7 +603,6 @@ void shearP_CD_A::initAnalyse( )
 	if (calcz)
 	{
 		system("mkdir -p Analyse/Connect");
-		//	ofstream FA_out("Connect/Zp.txt",ios::out); FA_out.close();
 		if (calczp) {ofstream zp_out("Analyse/Connect/Zpt.txt",ios::out); zp_out.close();}
 		ofstream scalZ_out("Analyse/Connect/scalarZ.txt",ios::out); scalZ_out.close();
 		if( granulo )
@@ -495,7 +627,16 @@ void shearP_CD_A::initAnalyse( )
 	if( calcsf )
 	{
 
-	  ofstream SF_("Analyse/sf.txt",ios::out);
+		ofstream SF_("Analyse/sf.txt",ios::out);
+	}
+	if( calcangles)
+	{
+		ofstream o_angles("Analyse/deltatheta.txt",ios::out);
+		ofstream anglebulk("Analyse/deltabulk.txt",ios::out);
+		ofstream angleparoi("Analyse/deltaparoi.txt",ios::out);
+		o_angles.close();
+		anglebulk.close();
+		angleparoi.close();
 	}
 
 	//cout<<"h1= "<<totalProbe_.h1()<<" h2 = "<<totalProbe_.h2()<<endl;
@@ -507,6 +648,26 @@ void shearP_CD_A::initAnalyse( )
 		system("mkdir -p Analyse/PS1");
 	}
 
+	if (calcStress_profile)
+	{
+		ofstream XSS_out("Analyse/StressProfile.txt",ios::out); XSS_out.close();
+
+	}
+
+	if(calcRotKeProfile_)
+	{
+		ofstream ROT("Analyse/RotKeProfile.txt",ios::out); ROT.close() ;
+		system ( "mkdir -p Analyse/RotKebins");
+		char spbins[50] ;
+
+		for ( int i=0;i<Nprb_Rot;++i)
+		{
+			sprintf(spbins,"Analyse/RotKebins/RotKe%05d.txt",i);
+			ofstream sb(spbins, ios::out);
+			sb.close();
+		}
+	}
+
 }
 
 void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
@@ -514,14 +675,26 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	cout<<"------oooo><ooo-----shearP_CD_A::analyze() t= "<<t<<" ---------"<<endl;
 
 	char fname[100];
+	//char fnamev[100];
+	//char fnamedv[100];
 
 	time=t;
 
 	printSystem();
 	followparticles();
-	cout<<"Zp"<<endl;
+	GlissementParoi();
+	Glissement();
+	if(sortiegnuplot_) gnuplot();
 	//computeZparticules();
+	if(calcTwall_) Twall();
+	if(calcRotKeProfile_) RotationalKineticEnergyProfile();
+	if(calcAngleAtWall_) angleAtWall();
+	if(calcStress_profile) Stress_profile();
+	if(calcStress_profileX) Stress_profileX();
+	if(extractFN_) extractFN();
+	if(calcangles) averageangle();
 	if(calcZprofile) profilZ();
+	if(calcTempprofile) ProfilTemp();
 	if (calcz)  Z(calczp,Nbingranulo,granulo);
 	if (calcPtheta) Ptheta( NbinPT, mobperiod, mobwidth);
 
@@ -553,8 +726,14 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 
 	if (displaySample || displayForce)
 	{
+		//system("mkdir -p Analyse/PS2");
+		//system("mkdir -p Analyse/PS3");
 		sprintf(fname,"Analyse/PS1/particles%.4i.ps",Nanalyze());
+		//sprintf(fnamev,"Analyse/PS2/particlesv%.4i.ps",Nanalyze());
+		//sprintf(fnamedv,"Analyse/PS3/particlesdv%.4i.ps",Nanalyze());
 		writePS2(fname);
+		//writePS3(fnamev);
+		//writePS4(fnamedv);
 	}
 
 	cout<<"		Nombre de contacts = "<<sys_->nwk()->linter().size()<<endl;
@@ -841,6 +1020,51 @@ void shearP_CD_A::SF()
 	sf_.close();
 }
 
+
+void shearP_CD_A::RotationalKineticEnergyProfile()
+{
+	unsigned int Nprobe = Nprb_Rot;
+
+	double ampProbe=( totalProbe_.h2() - totalProbe_.h1() ) / (double) (Nprobe);
+
+	vector < heightProbe *> lprobe(Nprobe);
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		lprobe[i]=new heightProbe( totalProbe_.h1() + (double) (i) * ampProbe,
+				totalProbe_.h1() + (double) (i+1) * ampProbe);
+	}
+
+	vector <double> RotKe(Nprobe,0.);
+
+	RotKeProfile( lprobe  , RotKe , *sys_->spl() );
+
+	ofstream RotProfile ( "Analyse/RotKeProfile.txt" , ios::out|ios::app );
+	if ( ! RotProfile ) cout<<"erreur creation de RotProfile"<<endl;
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		RotProfile<<time<<" "<<lprobe[i]->halfHeight()<<" "<<RotKe[i]<<endl;
+	}
+
+	//On sort un fichier pour chaque bins de suivi de vmoyen
+	system ( "mkdir -p Analyse/RotKebins");
+	// ofstream middle("Analyse/Spbins/SpeedMiddle.txt", ios::out|ios::app);
+
+	char spbins[50] ;
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		sprintf(spbins,"Analyse/RotKebins/RotKebins%05d.txt",i);
+		ofstream sb(spbins, ios::app);
+		sb<<time<<" "<<lprobe[i]->halfHeight()<<" "<<RotKe[i]<<endl;
+		sb.close();
+	}
+
+	RotProfile.close();
+
+}
+
 void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 {
 	unsigned int Nprobe = Nprb_;//floor( .5*( totalProbe_.h2() - totalProbe_.h1() ) / sys_->spl()->rmax() );
@@ -851,6 +1075,7 @@ void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 
 
 	vector < heightProbe *> lprobe(Nprobe);
+	calcShearRate_ = true ;
 
 
 	for ( unsigned int i=0;i<Nprobe;++i)
@@ -883,9 +1108,11 @@ void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 		cout<<".Speed Profile "<<endl;
 		vector <double> XS(Nprobe,0.);
 		vector <double> YS(Nprobe,0.);
+		//On prend derivee centree donc on elimine les deux bords
+		vector <double> ShearRate(Nprobe,0.);
 		//cout<<" taille lpr "<<lprobe.size()<<" taille XS "<<XS.size()<<endl;
 
-		speedProfile( lprobe  , XS , YS , *sys_->spl()  );
+		speedProfile( lprobe  , XS , YS , *sys_->spl(), ShearRate, calcShearRate_  );
 
 
 		ofstream Sprofile ( "Analyse/SProfile.txt" , ios::out|ios::app );
@@ -895,6 +1122,9 @@ void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 		ofstream Sinst ( "Analyse/SPinst.txt" , ios::out );
 		if ( ! Sprofile ) cout<<"erreur creation de SPint"<<endl;
 
+		ofstream ShearProfile ( "Analyse/ShearProfile.txt" , ios::out|ios::app );
+		if ( ! ShearProfile ) cout<<"erreur creation de ShearProfile"<<endl;
+
 
 		for ( unsigned int i=0;i<Nprobe;++i)
 		{
@@ -902,10 +1132,42 @@ void shearP_CD_A::profiles(bool Speed, bool Solfrac)
 			Sinst<<time<<" "<<lprobe[i]->halfHeight()<<" "<<XS[i]<<" "<<YS[i]<<endl;
 		}
 
+		for ( unsigned int i=0;i<Nprobe;++i)
+		{
+
+			ShearProfile<<time<<" "<<lprobe[i]->halfHeight()<<" "<<ShearRate[i]<<endl;
+		}
+		//On sort un fichier pour chaque bins de suivi de vmoyen
+		system ( "mkdir -p Analyse/Spbins");
+		system ( "mkdir -p Analyse/Shearbins");
+		// ofstream middle("Analyse/Spbins/SpeedMiddle.txt", ios::out|ios::app);
+
+		char spbins[50] ;
+		char shearbins[50] ;
+
+		for ( unsigned int i=0;i<Nprobe;++i)
+		{
+			sprintf(spbins,"Analyse/Spbins/Sbin_%05d.his",i);
+			sprintf(shearbins,"Analyse/Shearbins/Shearbin_%05d.his",i);
+			ofstream sb(spbins, ios::out|ios::app);
+			ofstream shb(shearbins, ios::out|ios::app);
+			sb<<time<<" "<<lprobe[i]->halfHeight()<<" "<<XS[i]<<" "<<YS[i]<<endl;
+			shb<<time<<" "<<lprobe[i]->halfHeight()<<" "<<ShearRate[i]<<endl;
+			sb.close();
+			shb.close();
+		}
+
 		Sprofile.close();
 		Sinst.close();
 
 	}
+
+	for (std::vector< heightProbe * >::iterator it = lprobe.begin() ; it != lprobe.end(); ++it)
+	{
+		delete (*it);
+	}
+
+	lprobe.clear();
 }
 
 
@@ -1447,7 +1709,7 @@ void shearP_CD_A::forces_AC(int Nbin ,bool plot)
 //Rajouter calcul tenseur de contraintes avec les composantes propres de l'Žcoulement (xy,yy)
 void shearP_CD_A::globalStress()
 {
-	cout<<"	Globalstress : ";
+	cout<<"Globalstress : ";
 	gdm::Tensor2x2 * S = StressInProbe(totalProbe_, *(sys_)->spl(),*(sys_)->nwk());
 
 	if (S != NULL ) 
@@ -1464,7 +1726,8 @@ void shearP_CD_A::globalStress()
 		ds_=S->majorDirection();
 		cout<<" direction = "<<ds_/M_PI*180.<<" q/p = "<<qop_;
 		ofstream GS_out("Analyse/stress.txt",ios::app);
-		GS_out<<time<<" "<<max(s1,s2)<<" "<<min(s1,s2)<<" "<<pressure_<<" "<<q_<<" "<<qop_<<" "<<ds_<<endl;
+		double mu = -( S->xy() / S->yy());
+		GS_out<<time<<" "<<max(s1,s2)<<" "<<min(s1,s2)<<" "<<pressure_<<" "<<q_<<" "<<qop_<<" "<<ds_<<" "<<S->xy()<<" "<<S->yy()<<" "<<mu<<endl;
 		GS_out.close();
 
 	}
@@ -3076,7 +3339,13 @@ void shearP_CD_A::printSystem()
 
 	double epaisseur = sys_->ldof(1)->lowerBody()->y() - sys_->ldof(0)->lowerBody()->y();
 
-	printSys<<time<<" "<<epsxy_<<" "<<vx_wall_sup/epaisseur<<" "<<epaisseur<<" "<< vx_wall_sup<<" "<<" "<<vx_wall_inf<<" "<<vy_wall_sup<<endl;
+	double ymin = sys_->ldof(0)->lowerBody()->y();
+	double ymax = sys_->ldof(1)->lowerBody()->y();
+	double yminProbe = totalProbe_.h1();
+	double ymaxProbe = totalProbe_.h2();
+
+	printSys<<time<<" "<<epsxy_<<" "<<vx_wall_sup/epaisseur<<" "<<epaisseur<<" "<< vx_wall_sup<<" "<<vx_wall_inf<<" "<<vy_wall_sup<<" "<<ymin<<" "<<ymax<<
+		" "<<yminProbe<<" "<<ymaxProbe<<endl;
 	printSys.close();
 }
 
@@ -3116,7 +3385,6 @@ void shearP_CD_A::computeZparticules()
 
 void shearP_CD_A::profilZ()
 {
-
 	cout<<".Connectivity Profile"<<endl;
 	unsigned int Nprobe = NbinZ_;
 	double ampProbe=( totalProbe_.h2() - totalProbe_.h1() ) / (double) (Nprobe);
@@ -3143,6 +3411,363 @@ void shearP_CD_A::profilZ()
 
 	Zprofile.close();
 	Zinst.close();
+	char spbins[50] ;
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		sprintf(spbins,"Analyse/Zbins/Zbin_%05d.his",i);
+		ofstream sb(spbins, ios::out|ios::app);
+		sb<<time<<" "<<lprobe[i]->halfHeight()<<" "<<Zy[i]<<" "<<endl;
+		sb.close();
+	}
+
+}
+
+//Vitesse vectors
+//Il ne vaut mieux pas normaliser la longeur des flesches, mauvaise lecture !
+//Borner leurs tailles entre 0 et 2Rmax
+void shearP_CD_A::writePS3( const char * fname)
+{
+
+	ofstream ps(fname);
+	sys_->spl()->updateBands();
+	sys_->spl()->radiusExtrema(1);
+	//Limits and scale factors :
+	double R = sys_->spl()->rmax();
+
+	double Xmin = sys_->spl()->xmin() + R;
+	double Ymin = sys_->spl()->ymin() + R;
+
+	double xmin_ = sys_->spl()->xmin() - 2.*R;
+	double ymin_ = (sys_->ldof(0)->lowerBody())->ymin()- 2.*R;
+	double xmax_ = sys_->spl()->xmax() + 2.*R;
+	double ymax_ = (sys_->ldof(1)->lowerBody())->ymin() + 2.*R; // dilatancy
+
+	cout<<"WRITEPS3 - bounds"<<endl;
+	cout<<ymax_<<" "<<ymin_<<endl;
+
+	double zoom = zoom_;
+	double x_offset = fabs(Xmin*zoom);
+	double y_offset = fabs(Ymin*zoom);
+	double v = fabs(sys_->ldof(0)->lowerBody()->vx()) ;
+	if( fabs(v) < 1e-6 ) v = 1. ;
+
+	//!------ Header for ps file	
+	ps<<"%!PS-Adobe-3.0 EPSF-3.0"<<endl;
+	//ps<<"%%BoundingBox:"<<" "<<"-30 -20 515 550"<<endl;
+	ps<<"%%BoundingBox:"<<" "<<x_offset + (xmin_ - sys_->spl()->bandWidth())*zoom<<" "<<y_offset + (ymin_ - sys_->spl()->bandWidth())*zoom<<" "
+		<<x_offset + (xmax_ + sys_->spl()->bandWidth())*zoom<<" "<<y_offset + (ymax_ )*zoom<<endl;
+	ps<<"%%Pages: 1"<<endl;
+	ps<<"0.1 setlinewidth 0. setgray "<<endl;
+	ps <<"0. 0. .23 setrgbcolor clippath fill"<<endl;
+	//ps << "/colordisk {0.3 0.8 1.0} def"<< endl;
+	ps << "/colordisk {0.3 0.7 1.0} def"<< endl;
+	ps << "/colordot {0. 0. 0.} def" <<endl;
+	ps << "/colorwall {1. 1. 1.} def" <<endl;
+
+	ps<< "/arrowdict 14 dict def arrowdict begin"<<endl;
+	ps<< "/mtrx matrix def end"<<endl;
+	ps<< "/arrow"<<endl;
+	ps<< "{ arrowdict begin"<<endl;
+	ps<< "	/headlength exch def /halfheadthickness exch 2 div def /halfthickness exch 2 div def"<<endl;
+	ps<< "	/tipy exch def /tipx exch def"<<endl;
+	ps<< "	/taily exch def /tailx exch def"<<endl;
+	ps<< "	/dx tipx tailx sub def"<<endl;
+	ps<< "	/dy tipy taily sub def"<<endl;
+	ps<< "	/arrowlength dx dx mul dy dy mul add"<<endl;
+	ps<< "	sqrt def"<<endl;
+	ps<< "	/angle dy dx atan def"<<endl;
+	ps<< "	/base arrowlength headlength sub def"<<endl;
+	ps<< "	/savematrix mtrx currentmatrix def"<<endl;
+	ps<< "	tailx taily translate angle rotate"<<endl;
+	ps<< "	0 halfthickness neg moveto"<<endl;
+	ps<< "	base halfthickness neg lineto base halfheadthickness neg lineto arrowlength 0 lineto"<<endl;
+	ps<< "	base halfheadthickness lineto base halfthickness lineto"<<endl;
+	ps<< "	0 halfthickness lineto"<<endl;
+	ps<< "	closepath"<<endl;
+	ps<< "	savematrix setmatrix end"<<endl;
+	ps<< "} def"<<endl;
+
+	//example
+	//newpath
+	//10 10 20 20 2 3 3 arrow
+	//fill
+	unsigned int N = sys_->spl()->lbody().size();
+
+	for(unsigned i=0 ; i< N ; ++i)
+	{
+		double x = x_offset + sys_->spl()->body(i)->x() * zoom;
+		double y = y_offset + sys_->spl()->body(i)->y() * zoom;
+		double r = sys_->spl()->body(i)->sizeVerlet() * zoom;
+		//double theta = sys_->spl()->body(i)->rot(); 
+		//double xrcostheta = x + r * cos(theta) * 0.8; 
+		//double yrcostheta = y + r * sin(theta) * 0.8; 
+
+		//double xrcosthetaO = x + r * cos(theta+180); 
+		//double yrcosthetaO = y + r * sin(theta+180); 
+
+
+		if(sys_->spl()->body(i)->bodyDof()==NULL){
+			ps <<"newpath "<<endl ;
+			ps <<x<<" "<<y<<" "<<r<<" colordisk setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore "<<endl; 
+			ps <<"stroke"<<endl;
+		}
+		else
+		{
+			ps <<"newpath "<<endl ;
+			ps <<x<<" "<<y<<" "<<r<<" colorwall setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore "<<endl; 
+			ps <<"stroke"<<endl;
+		}
+		//Draw vectors:
+
+
+	}
+	//Vectors:
+	for(unsigned i=0 ; i< N ; ++i)
+	{
+		if(sys_->spl()->body(i)->bodyDof()==NULL){
+
+			double x = x_offset + sys_->spl()->body(i)->x() * zoom;
+			double y = y_offset + sys_->spl()->body(i)->y() * zoom;
+			double vx = sys_->spl()->body(i)->vx() ; 
+			double vy = sys_->spl()->body(i)->vy() ; 
+			double vnorme = sqrt( vx * vx + vy * vy);
+			//cerr<<"vx="<<vx<<" v="<<v<<" --> vx/v="<<vx/v<<endl;
+
+			//On ramene entre 0 et v
+			vx /= v ;
+			vy /= v ;
+
+			double GREEN = (1 - fabs(vx));
+			double BLUE = (1-fabs(vx));
+			double RED = 1.;
+
+			vx *= zoom;
+			vy *= zoom;
+			//On recalcule la norme pour la tete de fleche:
+			vnorme = sqrt(vx * vx + vy * vy) ;
+			//trouver un scale avec le rayon des particules
+			int headsize = 0.2 * R ; //0.5 * vnorme ;
+			int tailthickness = 0.2 * R; //0.2 * vnorme ;
+			int headlength = 0.2 * R ; // 0.9 *  vnorme  ;
+
+			if( GREEN < 0. ) GREEN = 0.;
+			if(BLUE < 0. ) BLUE = 0. ;
+			vx *= 3 ;
+			vy *= 3 ;
+
+			ps<<"/coul_v {1 setlinecap "<<RED<<" "<<BLUE<<" "<<GREEN<<" setrgbcolor} def"<<endl;
+			ps <<"newpath "<<x<<" "<<y<<" "<<x + vx<<" "<<y + vy<<" "<<tailthickness<<" "<<headsize<<" "<<headlength<<" arrow ";
+			ps <<"coul_v fill "<<endl;
+			//ps <<"0 0 0 setrgbcolor fill "<<endl;
+		}
+	}
+
+	//Periodique :
+	//Left-band
+
+	/*
+	for (unsigned int j=0 ; j<sys_->spl()->leftband().size() ; ++j)
+	{
+		ps	<<"newpath "<<x_offset + (sys_->spl()->body(sys_->spl()->leftband(j))->x() + sys_->spl()->boundWidth())*zoom<<" "
+			<<y_offset + sys_->spl()->body(sys_->spl()->leftband(j))->y()*zoom<<" "<<sys_->spl()->body(sys_->spl()->leftband(j))->sizeVerlet()*zoom<<" " 
+			<<"0.0 360.0 arc closepath 0.0 colorwall fill" << endl;
+	}
+	//Right-band
+	for (unsigned int j=0 ; j<sys_->spl()->rightband().size() ; ++j)
+	{
+		ps	<<"newpath "<<x_offset + (sys_->spl()->body(sys_->spl()->rightband(j))->x() - sys_->spl()->boundWidth())*zoom<<" "
+			<<y_offset + sys_->spl()->body(sys_->spl()->rightband(j))->y()*zoom<<" "<<sys_->spl()->body(sys_->spl()->rightband(j))->sizeVerlet()*zoom<<" " 
+			<<"0.0 360.0 arc closepath 0.0 colorwall stroke" << endl;
+	}
+	*/
+
+
+	ps.close();
+}
+
+//Vitesse fluctuante
+void shearP_CD_A::writePS4( const char * fname)
+{
+
+	ofstream ps(fname);
+	sys_->spl()->updateBands();
+	sys_->spl()->radiusExtrema(1);
+	//Limits and scale factors :
+	double R = sys_->spl()->rmax();
+
+	double Xmin = sys_->spl()->xmin() + R;
+	double Ymin = sys_->spl()->ymin() + R;
+
+	double xmin_ = sys_->spl()->xmin() - 2.*R;
+	double ymin_ = (sys_->ldof(0)->lowerBody())->ymin()- 2.*R;
+	double xmax_ = sys_->spl()->xmax() + 2.*R;
+	double ymax_ = (sys_->ldof(1)->lowerBody())->ymin() + 2.*R; // dilatancy
+
+	cout<<"WRITEPS4 - bounds"<<endl;
+	cout<<ymax_<<" "<<ymin_<<endl;
+
+	double zoom = zoom_;
+	double x_offset = fabs(Xmin*zoom);
+	double y_offset = fabs(Ymin*zoom);
+	double v = fabs(sys_->ldof(0)->lowerBody()->vx()) * zoom;
+
+	//!------ Header for ps file	
+	ps<<"%!PS-Adobe-3.0 EPSF-3.0"<<endl;
+	//ps<<"%%BoundingBox:"<<" "<<"-30 -20 515 550"<<endl;
+	ps<<"%%BoundingBox:"<<" "<<x_offset + (xmin_ - sys_->spl()->bandWidth())*zoom<<" "<<y_offset + (ymin_ - sys_->spl()->bandWidth())*zoom<<" "
+		<<x_offset + (xmax_ + sys_->spl()->bandWidth())*zoom<<" "<<y_offset + (ymax_ )*zoom<<endl;
+	ps<<"%%Pages: 1"<<endl;
+	ps<<"0.1 setlinewidth 0. setgray "<<endl;
+	ps <<"0. 0. .23 setrgbcolor clippath fill"<<endl;
+	//ps << "/colordisk {0.3 0.8 1.0} def"<< endl;
+	ps << "/colordisk {0.3 0.7 1.0} def"<< endl;
+	ps << "/colordot {0. 0. 0.} def" <<endl;
+	ps << "/colorwall {1. 1. 1.} def" <<endl;
+
+	ps<< "/arrowhead {% stack: s x1 y1, current point: x0 y0"<<endl;
+	ps<< "	gsave"<<endl;
+	ps<< "	currentpoint "<<endl;
+	ps<< "	4 2 roll exch "<<endl;
+	ps<< "	4 -1 roll exch "<<endl;
+	ps<< "	sub 3 1 roll "<<endl;
+	ps<< "	sub exch "<<endl;
+	ps<< "	atan rotate "<<endl;
+	ps<< "	dup scale "<<endl;
+	ps<< "	-7 2 rlineto 1 -2 rlineto -1 -2 rlineto"<<endl;
+	ps<< "	closepath fill "<<endl;
+	ps<< "	grestore "<<endl;
+	ps<< "	newpath "<<endl;
+	ps<< "	} def "<<endl;
+
+	unsigned int N = sys_->spl()->lbody().size();
+
+	//Calcul du profil de vitesse:
+	unsigned Nprobe = 50 ; // a passer en parametre plus tard
+
+	double ampProbe=( totalProbe_.h2() - totalProbe_.h1() ) / (double) (Nprobe);
+	vector < heightProbe *> lprobe(Nprobe);
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		lprobe[i]= new heightProbe( totalProbe_.h1() + (double) (i) * ampProbe,
+				totalProbe_.h1() + (double) (i+1) * ampProbe);
+	}
+
+	std::vector <double> XS(Nprobe,0.);
+	std::vector <double> YS(Nprobe,0.);
+	std::vector <double> ShearRate(Nprobe,0.);
+
+	speedProfile( lprobe  , XS , YS , *sys_->spl(), ShearRate, false  );
+
+	//On dessine les particules
+	for(unsigned i=0 ; i< N ; ++i)
+	{
+		double x = x_offset + sys_->spl()->body(i)->x() * zoom;
+		double y = y_offset + sys_->spl()->body(i)->y() * zoom;
+		double r = sys_->spl()->body(i)->sizeVerlet() * zoom;
+
+		if(sys_->spl()->body(i)->bodyDof()==NULL){
+			ps <<"newpath "<<endl ;
+			ps <<x<<" "<<y<<" "<<r<<" colordisk setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore "<<endl; 
+			ps <<"stroke"<<endl;
+		}
+		else
+		{
+			ps <<"newpath "<<endl ;
+			ps <<x<<" "<<y<<" "<<r<<" colorwall setrgbcolor 0.0 setlinewidth 0 360 arc gsave fill grestore "<<endl; 
+			ps <<"stroke"<<endl;
+		}
+	}
+
+	//On dessine les vecteurs
+	for(unsigned i=0 ; i< N ; ++i)
+	{
+
+		double x = x_offset + sys_->spl()->body(i)->x() * zoom;
+		double y = y_offset + sys_->spl()->body(i)->y() * zoom;
+		//	double vx = sys_->spl()->body(i)->vx() * zoom; 
+		//	double vy = sys_->spl()->body(i)->vy() * zoom; 
+		//	double vnorme = sqrt( vx * vx + vy * vy);
+		double r = sys_->spl()->body(i)->sizeVerlet() * zoom;
+
+		double Linewidth = 10. ;
+		//trouver un scale avec le rayon des particules
+		//le faire pour les fluctuations des vitesse
+		int headsize = 6 ;
+
+		double dvx, dvy ;
+
+		if(sys_->spl()->body(i)->bodyDof()==NULL){
+
+			unsigned int k = 0 ;
+
+			while ( k < Nprobe)
+			{
+				if ( lprobe[k]->containCenter(sys_->spl()->body(i)) )
+				{
+					//Si dans le premier bin ou dernier proche des parois on prend pas en compte
+
+					if(k != 0 || k != Nprobe)
+					{
+						dvx=sqrt( (sys_->spl()->body(i)->vx()-XS[k])*(sys_->spl()->body(i)->vx()-XS[k]) );
+						dvy=sqrt( (sys_->spl()->body(i)->vy()-YS[k])*(sys_->spl()->body(i)->vy()-YS[k]) );
+						dvx *= zoom ;
+						dvy *= zoom ;
+						//Ici on print le vecteur
+						double normdv = sqrt( dvx * dvx + dvy * dvy );
+						double normv = 2. * r / normdv;
+						cout<<"normdv = "<<normdv<<" v = "<<v<<"dv/v="<<normdv/v<<endl;
+
+						double corrx = dvx * normv * 0.1 ;
+						double corry = dvy * normv * 0.1 ;
+
+						ps<<"/coul_v {1 setlinecap 1 "<<1. - fabs(2. * normdv)/v<<" "<<1. -fabs(2. * normdv)/v<<" setrgbcolor} def"<<endl;
+						ps<<Linewidth<<" setlinewidth coul_v"<<endl;
+						ps <<"newpath "<<endl ;
+						ps <<x<<" "<<y<<" moveto "<<endl;
+						ps << x + dvx * normv<<" "<<y + dvy * normv<<" lineto stroke "<<endl;
+						ps <<"newpath "<<x + dvx * normv + corrx<<" "<<y + dvy * normv+ corry<<" moveto "<<headsize<<" "<<x <<" "<<y<<" arrowhead"<<endl;
+						ps<<"newpath"<<endl;
+					}
+
+
+					break;
+				}
+
+				else
+				{
+
+					k++;
+
+				}
+
+
+			}
+
+
+		}
+
+
+	}
+	//Vectors:
+	for(unsigned i=0 ; i< N ; ++i)
+	{
+
+		if(sys_->spl()->body(i)->bodyDof()==NULL){
+
+		}
+	}
+
+
+	ps.close();
+
+	for (std::vector< heightProbe * >::iterator it = lprobe.begin() ; it != lprobe.end(); ++it)
+	{
+		delete (*it);
+	}
+
+	lprobe.clear();
 }
 
 void shearP_CD_A::writePS2( const char * fname)
@@ -3161,9 +3786,12 @@ void shearP_CD_A::writePS2( const char * fname)
 	double Ymin = sys_->spl()->ymin() + R;
 
 	double xmin_ = sys_->spl()->xmin() - 2.*R;
-	double ymin_ = sys_->spl()->ymin() - 2.*R;
+	double ymin_ = (sys_->ldof(0)->lowerBody())->ymin()- 2.*R;
 	double xmax_ = sys_->spl()->xmax() + 2.*R;
-	double ymax_ = sys_->spl()->ymax() + 4.*R; // dilatancy
+	double ymax_ = (sys_->ldof(1)->lowerBody())->ymin() + 2.*R; // dilatancy
+
+	cout<<"WRITEPS2 - bounds"<<endl;
+	cout<<ymax_<<" "<<ymin_<<endl;
 
 	double zoom = zoom_;
 	double x_offset = fabs(Xmin*zoom);
@@ -3260,7 +3888,7 @@ void shearP_CD_A::writePS2( const char * fname)
 			double fnrescale = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn()-Fns.min())/(Fns.min()+Fns.max());
 
 			//double Linewidth = fnrescale * factorFn * R * zoom;
-			double Linewidth = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() / Fmean) * 0.04 * R * zoom;
+			double Linewidth = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() / Fmean) * 0.06 * R * zoom;
 			if ( (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() / Fmean) > FnOverMeanMax) FnOverMeanMax = (sys_->nwk()->inter(sys_->nwk()->clist(i))->fn() / Fmean);
 			//double logcolor = log (fnrescale * 9 + 1) * R * zoom; 
 			ps<<"/coul_force {1 setlinecap 1 "<<1. - fnrescale<<" "<<1. -fnrescale<<" setrgbcolor} def"<<endl;
@@ -3276,4 +3904,745 @@ void shearP_CD_A::writePS2( const char * fname)
 
 
 	ps.close();
+}
+
+
+void shearP_CD_A::extractFN(){
+
+	ofstream outputFN("Analyse/fn.txt",ios::app);	
+	for( unsigned int i=0;i< sys_->nwk()->linter().size();++i)
+	{
+		if( sys_->nwk()->inter(i)->fn() != 0.) 
+		{
+			//f.add(sys_->nwk()->inter(i)->fn());
+			outputFN<<sys_->nwk()->inter(i)->fn()<<endl;
+		}
+	}
+
+	outputFN.close();
+	//cout<<"Force appliquee : "<<sys_->topYvalue()<<endl;
+
+
+}
+
+
+
+
+
+
+void shearP_CD_A::averageangle()
+{
+	cout<<"**** Angle analysis "<<endl;
+
+	unsigned int Np = sys_->spl()->lbody().size(); //nb particules
+	unsigned int Nc = sys_->nwk()->clist().size(); //nb de contacts
+	vector < vector <double> > nxlist ;
+	vector < vector <double> > nylist ;
+	vector < vector <double> > anglelist ;
+	vector < double> avangleP(Np,0.) ;
+	vector<double> delta;
+	vector<double> deltaparoi;
+
+	double pi=4*atan(1.);
+
+	ofstream o_dtheta("Analyse/deltatheta.txt",ios::app);
+	//On init le vecteur
+	for (unsigned int i = 0 ; i<Np;i++)
+	{
+		nxlist.push_back(vector <double>());
+		nylist.push_back(vector <double>());
+		anglelist.push_back(vector <double>());
+	}
+
+	for ( unsigned int i = 0 ; i < Nc ; i++) {
+
+		unsigned int ni = sys_->nwk()->clist(i);
+
+		unsigned int id1 = sys_->nwk()->inter(ni)->first()->id();
+		unsigned int id2 = sys_->nwk()->inter(ni)->second()->id();
+
+		double nx = sys_->nwk()->inter(ni)->nx();
+		double ny = sys_->nwk()->inter(ni)->ny();
+
+		nxlist[id1].push_back(-nx);
+		nylist[id1].push_back(-ny);
+
+		nxlist[id2].push_back(nx);
+		nylist[id2].push_back(ny);
+
+	}
+
+
+	//On check que les angles soit bien pris en comtpe
+
+	char pangle[100];
+
+	system("mkdir -p testangle");
+
+	sprintf(pangle,"testangle/pangle%05d.his",10);
+	ofstream o_pangle(pangle,ios::out);
+
+	for (unsigned int i=0; i<Np; i++) {
+
+		unsigned int nc = nxlist[i].size();
+		for(unsigned int j=0;j<nc;j++ )
+		{
+			o_pangle<<sys_->spl()->body(i)->x()<<" "<<sys_->spl()->body(i)->y()<<" "<<sys_->spl()->body(i)->sizeVerlet()<<" "<<nxlist[i][j]<<" "<<nylist[i][j]<<endl;
+		}
+
+
+	}
+
+	o_pangle.close();
+
+	for (unsigned int i=0; i<Np; i++) {
+
+		unsigned int nc = nxlist[i].size();
+
+		if(sys_->spl()->body(i)->bodyDof()!=NULL && nc > 1) cout<<i<<" "<<nc<<endl;
+
+		if(nc>1) {
+
+			for(unsigned int j=0;j<nc;j++ )
+			{
+				double angle=atan2(nylist[i][j],nxlist[i][j]);
+				//Angles entre 0 et 2pi
+				if(angle<0) angle+=2*pi;
+				anglelist[i].push_back(angle);
+
+			}
+
+
+			std::sort(anglelist[i].begin(), anglelist[i].end());
+
+
+			//On parcourt chaque liste d'angle pour calculer l'angle moyen par particule et les ecarts entre deux angles successifs entre 0 et PI
+
+			double deltap=0.;
+			double deltamoyen;
+			double deltatheta;
+
+			for(unsigned int j=0;j<nc-1;j++ )
+			{
+				double nxi = nxlist[i][j];
+				double nyi = nylist[i][j];
+				double nxj = nxlist[i][j+1];
+				double nyj = nylist[i][j+1];
+				deltatheta = acos(nxi*nxj+nyi*nyj);
+				deltap+=anglelist[i][j+1]-anglelist[i][j];
+				//deltatheta=anglelist[i][j+1]-anglelist[i][j];
+				o_dtheta<<deltatheta<<endl;
+
+			}
+			deltamoyen=deltap/((double)nc-1);
+
+
+			//On cree une liste pour le bulk et une pour la paroi
+			if(sys_->spl()->body(i)->bodyDof()==NULL)
+			{
+				delta.push_back(deltamoyen);
+			}
+			else
+			{
+				deltaparoi.push_back(deltamoyen);
+			}
+
+			//Pour les profils
+			avangleP[i]=deltamoyen;
+
+		}
+
+		else
+		{
+			avangleP[i]=0.;
+			continue;
+
+		}
+
+	}
+
+	ofstream map_("mapangle.txt",ios::out);
+
+	for(unsigned int i=0;i<Np;i++ )
+	{
+		map_<<sys_->spl()->body(i)->x()<<" "<<sys_->spl()->body(i)->y()<<" "<<sys_->spl()->body(i)->sizeVerlet()<<" "<<avangleP[i]<<" "<<sys_->spl()->body(i)->z()<<endl;
+
+	}
+	map_.close();
+
+	cout<<"************* Ecriture delta *************"<<endl;
+
+	ofstream dataangle("Analyse/deltabulk.txt",ios::app);
+	ofstream deltaparoifile_("Analyse/deltaparoi.txt",ios::app);
+
+	unsigned int ndeltaparoi=deltaparoi.size();
+	unsigned int ndelta=delta.size();
+
+	for (unsigned k=0; k<ndelta; k++) {
+		dataangle<<k<<" "<<delta[k]<<endl;
+	}
+
+	for (unsigned k=0; k<ndeltaparoi; k++) {
+		deltaparoifile_<<k<<" "<<deltaparoi[k]<<endl;
+	}
+
+
+	dataangle.close();
+	deltaparoifile_.close();
+	o_dtheta.close();
+
+}
+
+void shearP_CD_A::Stress_profileX()
+{
+	cout<<"--> Profil x stress/texture "<<endl;
+	unsigned int Nprobe = Nprb_stressX;
+	double dy = 0.5 * ( totalProbe_.h2() - totalProbe_.h1() );
+	double ycenter = totalProbe_.h1()+ dy;
+
+	system ("mkdir -p ProfilX");
+
+	cout<<"h1="<<totalProbe_.h1()<<endl;
+	cout<<"h2="<<totalProbe_.h2()<<endl;
+	vector < rectangularProbe *> lprobe(Nprobe);
+	double L =  sys_->spl()->boundWidth() ;
+	double x0 = sys_->spl()->leftBoundary();
+	double ampx = L / (double) (Nprobe) ;
+
+	ofstream Probes ( "Analyse/Probes_x.txt" , ios::out );
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+
+		lprobe[i]= new rectangularProbe( x0 + i*ampx , ycenter , dy, ampx*0.5 );
+		Probes<<i<<" "<<lprobe[i]->x()<<" "<<lprobe[i]->y()<<" "<<lprobe[i]->hh()<<" "<<lprobe[i]->hl()<<endl;
+	}
+
+	Probes.close();
+
+	vector <double> Phi(Nprobe,0.);
+	vector <gdm::Tensor2x2*> Stress(Nprobe);
+	vector <gdm::Tensor2x2*> Texture(Nprobe);
+
+
+	cout<<" Nprobe = "<<lprobe.size()<<endl;
+	for (unsigned int i=0; i<Nprobe; ++i)
+	{
+		Stress[i]=StressInProbe(*lprobe[i], *(sys_)->spl(),*(sys_)->nwk()) ;
+		Texture[i]=FabricInProbe(*lprobe[i], *(sys_)->spl(),*(sys_)->nwk()) ;
+		Phi[i]=solidFraction(*lprobe[i],*sys_->spl(),*sys_->nwk());
+
+	}
+
+	ofstream ACprofile ( "Analyse/ProfileX.txt" , ios::app );
+	if ( ! ACprofile ) cout<<"erreur creation de StressProfileX.txt"<<endl;
+
+
+
+	char tprofil[100];
+
+	double majeure,majeurTex;
+	double ac,s1,s2,xx;
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+
+		if (Stress[i] != NULL)
+		{
+			majeure=Stress[i]->majorDirection();
+
+		}
+		else
+		{
+			cout<<"i="<<i<<"NULL"<<endl;
+			majeure=0.;
+		}
+
+
+		if(Texture[i] != NULL)
+
+		{
+			majeurTex=Texture[i]->majorDirection();
+			Texture[i]->eigenValues();
+			s1 = Texture[i]->l1();
+			s2 = Texture[i]->l2();
+			ac= 2.*(max(s1,s2) - min(s1,s2));
+			xx=Texture[i]->xx();
+		}
+
+		else
+		{
+			majeurTex=0.;
+			ac=0.;
+			xx=0.;
+		}
+
+
+		ACprofile<<time<<" "<<epsxy_<<" "<<lprobe[i]->x()<<" "<<lprobe[i]->y()<<" "<<lprobe[i]->hl()<<" "<<Stress[i]->xx()<<" "<<Stress[i]->xy()<<" " <<Stress[i]->yy()<<" "<<" "<<" "<<ac<<" "<<Phi[i]<<" "<<" "<<xx<<   endl;
+
+		sprintf(tprofil,"Analyse/ProfilX/ProfilX%05d.txt",i);
+		ofstream bintime(tprofil,ios::out|ios::app);
+		if ( ! bintime ) cout<<"erreur creation de ACPint"<<endl;
+
+
+		bintime<<time<<" "<<epsxy_<<" "<<lprobe[i]->x()<<" "<<lprobe[i]->y()<<" "<<lprobe[i]->hl()<<" "<<Stress[i]->xx()<<" "<<Stress[i]->xy()<<" " <<Stress[i]->yy()<< " "<<majeure<<" "<<majeurTex<<" "<<ac<<" "<<Phi[i]<<" "<< " "<<xx<<  endl;
+
+		bintime.close();
+	}
+
+	ACprofile.close();
+
+	//Cleaning pointers:
+
+	for (std::vector< rectangularProbe * >::iterator it = lprobe.begin() ; it != lprobe.end(); ++it)
+	{
+		delete (*it);
+	}
+
+	lprobe.clear();
+
+	for (std::vector< gdm::Tensor2x2* >::iterator it = Stress.begin() ; it != Stress.end(); ++it)
+	{
+		delete (*it);
+	}
+
+	Stress.clear();
+
+
+	for (std::vector< gdm::Tensor2x2* >::iterator it = Texture.begin() ; it != Texture.end(); ++it)
+	{
+		delete (*it);
+	}
+
+	Texture.clear();
+
+}
+
+void shearP_CD_A::Stress_profile()
+{
+	unsigned int Nprobe = Nprb_;
+	double ampProbe=( totalProbe_.h2() - totalProbe_.h1() ) / (double) (Nprobe);
+	cout<<" h2= "<<totalProbe_.h2()<<" "<<" h1= "<<totalProbe_.h1() <<endl;
+	vector < heightProbe *> lprobe(Nprobe);
+
+	ofstream Probes ( "Analyse/Probes.txt" , ios::out );
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+
+		lprobe[i]= new heightProbe( totalProbe_.h1() + (double) (i) * ampProbe, totalProbe_.h1() + (double) (i+1) * ampProbe,sys_->spl()->boundWidth() );
+
+
+		Probes<<i<<" "<<lprobe[i]->h1()<<" "<<lprobe[i]->h2()<<" "<<lprobe[i]->h2()-lprobe[i]->h1()<<endl;
+	}
+
+	Probes.close();
+
+	//Vecteur de tenseur de contrainte dans la hauteur (slices)
+	vector <gdm::Tensor2x2*> Stress(Nprobe);
+
+	cout<<".Profil Stress "<<endl;
+	cout<<".Nprobe = "<<lprobe.size()<<endl;
+
+	for (unsigned int i=0; i<Nprobe; ++i)
+	{
+
+		Stress[i]=StressInProbe(*lprobe[i], *(sys_)->spl(),*(sys_)->nwk()) ;
+	}
+
+	ofstream Stressprofile ( "Analyse/StressProfile.txt" , ios::out|ios::app );
+	if ( ! Stressprofile)  cout<<"erreur creation de Analyse/StressProfile.txt"<<endl;
+
+	double majeure;
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+
+		if (Stress[i] != NULL)
+		{
+			majeure=Stress[i]->majorDirection();
+
+		}
+		else
+		{
+			majeure=0.;
+		}
+
+		Stressprofile<<time<<" "<<lprobe[i]->halfHeight()<<" "<<Stress[i]->xx()<<" "<<Stress[i]->xy()<<" " <<Stress[i]->yy()<< " "<<majeure<<" "<<i<<endl;
+	}
+
+
+	char spbins[50] ;
+
+	system("mkdir -p Analyse/Stressbins");
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		sprintf(spbins,"Analyse/Stressbins/SbinStress_%05d.his",i);
+		ofstream sb(spbins, ios::out|ios::app);
+		sb<<epsxy_<<" "<<lprobe[i]->halfHeight()<<" "<<Stress[i]->xx()<<" "<<Stress[i]->xy()<<" "<<Stress[i]->yy()<<" "<<Stress[i]->majorDirection()<<endl;
+		sb.close();
+	}
+
+	Stressprofile.close();
+
+
+	for (std::vector< heightProbe * >::iterator it = lprobe.begin() ; it != lprobe.end(); ++it)
+	{
+		delete (*it);
+	}
+
+	lprobe.clear();
+
+	for (std::vector< gdm::Tensor2x2*>::iterator it = Stress.begin() ; it != Stress.end(); ++it)
+	{
+		delete (*it);
+	}
+
+	Stress.clear();
+}
+
+
+void shearP_CD_A::angleAtWall()
+{
+	cout<<"**** Angle at Walls analysis "<<endl;
+	unsigned int Nc = sys_->nwk()->clist().size(); //nb de contacts
+	double pi=4*atan(1.);
+	ofstream aaw("Analyse/angleswall.txt",ios::app);
+
+	for ( unsigned int i = 0 ; i < Nc ; i++) {
+
+		unsigned int ni = sys_->nwk()->clist(i);
+
+		unsigned int id1 = sys_->nwk()->inter(ni)->first()->id();
+		unsigned int id2 = sys_->nwk()->inter(ni)->second()->id();
+
+		//Si contact avec une paroi:
+		if(sys_->spl()->body(id1)->bodyDof()!=NULL || sys_->spl()->body(id2)->bodyDof()!=NULL )
+		{
+			double nx = sys_->nwk()->inter(ni)->nx();
+			double theta=acos(nx);
+			double fn = sys_->nwk()->inter(ni)->fn();
+
+			cout<<"Contact avec la paroi a un angle "<<theta*180./pi<<endl;
+			aaw<<theta<<" "<<fn<<" "<<theta * fn<<endl;
+		}
+
+	}
+	aaw.close();
+}
+
+void shearP_CD_A::ProfilTemp()
+{
+
+	unsigned int Nprobe = NbinTemp_;
+
+	double ampProbe=( totalProbe_.h2() - totalProbe_.h1() ) / (double) (Nprobe);
+	double AverageTemperature=0.;
+
+	vector < heightProbe *> lprobe(Nprobe);
+
+	ofstream Probes ( "Analyse/Probes.txt" , ios::out|ios::app );
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		lprobe[i]= new heightProbe( totalProbe_.h1() + (double) (i) * ampProbe, totalProbe_.h1() + (double) (i+1) * ampProbe);
+		Probes<<i<<" "<<lprobe[i]->h1()<<" "<<lprobe[i]->h2()<<" "<<lprobe[i]->h2()-lprobe[i]->h1()<<endl;
+	}
+
+	Probes.close();
+
+	std::vector <double> XS(Nprobe,0.);
+	std::vector <double> YS(Nprobe,0.);
+	std::vector <double> XYS(Nprobe,0.);
+
+	TemperatureProfile( lprobe  , XS , YS ,XYS, *sys_->spl(), sys_);
+
+	ofstream TempP_ ( "Analyse/TempProfile.txt" , ios::out|ios::app );
+	ofstream AvTemp ( "Analyse/Temperature.txt" , ios::out|ios::app );
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+
+		//On crŽe un tenseur ici
+
+		gdm::Tensor2x2 T(XS[i],XYS[i],XYS[i],YS[i]);
+
+		T.eigenValues();
+		double s1 = T.l1();
+		double s2 = T.l2();
+		double majeure=T.majorDirection();
+		double dev = 0.5*(max(s1,s2) - min(s1,s2));
+		double trace = 0.5*(max(s1,s2) + min(s1,s2));
+		AverageTemperature += trace;
+
+		TempP_<<time<<" "<<epsxy_<<" "<<i<<" "<<lprobe[i]->halfHeight()<<" "<<trace<<" "<<dev<<" "<<majeure<<" "<<XS[i]<<" "<<YS[i]<<endl;
+	}
+	AverageTemperature /= (double)Nprobe;
+	AvTemp<< time<<" "<<epsxy_<<" "<<AverageTemperature<<endl;
+	AvTemp.close();
+
+	TempP_.close();
+	char spbins[50] ;
+
+	for ( unsigned int i=0;i<Nprobe;++i)
+	{
+		gdm::Tensor2x2 T(XS[i],XYS[i],XYS[i],YS[i]);
+		T.eigenValues();
+		double s1 = T.l1();
+		double s2 = T.l2();
+		double trace = 0.5*(max(s1,s2) + min(s1,s2));
+		sprintf(spbins,"Analyse/Tempbins/Tbin_%05d.his",i);
+		ofstream sb(spbins, ios::out|ios::app);
+		sb<<time<<" "<<lprobe[i]->halfHeight()<<" "<<XS[i]<<" "<<YS[i]<<" "<<trace<<endl;
+		sb.close();
+	}
+
+
+	for (std::vector< heightProbe * >::iterator it = lprobe.begin() ; it != lprobe.end(); ++it)
+	{
+		delete (*it);
+	}
+
+	lprobe.clear();
+}
+
+
+
+//On y introduit aussi zwall
+void shearP_CD_A::Twall()
+{
+	cout<<".Twall && Zwall"<<endl;
+
+	unsigned int Nc = sys_->nwk()->clist().size(); //nb de contacts
+	ofstream twall("Analyse/Twall.txt");
+
+	double txx = 0. ;
+	double tyy = 0. ;
+	unsigned int tic = 0 ;
+	unsigned int Ncwall = 0 ;
+
+	for ( unsigned int i = 0 ; i < Nc ; i++) {
+
+		unsigned int ni = sys_->nwk()->clist(i);
+
+		unsigned int id1 = sys_->nwk()->inter(ni)->first()->id();
+		unsigned int id2 = sys_->nwk()->inter(ni)->second()->id();
+
+		//Si contact avec une paroi:
+
+		if(sys_->spl()->body(id1)->bodyDof()!=NULL || sys_->spl()->body(id2)->bodyDof()!=NULL )
+		{
+			double dvx = 0. ;
+			double dvy = 0. ;
+			double zi = 0. ;
+			Ncwall++;
+
+			/*	double nx = sys_->nwk()->inter(ni)->nx();
+				double theta=acos(nx);
+				double fn = sys_->nwk()->inter(ni)->fn();
+
+				cout<<"Contact avec la paroi a un angle "<<theta*180./pi<<endl;
+				twall<<theta<<" "<<fn<<" "<<theta * fn<<endl;
+			 */
+
+			//On prend la particule libre au contact:
+			//Je me suis gourre pour la temperature mais au carree car revient au meme
+			if(sys_->spl()->body(id1)->bodyDof()!=NULL)
+			{
+				dvx =	sys_->spl()->body(id1)->vx() - sys_->spl()->body(id2)->vx();
+				dvy =	sys_->spl()->body(id1)->vy() - sys_->spl()->body(id2)->vy();
+				zi = sys_->spl()->body(id2)->z() ;
+				//cout<<sys_->spl()->body(id2)->z()<<endl;
+			}
+			else
+			{
+				dvx =	sys_->spl()->body(id2)->vx() - sys_->spl()->body(id1)->vx();
+				dvy =	sys_->spl()->body(id2)->vy() - sys_->spl()->body(id1)->vy();
+				zi = sys_->spl()->body(id1)->z() ;
+				//cout<<sys_->spl()->body(id1)->z()<<endl;
+			}
+			//cout<<"zi="<<zi<<endl;
+			txx += dvx * dvx ;
+			tyy += dvy * dvy ;
+			tic++;
+		}
+
+	}
+	double averageTxx = txx / (double) tic ;
+	double averageTyy = tyy / (double) tic ;
+
+	twall<<time<<" "<<averageTxx<<" "<<averageTyy<<endl;
+	twall.close();
+	Zwall();
+}
+
+//Calcul Zwall en fonction d'une resolution spatiale au bord de la paroi inferieure
+void shearP_CD_A::Zwall()
+{
+	for(unsigned int i = 1 ; i < 25 ; i++)
+	{
+		char filename[100];
+		sprintf(filename,"Analyse/Zwallr%02d.txt",i);
+		ofstream o_zwall(filename,ios::app);
+		double window = i * ( sys_->spl()->rmax()) ;
+		vector < heightProbe * > lprobe(1);
+		lprobe[0]= new heightProbe( totalProbe_.h1() , totalProbe_.h1() + window ); 
+		vector <double> Zy(1,0.);
+		zProfile(lprobe , Zy , *sys_->spl() ) ;
+		double zwindow = Zy[0] ;
+		o_zwall<<time<<" "<<zwindow<<endl; 
+		o_zwall.close();
+	}
+}
+
+void shearP_CD_A::Glissement()
+{
+	unsigned int Nc = sys_->nwk()->clist().size(); //nb de contacts
+	unsigned int Nmob = 0 ;
+
+	for ( unsigned int i = 0 ; i < Nc ; i++) {
+
+		unsigned int ni = sys_->nwk()->clist(i);
+		double ft = sys_->nwk()->inter(ni)->ft();
+		double fn = sys_->nwk()->inter(ni)->fn();
+
+		//Recuperer mu :
+
+		unsigned int muId = sys_->grpRel()->getId("mu");
+		double muij = sys_->grpRel()->getParameterQuickly(muId,sys_->nwk()->inter(ni)->first()->grp(),sys_->nwk()->inter(ni)->second()->grp());
+		double diff = fabs(muij*fn)-fabs(ft);
+		double precision =1e-06 ; 
+
+		if(fabs(diff) < precision) {
+			Nmob++;
+		}
+	}
+	double fracgliss = (double)Nmob/(double)Nc*100 ;
+	cerr<<"Contacts glissant bulk :"<<fracgliss<<" %"<<endl;
+	ofstream glissant("Analyse/glissement_bulk.txt",ios::app);
+	glissant<<time<<" "<<fracgliss<<endl;
+	glissant.close();
+}
+
+void shearP_CD_A::GlissementParoi()
+{
+	unsigned int Nc = sys_->nwk()->clist().size(); //nb de contacts
+	ofstream particleswall("Analyse/particleswall.txt");
+	unsigned int Ncwall = 0 ;
+	unsigned int Nmob = 0 ;
+	////double Dissipee = 0. ;
+
+	for ( unsigned int i = 0 ; i < Nc ; i++) {
+
+		unsigned int ni = sys_->nwk()->clist(i);
+
+		unsigned int id1 = sys_->nwk()->inter(ni)->first()->id();
+		unsigned int id2 = sys_->nwk()->inter(ni)->second()->id();
+
+		//Si contact avec une paroi:
+		//On peut calculer l'energie dissipee par frottement avec le changement de rugosite
+		if(sys_->spl()->body(id1)->bodyDof()!=NULL || sys_->spl()->body(id2)->bodyDof()!=NULL )
+		{
+			Ncwall++;
+			double ft = sys_->nwk()->inter(ni)->ft();
+			double fn = sys_->nwk()->inter(ni)->fn();
+			//Recuperer mu :
+
+			unsigned int muId = sys_->grpRel()->getId("mu");
+			double muij = sys_->grpRel()->getParameterQuickly(muId,sys_->nwk()->inter(ni)->first()->grp(),sys_->nwk()->inter(ni)->second()->grp());
+			double diff = fabs(muij*fn)-fabs(ft);
+			double precision =1e-06 ; 
+
+			//double R = sys_->spl()->body(id2)->sizeVerlet();
+			//double nx =sys_->nwk()->inter(ni)->nx() ; 
+			//double ny =sys_->nwk()->inter(ni)->ny() ; 
+			//double x = sys_->spl()->body(id2)->x();
+			//double y = sys_->spl()->body(id2)->y();
+
+			if(diff<precision) {
+				Nmob++;
+			}
+
+			//On print paroi inf:
+			if(sys_->spl()->body(id1)->bodyDof() != NULL){
+				if(sys_->spl()->body(id1)->bodyDof()->id()==0){
+					particleswall<<sys_->spl()->body(id1)->x()<<" "<<sys_->spl()->body(id1)->y()<<" "<<sys_->spl()->body(id1)->sizeVerlet()<<endl;
+					particleswall<<sys_->spl()->body(id2)->x()<<" "<<sys_->spl()->body(id2)->y()<<" "<<sys_->spl()->body(id2)->sizeVerlet()<<endl;
+				}
+			}
+			if(sys_->spl()->body(id2)->bodyDof() != NULL){
+				if(sys_->spl()->body(id2)->bodyDof()->id()==0){
+					particleswall<<sys_->spl()->body(id1)->x()<<" "<<sys_->spl()->body(id1)->y()<<" "<<sys_->spl()->body(id1)->sizeVerlet()<<endl;
+					particleswall<<sys_->spl()->body(id2)->x()<<" "<<sys_->spl()->body(id2)->y()<<" "<<sys_->spl()->body(id2)->sizeVerlet()<<endl;
+				}
+			}
+			//Si contact glissant mettre un point rouge
+		}
+
+	}
+	double fracgliss = (double)Nmob/(double)Ncwall*100 ;
+	cerr<<"Contacts glissant a la paroi :"<<fracgliss<<" %"<<endl;
+	ofstream glissant("Analyse/glissement_wall.txt",ios::app);
+	glissant<<time<<" "<<fracgliss<<endl;
+	glissant.close();
+	particleswall.close();
+}
+
+
+
+void shearP_CD_A::gnuplot()
+{
+	char f_sample[100];
+	char f_wall[100];
+	char f_bands[100];
+
+	sprintf(f_sample,"Analyse/gnuplot/sample%05d.txt",Nanalyze());
+	sprintf(f_wall,"Analyse/gnuplot/wall%05d.txt",Nanalyze());
+	sprintf(f_bands,"Analyse/gnuplot/bands%05d.txt",Nanalyze());
+
+	ofstream sample(f_sample);
+	ofstream wall(f_wall);
+	ofstream bands(f_bands);
+
+	sys_->spl()->updateBands();
+	//Sample:
+	for (unsigned int j=0 ; j<sys_->spl()->lbody().size() ; ++j)
+	{
+		double x = sys_->spl()->body(j)->x();
+		double y = sys_->spl()->body(j)->y();
+		double r = sys_->spl()->body(j)->sizeVerlet();
+		double vx = sys_->spl()->body(j)->vx();
+		double vy = sys_->spl()->body(j)->vy();
+
+		if (sys_->spl()->body(j)->bodyDof()==NULL)
+		{
+			sample<<x<<" "<<y<<" "<<r<<" "<<vx<<" "<<vy<<endl;
+		}
+		else
+		{
+			wall<<x<<" "<<y<<" "<<r<<" "<<vx<<" "<<vy<<endl;
+		}
+	}
+
+	//Bandes
+	for (unsigned int j=0 ; j<sys_->spl()->leftband().size() ; ++j)
+	{
+		double x =sys_->spl()->body(sys_->spl()->leftband(j))->x();
+		double y =sys_->spl()->body(sys_->spl()->leftband(j))->y();
+		double r =sys_->spl()->body(sys_->spl()->leftband(j))->sizeVerlet();
+		bands<<x<<" "<<y<<" "<<r<<endl;
+	}
+
+	for (unsigned int j=0 ; j<sys_->spl()->rightband().size() ; ++j)
+	{
+		double x =sys_->spl()->body(sys_->spl()->rightband(j))->x();
+		double y =sys_->spl()->body(sys_->spl()->rightband(j))->y();
+		double r =sys_->spl()->body(sys_->spl()->rightband(j))->sizeVerlet();
+		bands<<x<<" "<<y<<" "<<r<<endl;
+
+	}
+
+	bands.close();
+	sample.close();
+	wall.close();
 }

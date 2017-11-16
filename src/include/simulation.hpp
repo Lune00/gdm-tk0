@@ -58,6 +58,7 @@ class Simulation
 		unsigned int nstartAna_; // time at which we start analysis, by default its the first step
 		unsigned int nUpdateShear_; // permet de reajuster vitesse plaque en stationnaire pour appliquer un taux de cisaillement bien controle (apres dilatation/contraction)
 
+		unsigned int nprintMetrics_;
 	public:
 
 		Simulation() 
@@ -88,6 +89,7 @@ class Simulation
 			nperturb_ = 0;
 			nstartAna_ = 0 ;
 			nUpdateShear_ = 0 ;
+			nprintMetrics_ = 0 ;
 
 			ofstream time("time.txt",ios::out);
 			time.close();

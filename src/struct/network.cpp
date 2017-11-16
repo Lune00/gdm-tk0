@@ -55,8 +55,7 @@ void Network::read(istream & is/*, Sample & spl*/)
 	}
 
 
-	cout<<"Nombre de contacts chargé = "<<n<<endl;
-	cout<<"Taille de clist_ = "<<clist_.size()<<endl;
+	cout<<"Taille de clist_ (nombre de contacts) : "<<clist_.size()<<endl;
 }
 void Network::write(const char * fname)
 {
@@ -237,7 +236,9 @@ void Network::retrieve(vector<fsafe> & fs)
 
 void Network::buildSuperList(Sample * spl,  GroupRelationData * grpRel)
 {
-	//cerr<<"---Building SuperList"<<endl;
+	
+	cerr<<"---Building SuperList"<<endl;
+	cerr<<"dsuperlist = "<<dsuperList_<<endl;
 	superList_.clear();//Reset le list des pairs particules 
 
 	unsigned int N=spl->lbody().size();
