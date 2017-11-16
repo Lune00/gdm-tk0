@@ -40,7 +40,7 @@ int main (int argc,char **argv)
 
 	char nomFichier[100];
 
-	for (unsigned int i = parametres.getistart() ; i != parametres.getiend(); i+=parametres.getdi()){
+	for (int i = parametres.getistart() ; i != parametres.getiend(); i+=parametres.getdi()){
 
 		sprintf(nomFichier,"spl_nwk/spl_nwk_%.4d.his",i);
 		cerr<<"****** Chargement : "<<nomFichier<<endl;

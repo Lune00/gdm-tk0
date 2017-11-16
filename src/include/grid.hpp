@@ -16,8 +16,8 @@
 class Grid{
 
 	private:
-		unsigned int nx_ , ny_ ;
-		unsigned int nb_ ;
+		int nx_ , ny_ ;
+		int nb_ ;
 		double xmin_, xmax_ , ymin_, ymax_ ;
 		double bandwitdh_;
 		double dx_ , dy_ ;

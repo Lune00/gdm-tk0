@@ -3,6 +3,7 @@
 #ifndef _near_h
 #define _near_h
 
+#include <typeinfo>
 #include "vertex.hpp"
 #include "body2d.hpp"
 #include "disk.hpp"

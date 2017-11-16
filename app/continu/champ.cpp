@@ -146,9 +146,9 @@ void Champ_Vectoriel::calculVitesse(const Champ* masse,const Champ* momentum)
 void Champ_Scalaire::writechamp(const Grid& grid)
 {
 	string filename = name_ + ".txt" ;
-	ofstream champout (filename);
-	for(int j = 0 ; j!= ny_  ; j++)
-		for(int i = 0 ; i != nx_ ; i++)
+	ofstream champout (filename.c_str());
+	for(unsigned int j = 0 ; j!= ny_  ; j++)
+		for(unsigned int i = 0 ; i != nx_ ; i++)
 		{
 			{
 				champout<<i+1<<" "<<j+1<<" "<<grid.getX(i,j)<<" "<<grid.getY(i,j)<<" "<<champ[ i * ny_ + j]<<endl;
@@ -161,9 +161,9 @@ void Champ_Scalaire::writechamp(const Grid& grid)
 void Champ_Vectoriel::writechamp(const Grid& grid)
 {
 	string filename = name_ + ".txt" ;
-	ofstream champout (filename);
-	for(int j = 0 ; j!= ny_  ; j++)
-		for(int i = 0 ; i != nx_ ; i++)
+	ofstream champout (filename.c_str());
+	for(unsigned int j = 0 ; j!= ny_  ; j++)
+		for(unsigned int i = 0 ; i != nx_ ; i++)
 		{
 			{
 				champout<<i+1<<" "<<j+1<<" "<<grid.getX(i,j)<<" "<<grid.getY(i,j)<<" "<<champx[ i * ny_ + j]<<" "<<champy[ i * ny_ + j]<<endl;
@@ -210,14 +210,3 @@ void Champ_Scalaire::drawchamp()
 
 
 
-//if( i == 100 && j == 100)
-//{
-//	ofstream test("pointp.txt");
-//	for(map<int,double>::iterator it = local.begin(); it != local.end(); it++)
-//	{
-//		int id = it->first ;
-//		test<<grid.readPoint(i,j).getX()<<" "<<grid.readPoint(i,j).getY()<<" "<<spl.body(id)->x()<<" "<<spl.body(id)->y()<<" "<<spl.body(id)->sizeVerlet()<<endl;
-//	}
-//	test.close();
-//}
-//

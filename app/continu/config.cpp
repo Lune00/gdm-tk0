@@ -90,13 +90,13 @@ void Config::init(ifstream& is)
 	}
 
 	string commande = "mkdir -p " + dossierparent ;
-	system(commande.c_str());
+	std::system(commande.c_str());
 }
 
 void Config::readMetrics(string file)
 {
 	cerr<<"Fichier init metrics : "<<file<<endl;
-	ifstream is(file);
+	ifstream is(file.c_str());
 	string token;
 	is >> token;
 	while(is)

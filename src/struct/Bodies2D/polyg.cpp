@@ -217,7 +217,7 @@ void polyg::convexify()
 			if( dy < 0.) theta = 2.*M_PI-theta;
 			
 			//if( base < ihigher && theta < M_PI ) continue;
-			//cout<<"		test de "<<j<<" angle abs "<<theta<<" angle relatif  "<<theta - thetaprec;
+			//cout<<"		test de "<<j<<" angle fabs "<<theta<<" angle relatif  "<<theta - thetaprec;
 			
 			if( fabs(theta - thetaprec) < Dthetamin)
 			{
@@ -431,7 +431,7 @@ int polyg::ispolysimple()
 		p1=d1;
 		if (crs != 0.0) crsp = crs;
 	}
-	if (abs(wind) != 1) return 0;
+	if (fabs(wind) != 1) return 0;
 	if (schg == 0) return (wind>0? 1 : -1);
 
 	for (i=0,ii=1; i<np; i++,ii++) 

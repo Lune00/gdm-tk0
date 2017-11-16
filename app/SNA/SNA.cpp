@@ -109,7 +109,7 @@ int main (int argc, char * argv[])
 		//lecture du fichier time
 		vector <double> t;
 		double temp1,temp2;
-		ifstream time(fichtemps);
+		ifstream time(fichtemps.c_str());
 		string line;
 
 		if(!time.is_open())
@@ -133,7 +133,7 @@ int main (int argc, char * argv[])
 		Simulation * mySimu= new Simulation();
 
 		//On réécrit le fichier temps:
-		ofstream timereset(fichtemps);
+		ofstream timereset(fichtemps.c_str());
 		unsigned int indice=0;
 		if(timereset.is_open()){
 			for(std::vector<double>::iterator it = t.begin();it != t.end();++it){

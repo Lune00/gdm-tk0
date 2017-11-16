@@ -92,8 +92,8 @@ void pointSet::add(double x, double y)
 
 void pointSet::write(std::string file)
 {
-	//cout<<" ecriture de : "<<file<<endl;
-	ofstream out(file,ios::out);
+	cout<<" ecriture de : "<<file<<endl;
+	ofstream out(file.c_str(),ios::out);
 	for( unsigned int i=0; i< pset_.size();++i)
 	{
 		out<<this->px(i)<<" "<<this->py(i)<<endl;

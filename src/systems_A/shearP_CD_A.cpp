@@ -554,7 +554,7 @@ void shearP_CD_A::initAnalyse( )
 		system ( "mkdir -p Analyse/Zbins");
 		char spbins[50] ;
 
-		for ( unsigned int i=0;i<NbinTemp_;++i)
+		for ( int i=0;i<NbinTemp_;++i)
 		{
 			sprintf(spbins,"Analyse/Zbins/Zbin_%05d.his",i);
 			ofstream sb(spbins, ios::out);
@@ -570,7 +570,7 @@ void shearP_CD_A::initAnalyse( )
 		system ( "mkdir -p Analyse/Tempbins");
 		char spbins[50] ;
 
-		for ( unsigned int i=0;i<NbinTemp_;++i)
+		for ( int i=0;i<NbinTemp_;++i)
 		{
 			sprintf(spbins,"Analyse/Tempbins/Tbin_%05d.his",i);
 			ofstream sb(spbins, ios::out);
@@ -584,7 +584,7 @@ void shearP_CD_A::initAnalyse( )
 		system ( "mkdir -p Analyse/Spbins");
 		char spbins[50] ;
 
-		for ( unsigned int i=0;i<Nprb_;++i)
+		for ( int i=0;i<Nprb_;++i)
 		{
 			sprintf(spbins,"Analyse/Spbins/Sbin_%05d.his",i);
 			ofstream sb(spbins, ios::out);
@@ -660,7 +660,7 @@ void shearP_CD_A::initAnalyse( )
 		system ( "mkdir -p Analyse/RotKebins");
 		char spbins[50] ;
 
-		for ( unsigned int i=0;i<Nprb_Rot;++i)
+		for ( int i=0;i<Nprb_Rot;++i)
 		{
 			sprintf(spbins,"Analyse/RotKebins/RotKe%05d.txt",i);
 			ofstream sb(spbins, ios::out);
@@ -675,8 +675,8 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	cout<<"------oooo><ooo-----shearP_CD_A::analyze() t= "<<t<<" ---------"<<endl;
 
 	char fname[100];
-	char fnamev[100];
-	char fnamedv[100];
+	//char fnamev[100];
+	//char fnamedv[100];
 
 	time=t;
 
@@ -726,13 +726,13 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 
 	if (displaySample || displayForce)
 	{
-		system("mkdir -p Analyse/PS2");
-		system("mkdir -p Analyse/PS3");
+		//system("mkdir -p Analyse/PS2");
+		//system("mkdir -p Analyse/PS3");
 		sprintf(fname,"Analyse/PS1/particles%.4i.ps",Nanalyze());
-		sprintf(fnamev,"Analyse/PS2/particlesv%.4i.ps",Nanalyze());
-		sprintf(fnamedv,"Analyse/PS3/particlesdv%.4i.ps",Nanalyze());
+		//sprintf(fnamev,"Analyse/PS2/particlesv%.4i.ps",Nanalyze());
+		//sprintf(fnamedv,"Analyse/PS3/particlesdv%.4i.ps",Nanalyze());
 		writePS2(fname);
-		writePS3(fnamev);
+		//writePS3(fnamev);
 		//writePS4(fnamedv);
 	}
 
@@ -3532,7 +3532,7 @@ void shearP_CD_A::writePS3( const char * fname)
 			double vx = sys_->spl()->body(i)->vx() ; 
 			double vy = sys_->spl()->body(i)->vy() ; 
 			double vnorme = sqrt( vx * vx + vy * vy);
-			cerr<<"vx="<<vx<<" v="<<v<<" --> vx/v="<<vx/v<<endl;
+			//cerr<<"vx="<<vx<<" v="<<v<<" --> vx/v="<<vx/v<<endl;
 
 			//On ramene entre 0 et v
 			vx /= v ;

@@ -42,7 +42,7 @@ bool Grid::recouvrement(Point a, Point b)
 }
 
 
-Point Grid::getPoint(int i,int j)
+Point Grid::getPoint( int i, int j)
 {
 	if ( i >= 0 && i < nx_ && j >=0 && j< ny_) return array_[ i * ny_ + j ] ; 
 	else
@@ -68,17 +68,17 @@ void Grid::initmotif(Config& parametres)
 	tmp->setcoordinates();
 	tmp->writeGrid("tmp.txt");
 	//On prend le point au centre de la grille:
-	int iref = size / 2 ;
-	int jref = size / 2 ;
+	 int iref = size / 2 ;
+	 int jref = size / 2 ;
 	//On commence par stocker tous les points qui recouvrent ce point x
 	//   o-------o
 	//   |       |
 	//   x-------o
 	
 	//Par précaution on met toujours les 4 points du domaine de reference a tester:
-	for(unsigned int l=jref; l!=jref + 2 ;l++)
+	for( int l=jref; l!=jref + 2 ;l++)
 	{
-		for (unsigned int k = iref ; k != iref + 2 ; k++)
+		for ( int k = iref ; k != iref + 2 ; k++)
 		{
 			Point p = tmp->getPoint(k,l) ;
 			cerr<<p.getid()<<endl;
@@ -86,14 +86,14 @@ void Grid::initmotif(Config& parametres)
 		}
 	}
 
-	for(unsigned int l=jref; l!=jref + 2 ;l++)
+	for( int l=jref; l!=jref + 2 ;l++)
 	{
-		for (unsigned int k = iref ; k != iref + 2 ; k++)
+		for ( int k = iref ; k != iref + 2 ; k++)
 		{
 
-			for (unsigned int j = 0 ; j!=tmp->ny_ ; j++)
+			for ( int j = 0 ; j!=tmp->ny_ ; j++)
 			{
-				for(unsigned int i = 0 ; i != tmp->nx_ ; i++)
+				for( int i = 0 ; i != tmp->nx_ ; i++)
 				{
 					if( i == k && j == l ) continue;
 
@@ -152,9 +152,9 @@ void Grid::setcoordinates()
 	int id = 0 ;
 
 	//Partie de la grille periodique
-	for(int j = 0 ; j!= ny_ ; j++)
+	for( int j = 0 ; j!= ny_ ; j++)
 	{
-		for(int i = nb_ ; i != nx_ - nb_ ; i++)
+		for( int i = nb_ ; i != nx_ - nb_ ; i++)
 		{
 			array_[ i * ny_ + j ].setX(x);
 			array_[ i * ny_ + j ].setY(y);
@@ -172,9 +172,9 @@ void Grid::setcoordinates()
 	//Bande periodique gauche grille
 	x = xmin_ ;
 	y = ymin_ ;
-	for(int j = 0 ; j!= ny_ ; j++)
+	for( int j = 0 ; j!= ny_ ; j++)
 	{
-		for(int i = nb_ - 1  ; i != -1 ; i--)
+		for( int i = nb_ - 1  ; i != -1 ; i--)
 		{
 			array_[ i * ny_ + j ].setX(x);
 			array_[ i * ny_ + j ].setY(y);
@@ -191,9 +191,9 @@ void Grid::setcoordinates()
 	//Bande periodique droite grille
 	x = xmax_;
 	y = ymin_ ;
-	for(int j = 0 ; j!= ny_ ; j++)
+	for( int j = 0 ; j!= ny_ ; j++)
 	{
-		for(int i = nx_ - nb_  ; i != nx_ ; i++)
+		for( int i = nx_ - nb_  ; i != nx_ ; i++)
 		{
 			array_[ i * ny_ + j ].setX(x);
 			array_[ i * ny_ + j ].setY(y);
@@ -271,18 +271,18 @@ Point& Grid::readPoint (int i,int j) const
 //Imprimer la grille periodique vs grille totale
 void Grid::writeGrid(string filename)
 {
-	ofstream gridout (filename,ios::out);
-	for(int j = 0 ; j != ny_ ; j++)
+	ofstream gridout (filename.c_str(),ios::out);
+	for( int j = 0 ; j != ny_ ; j++)
 	{
-		for(int i = 0 ; i!= nx_ - 1 ; i++)
+		for( int i = 0 ; i!= nx_ - 1 ; i++)
 		{
 			gridout<<getX(i,j)<<" "<<getY(i,j)<<" "<<dx_<<" 0."<<" "<<resolution_<<" "<<getPoint(i,j).getsizeparticules()<< endl;
 		}
 	}
 
-	for(int i = 0 ; i != nx_ ; i++)
+	for( int i = 0 ; i != nx_ ; i++)
 	{
-		for(int j = 0 ; j!= ny_ - 1 ; j++)
+		for( int j = 0 ; j!= ny_ - 1 ; j++)
 		{
 			gridout<<getX(i,j)<<" "<<getY(i,j)<<" 0. "<<dy_<<" "<<resolution_<<" "<<getPoint(i,j).getsizeparticules()<<endl; 
 		}
@@ -301,7 +301,7 @@ bool Grid::belongtopoint(Point p , body2d* b)
 	return (getdistance(p,b) < resolution_) ;
 }
 
-bool Grid::out(int i,int j)
+bool Grid::out( int i, int j)
 {
 	if( i < 0 || i >= nx_ || j < 0 || j >= ny_) return true;
 	else
@@ -311,16 +311,16 @@ bool Grid::out(int i,int j)
 //On stock les particules sur chaque point
 void Grid::repartition(Sample& spl)
 {
-	unsigned int N = spl.lbody().size();
+	 int N = spl.lbody().size();
 	cerr<<"+Init repartition : nombre de particules a stocker : "<< N <<endl;
 	//On commence par parcourir les particules et a reperer leur point de ref
-	for(unsigned int k = 0 ; k != N ; k++)
+	for( int k = 0 ; k != N ; k++)
 	{
 		double x = spl.body(k)->x() ; 
 		double y = spl.body(k)->y() ; 
 		//Determine le point de reference (coin gauche)
-		unsigned int i = floor( (x-xmin_)/dx_);
-		unsigned int j = floor( (y-ymin_)/dy_);
+		 int i = floor( (x-xmin_)/dx_);
+		 int j = floor( (y-ymin_)/dy_);
 		// (i,j) point de reference : on applique le motif a partir de ce point
 		// Fonction qui prend la particule et la grille
 		updatePoints(i,j,spl.body(k));
@@ -328,7 +328,7 @@ void Grid::repartition(Sample& spl)
 	cerr<<"+Repartition done."<<endl;
 	//On recupere les bandes periodiques
 	spl.updateBands();
-	for(unsigned int k=0; k<spl.leftband().size();k++)
+	for( unsigned int k=0; k<spl.leftband().size();k++)
 	{
 	//	double x = spl.body(spl.leftband(k))->x() + spl.boundWidth() ;
 	}
@@ -364,9 +364,9 @@ void Grid::updatePoints(int iref,int jref,body2d* p)
 void Grid::clearPoints()
 {
 
-	for(int j = 0 ; j!= ny_ ; j++)
+	for( int j = 0 ; j!= ny_ ; j++)
 	{
-		for(int i = 0 ; i != nx_ ; i++)
+		for( int i = 0 ; i != nx_ ; i++)
 		{
 			array_[ i * ny_ + j ].clearparticules();
 		}

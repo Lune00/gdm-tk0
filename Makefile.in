@@ -1,2 +1,2 @@
-CC = g++
+CC = g++-4.4
 CFLAGS = -O3 -Wall -Werror -I$(INC_PATH) -g 

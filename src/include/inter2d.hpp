@@ -4,6 +4,7 @@
 #include <string>
 #include "body2d.hpp"
 #include "dof.hpp"
+#include <typeinfo>
 //#include "groupRelationData.hpp"
 //#include "dof.hpp"
 // definition d'identificateur de type int remplacement du type mentionné par un int
