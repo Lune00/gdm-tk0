@@ -51,8 +51,6 @@ bool near(const body2d* b1, const body2d* b2, const double dv)
     {
     return near(dynamic_cast<const polyg*>(b2),dynamic_cast<const rline*>(b1),dv);
     }
-
-
 	
   return false;
 }

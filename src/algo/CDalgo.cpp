@@ -237,32 +237,32 @@ void CDalgo::fres()
   {	
     if(spl_->body(i)->bodyDof()==NULL)
     {
-      spl_->body(i)->fx()   =  sys_->gx() * spl_->body(i)->mass();//GRAVITY
-      spl_->body(i)->fy()   =  sys_->gy() * spl_->body(i)->mass();//GRAVITY
-      spl_->body(i)->frot() =  0.;
+	    spl_->body(i)->fx()   =  sys_->gx() * spl_->body(i)->mass();//GRAVITY
+	    spl_->body(i)->fy()   =  sys_->gy() * spl_->body(i)->mass();//GRAVITY
+	    spl_->body(i)->frot() =  0.;
     }
   }
 
   for( unsigned int i=0;i < sys_->ldof().size();++i)
   {
-    sys_->ldof(i)->imposeForce();
+	  sys_->ldof(i)->imposeForce();
   }
 
   // Contact forces
   for (unsigned int c=0 ; c < nwk_->clist().size() ; ++c)
-    nwk_->inter(nwk_->clist(c))->Res();
+	  nwk_->inter(nwk_->clist(c))->Res();
 
   // Force resultants on bloqued degrees of freedom
   for(unsigned int i=0;i<sys_->lctrl().size();++i)
   {
-    if (sys_->ctrl(i).x()   == _VELOCITY) spl_->body(i)->fx()   = 0.0;
-    if (sys_->ctrl(i).y()   == _VELOCITY) spl_->body(i)->fy()   = 0.0;
-    if (sys_->ctrl(i).rot() == _VELOCITY) spl_->body(i)->frot() = 0.0;
+	  if (sys_->ctrl(i).x()   == _VELOCITY) spl_->body(i)->fx()   = 0.0;
+	  if (sys_->ctrl(i).y()   == _VELOCITY) spl_->body(i)->fy()   = 0.0;
+	  if (sys_->ctrl(i).rot() == _VELOCITY) spl_->body(i)->frot() = 0.0;
 
   }
   for( unsigned int i=0;i < sys_->ldof().size();++i)
   {
-    sys_->ldof(i)->imposeForceOfVelocity();
+	  sys_->ldof(i)->imposeForceOfVelocity();
   }
 }
 

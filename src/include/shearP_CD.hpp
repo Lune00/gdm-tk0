@@ -27,7 +27,7 @@ class shearP_CD : public System
 	bool reverse_;
 	bool useSuper_; 
 	bool gravite_;
-	unsigned int multig_; // multiple de la gravite g0=-9.81
+	double multig_; // multiple de la gravite g0=-9.81
 	double dsuperList_;
 	double dsuperListP_;
 	double bandwidth_; // normalement associée a sample, mais permet l'entrée utilisateur
@@ -93,6 +93,7 @@ class shearP_CD : public System
 		symetrical_=false;
 		reverse_ =false;
 		bandwidth_=0.;
+		multig_ = 1. ;
 	}
 
 

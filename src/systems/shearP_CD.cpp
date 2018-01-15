@@ -82,16 +82,20 @@ void shearP_CD::init()
 	//Rajouter gravite dans les options
 	//gravite value
 	double gx, gy ;
+	double angle = 85. ;
 	if(gravite_)
 	{
-		gx = 0. ;
-		gy = -9.81 * multig_ ;
+		cerr<<"Gravity on!"<<endl;
+		gx = 9.81 * multig_ * sin(M_PI * angle / 180. );
+		gy = -9.81 * multig_ * cos(M_PI * angle / 180. );
 	}
 	else
 	{
 		gx = 0. ;
 		gy = 0. ;
 	}
+
+	cerr<<"gx = "<<gx<<" gy = "<<gy<<endl;
 
 	//Calcul rmin_, rmax_ et rmoy_ de l'échantillon
 	spl_->radiusExtrema(0);
@@ -165,6 +169,12 @@ void shearP_CD::init()
 		cout<<"y(dof inf) = "<<ldof(0)->lowerBody()->ymin()<<endl;
 		cout<<"v_x(dof sup) = "<<ldof(1)->lowerBody()->vx()<<endl;
 		cout<<"v_x(dof inf) = "<<ldof(0)->lowerBody()->vx()<<endl;
+
+
+		//WIP: remove gravity to walls (control pressure in stress)
+		ldof(0)->setGravity(0.,0.);
+		ldof(1)->setGravity(0.,0.);
+		cerr<<"No gravity acting on dof."<<endl;
 	}
 
 	//Imposer shear rate : H particule plus haute - particule plus basse
@@ -183,7 +193,6 @@ void shearP_CD::init()
 	if(symetrical_)
 	{
 		cout<<".Imposed symetrical shear rate: "<<topXvalue_<<endl;
-		//topXvalue_ *= ldof(1)->mcy()-ldof(0)->mcy();
 		topXvalue_ *= 0.5;
 		ldof(1)->affect(topXmode_, topYmode_, _VELOCITY, topXvalue_, topYvalue_, 0.);
 		ldof(0)->affect(_VELOCITY, _VELOCITY, _VELOCITY, -topXvalue_, 0.,  0.);
@@ -194,7 +203,6 @@ void shearP_CD::init()
 	}
 	else
 	{
-
 		cout<<".Imposed non-symetrical shear rate: "<<topXvalue_<<endl;
 		ldof(1)->affect(topXmode_, topYmode_, _VELOCITY, topXvalue_, topYvalue_, 0.);
 		ldof(0)->affect(_VELOCITY, _VELOCITY, _VELOCITY, 0., 0., 0.);
@@ -208,10 +216,10 @@ void shearP_CD::init()
 	}
 	spl_->updateBands();//Id based
 
-	cout<<".Taille zone périodique (d)="<<spl_->boundWidth()/(spl_->rmin()+spl_->rmax())<<endl;
-	cout<<".Taille des bandes periodiques (d) : "<<spl_->bandWidth()/(spl_->rmin()+spl_->rmax())<<endl;
-	cout<<scientific<<"Rmin = "<<spl_->rmin()<<" Rmax ="<<spl_->rmax()<<endl;
-	cout<<"Rmax/Rmin = "<<spl_->rmax()/spl_->rmin()<<endl;
+//	cout<<".Taille zone périodique (d)="<<spl_->boundWidth()/(spl_->rmin()+spl_->rmax())<<endl;
+//	cout<<".Taille des bandes periodiques (d) : "<<spl_->bandWidth()/(spl_->rmin()+spl_->rmax())<<endl;
+//	cout<<scientific<<"Rmin = "<<spl_->rmin()<<" Rmax ="<<spl_->rmax()<<endl;
+//	cout<<"Rmax/Rmin = "<<spl_->rmax()/spl_->rmin()<<endl;
 
 	//Impose une masse a la paroi libre egale à celle du système:
 

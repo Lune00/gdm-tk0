@@ -204,8 +204,6 @@ void Simulation::read_data(const char* name)
   else nwk_->associate(*spl_);
 
   if (doAnalyse_ && !sysA_) gdm::fatal("No System_A has been defined!");
-  //else gdm::warning("No System_A defined! No analysis will be made ");
-
 
   // Here we plug all this entities togheter with !!!
   assert(spl_);
@@ -323,6 +321,7 @@ void Simulation::run()
     }
 
 
+    //Nothing done yet there
     if(ns_ == nperturb_ && perturbation_ == true)
     {
       sys_->perturbation();

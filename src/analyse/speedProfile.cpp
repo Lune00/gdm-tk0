@@ -52,7 +52,7 @@ void speedProfile( vector < heightProbe* > & lprb,vector <double> & Xprofile,vec
 	}
 
 
-	if(shearrateProfile && Nprb > 50)
+	if(shearrateProfile && Nprb >= 50)
 	{
 
 		double dy = lprb[1]->halfHeight()-lprb[0]->halfHeight(); 

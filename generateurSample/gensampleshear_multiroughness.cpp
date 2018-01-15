@@ -68,8 +68,8 @@ int main(){
 
   //Echantillon:
 
-  unsigned int nfree = 5000 ;
-  unsigned int ncouches = 50 ;
+  unsigned int nfree = 25000 ;
+  unsigned int ncouches = 150 ;
   double const r1 = 0.01 ;
   double const r2 = 2 * r1 ;
   double const rmean = 0.5 * ( r1 + r2 ) ;
@@ -77,14 +77,19 @@ int main(){
   //Propriétés des plaques:
 
   //Plaque superieure:
-  double const R_sup = 0.71 ; // R=rparoi/rmean
+  double const deltawS = 40;
   double const K_sup = 1.7 ;
+  double const b = sin(deltawS*(M_PI/180.))/K_sup;
+  double const R_sup = b/(1-b) ; // R=rparoi/rmean
   double const rparoi_sup = R_sup * rmean ;
   double const lw_sup =  K_sup * (2. * rparoi_sup) ;
 
   //Plaque inférieure:
-  double const R_inf = 0.31 ; // R=rparoi/rmean
+  //Angle desire, en degre, K fixe, R ajuste
+  double const deltaw = 22;
   double const K_inf = 1.7 ; // R=rparoi/rmean
+  double const a = sin(deltaw*(M_PI/180.))/K_inf;
+  double const R_inf = a/(1-a) ; // R=rparoi/rmean
   double const rparoi_inf = R_inf * rmean ;
   double const lw_inf =  K_inf * (2. * rparoi_inf) ;
 
@@ -172,7 +177,7 @@ int main(){
   double lx = xmax - xmin ;
 
   unsigned int nparoi_sup = ceil( lx / ( lw_sup )) + 2;
-  unsigned int nparoi_inf = ceil( lx / ( lw_inf )) + 2;
+  unsigned int nparoi_inf = ceil( lx / ( lw_inf )) + 5;
 
   cout<<"Nombre de particules composant la paroi sup : "<<nparoi_sup<<endl;
   cout<<"Nombre de particules composant la paroi inf : "<<nparoi_inf<<endl;

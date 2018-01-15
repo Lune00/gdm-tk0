@@ -463,6 +463,12 @@ void shearP_CD_A::initAnalyse( )
 	
 	ofstream printglissant("Analyse/contactglissant.txt",ios::out);
 	printglissant.close();
+
+
+	ofstream followw("Analyse/particules.txt",ios::out);
+	followw.close();
+
+
 	if(sortiegnuplot_)
 	{
 		system("mkdir -p Analyse/gnuplot");
@@ -681,9 +687,9 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	time=t;
 
 	printSystem();
-	followparticles();
-	GlissementParoi();
-	Glissement();
+	//followparticles();
+	//GlissementParoi();
+	//Glissement();
 	if(sortiegnuplot_) gnuplot();
 	//computeZparticules();
 	if(calcTwall_) Twall();
@@ -3316,15 +3322,17 @@ void shearP_CD_A::followparticles()
 
 	cout<<".Followparticles"<<endl;
 
-	unsigned int idref = 60 ;
+	unsigned int idref = 1 ;
 
 	ofstream follow_("Analyse/particules.txt",ios::app);
 
-	follow_.precision(10);
+	//follow_.precision(10);
 
 	for (unsigned int i=0; i<sys_->spl()->lbody().size();++i)
 	{
-		if(sys_->spl()->body(i)->id()==idref) follow_<< sys_->spl()->body(i)->sizeVerlet()<<" "<< sys_->spl()->body(i)->vx()<< " "<< sys_->spl()->body(i)->vy()<<endl;
+		if(sys_->spl()->body(i)->id()==idref){
+			follow_<< sys_->spl()->body(i)->sizeVerlet()<<" "<< sys_->spl()->body(i)->x()<< " "<< sys_->spl()->body(i)->y()<<endl;
+		}
 
 	}
 }
