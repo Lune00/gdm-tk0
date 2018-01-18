@@ -82,12 +82,12 @@ void shearP_CD::init()
 	//Rajouter gravite dans les options
 	//gravite value
 	double gx, gy ;
-	double angle = 85. ;
+	double angle = 90. ;
 	if(gravite_)
 	{
 		cerr<<"Gravity on!"<<endl;
-		gx = 9.81 * multig_ * sin(M_PI * angle / 180. );
-		gy = -9.81 * multig_ * cos(M_PI * angle / 180. );
+		gx = 9.81 * multig_ * cos(M_PI * angle / 180. );
+		gy = -9.81 * multig_ * sin(M_PI * angle / 180. );
 	}
 	else
 	{

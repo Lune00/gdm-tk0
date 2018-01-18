@@ -74,12 +74,13 @@ void CDalgo::look()
 	for(unsigned int k = 0 ; k < nwk_->clist().size() ; ++k)
 	{
 	  //cout<<"test dkdk? 1"<<endl;
-	  if(nwk_->inter(nwk_->clist(k))->type() == 0 )
+	  if(nwk_->inter(nwk_->clist(k))->type() == 0 || nwk_->inter(nwk_->clist(k))->type() == 1)
 	  {
 	    nwk_->inter(nwk_->clist(k))->CDcoeff(grpRel_);
 	  }
 	  else
 	  {
+		  cout<<"dans le else"<<endl;
 	    nwk_->inter(nwk_->clist(k))->CDcoeff();
 	  }
 	}
@@ -196,14 +197,16 @@ void CDalgo::contact()
     if (nwk_->inter(k)->Activate())
     {   
       nwk_->clist().push_back(k);
-      if(nwk_->inter(k)->type() == 0 )
+
+      if(nwk_->inter(k)->type() == 0 ||  nwk_->inter(k)->type() == 1)
       {
-//	cout<<"DKDK -> appel des bons coeffs ? 2"<<endl;
-	nwk_->inter(k)->CDcoeff(grpRel_);
+	      //cout<<"DKDK -> appel des bons coeffs ? 2"<<endl;
+	      nwk_->inter(k)->CDcoeff(grpRel_);
       }
       else
       {
-	nwk_->inter(k)->CDcoeff();
+	      cout<<"On est dans le else"<<endl;
+	      nwk_->inter(k)->CDcoeff();
       } 
 
       nwk_->inter(k)->Kin();
@@ -214,63 +217,63 @@ void CDalgo::contact()
 
 void CDalgo::fres()
 {	  
-  // External forces
-  // Force-controled bodies are NOT subjected to acceleration field
-  for (unsigned int i=0 ; i < sys_->lctrl().size() ; ++i)
-  {	
-    if(sys_->ctrl(i).x() == _FORCE)
-      spl_->body(i)->fx()   = sys_->ctrl(i).xval();
+	// External forces
+	// Force-controled bodies are NOT subjected to acceleration field
+	for (unsigned int i=0 ; i < sys_->lctrl().size() ; ++i)
+	{	
+		if(sys_->ctrl(i).x() == _FORCE)
+			spl_->body(i)->fx()   = sys_->ctrl(i).xval();
 
-    if(sys_->ctrl(i).y() == _FORCE)
-      spl_->body(i)->fy()   = sys_->ctrl(i).yval();
+		if(sys_->ctrl(i).y() == _FORCE)
+			spl_->body(i)->fy()   = sys_->ctrl(i).yval();
 
-    if(sys_->ctrl(i).rot() == _FORCE)
-      spl_->body(i)->frot() = sys_->ctrl(i).rotval(); 
-  } 
+		if(sys_->ctrl(i).rot() == _FORCE)
+			spl_->body(i)->frot() = sys_->ctrl(i).rotval(); 
+	} 
 
-  sys_->computeAccField();//ne fait rien pour le moment
-  // rq: il ne s'agit pas vraiment de n'importe quel 'champs d'accélération'.
-  //     Par exemple, on ne peut pas avoir un champs convergent vers un point
-  //     (au mieux on peut faire gx = cos(theta) et gy = sin(theta) sur chacunes des particules)
-  // External forces of free bodies 
-  for (unsigned int i=sys_->lctrl().size() ; i < spl_->lbody().size() ; ++i)
-  {	
-    if(spl_->body(i)->bodyDof()==NULL)
-    {
-	    spl_->body(i)->fx()   =  sys_->gx() * spl_->body(i)->mass();//GRAVITY
-	    spl_->body(i)->fy()   =  sys_->gy() * spl_->body(i)->mass();//GRAVITY
-	    spl_->body(i)->frot() =  0.;
-    }
-  }
+	sys_->computeAccField();//ne fait rien pour le moment
+	// rq: il ne s'agit pas vraiment de n'importe quel 'champs d'accélération'.
+	//     Par exemple, on ne peut pas avoir un champs convergent vers un point
+	//     (au mieux on peut faire gx = cos(theta) et gy = sin(theta) sur chacunes des particules)
+	// External forces of free bodies 
+	for (unsigned int i=sys_->lctrl().size() ; i < spl_->lbody().size() ; ++i)
+	{	
+		if(spl_->body(i)->bodyDof()==NULL)
+		{
+			spl_->body(i)->fx()   =  sys_->gx() * spl_->body(i)->mass();//GRAVITY
+			spl_->body(i)->fy()   =  sys_->gy() * spl_->body(i)->mass();//GRAVITY
+			spl_->body(i)->frot() =  0.;
+		}
+	}
 
-  for( unsigned int i=0;i < sys_->ldof().size();++i)
-  {
-	  sys_->ldof(i)->imposeForce();
-  }
+	for( unsigned int i=0;i < sys_->ldof().size();++i)
+	{
+		sys_->ldof(i)->imposeForce();
+	}
 
-  // Contact forces
-  for (unsigned int c=0 ; c < nwk_->clist().size() ; ++c)
-	  nwk_->inter(nwk_->clist(c))->Res();
+	// Contact forces
+	for (unsigned int c=0 ; c < nwk_->clist().size() ; ++c)
+		nwk_->inter(nwk_->clist(c))->Res();
 
-  // Force resultants on bloqued degrees of freedom
-  for(unsigned int i=0;i<sys_->lctrl().size();++i)
-  {
-	  if (sys_->ctrl(i).x()   == _VELOCITY) spl_->body(i)->fx()   = 0.0;
-	  if (sys_->ctrl(i).y()   == _VELOCITY) spl_->body(i)->fy()   = 0.0;
-	  if (sys_->ctrl(i).rot() == _VELOCITY) spl_->body(i)->frot() = 0.0;
+	// Force resultants on bloqued degrees of freedom
+	for(unsigned int i=0;i<sys_->lctrl().size();++i)
+	{
+		if (sys_->ctrl(i).x()   == _VELOCITY) spl_->body(i)->fx()   = 0.0;
+		if (sys_->ctrl(i).y()   == _VELOCITY) spl_->body(i)->fy()   = 0.0;
+		if (sys_->ctrl(i).rot() == _VELOCITY) spl_->body(i)->frot() = 0.0;
 
-  }
-  for( unsigned int i=0;i < sys_->ldof().size();++i)
-  {
-	  sys_->ldof(i)->imposeForceOfVelocity();
-  }
+	}
+	for( unsigned int i=0;i < sys_->ldof().size();++i)
+	{
+		sys_->ldof(i)->imposeForceOfVelocity();
+	}
 }
 
 // CETTE PROCEDURE QUI EST APPELEE DANS LE CODE!
 // Gauss-Seidel iteration, original procedure
 unsigned int CDalgo::iter_0()
 {
-	//cout<<"iter_0"<<endl;
+	cout<<"iter_0"<<endl;
 	// No-contact case
 	if (nwk_->clist().empty()) return 0;
 	unsigned int c;
@@ -294,6 +297,8 @@ unsigned int CDalgo::iter_0()
 	//	unsigned int ahId = grpRel_->getId("ah");
 	unsigned int rsId = grpRel_->getId("rs");
 	//unsigned int clId = grpRel_->getIdLaw("");
+	//unsigned int enId = grpRel_->getId("en");
+	//cerr<<"enId = "<<enId<<endl;
 
 	// Main CD loop
 	for(unsigned int kiter=1 ; kiter <= nitermx_ ; ++kiter)
@@ -303,6 +308,12 @@ unsigned int CDalgo::iter_0()
 		{
 			oxo = nwk_->inter(nwk_->clist(c));
 			rsij = grpRel_->getParameterQuickly(rsId,oxo->first()->grp(),oxo->second()->grp());
+
+			//TMP
+			//	muij = grpRel_->getParameterQuickly(muId,oxo->first()->grp(),oxo->second()->grp());
+			//	double enij = grpRel_->getParameterQuickly(enId,oxo->first()->grp(),oxo->second()->grp());
+			//	cerr<<"Appel de mu : "<< oxo->first()->grp()<< " "<< oxo->second()->grp()<< " : "<<muij<<endl;
+			//	cerr<<"Appel de en : "<< oxo->first()->grp()<< " "<< oxo->second()->grp()<< " : "<<enij<<endl;
 
 			// Si on veut modéliser la fragmentation
 			if (grpRel_->existfragmentation()) 
@@ -388,8 +399,9 @@ unsigned int CDalgo::iter_0()
 				else
 				{ 
 					ahij=(grpRel_->getLaw(oxo->first()->grp(),oxo->second()->grp()))->fco(oxo);//Cohésion
-					muij = grpRel_->getParameterQuickly(muId,oxo->first()->grp(),oxo->second()->grp());//coefficience de friction
+					muij = grpRel_->getParameter("en",oxo->first()->grp(),oxo->second()->grp());//coefficience de friction
 					cerr<<"Appel de mu : "<< oxo->first()->grp()<< " "<< oxo->second()->grp()<< " : "<<muij<<endl;
+					cerr<<"Appel de en : "<< oxo->first()->grp()<< " "<< oxo->second()->grp()<< " : "<<muij<<endl;
 
 					if( oxo->rang()==0 )//distance interaction
 					{

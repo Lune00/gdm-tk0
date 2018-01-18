@@ -168,6 +168,7 @@ int main (int argc, char * argv[])
 			{
 				if (token == "System_A{")  
 					mySimu->sysA()->read_parameters(com);
+				cerr<<"Read parameters"<<endl;
 				com >> token;
 			}
 		}

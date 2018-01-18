@@ -3,7 +3,6 @@ void shearP_CD_A::plugRef()
 {
 	partref=sys_->spl()->body(partrefId);
 }
-
 void shearP_CD_A::read_parameters(istream & is)
 {
 	string token,temp;
@@ -390,6 +389,29 @@ void shearP_CD_A::initAnalyse( )
 
 	cout<<"-----oooo---shearP_CD_A::init()----oooo----"<<endl;
 
+	//Calculer le diametre moyen des particules libres
+	double dfree = 0. ;
+	double dwall = 0. ;
+	int nfree = 0 ;
+	int nparoi = 0 ;
+
+	for (unsigned int i=0; i<sys_->spl()->lbody().size();++i)
+	{
+		if(sys_->spl()->body(i)->bodyDof()==NULL){
+			dfree += 2. * sys_->spl()->body(i)->sizeVerlet();
+			nfree++;
+		}
+		else{
+			dwall += 2. * sys_->spl()->body(i)->sizeVerlet();
+			nparoi++;
+		}
+	}
+
+	dfree /= (double) nfree;
+	dwall /= (double) nparoi;
+
+	cerr<<"dfree = "<<dfree<<" dwall = "<<dwall<<endl;
+	cerr<<"R moyen (roughness) : "<< dwall/dfree<<endl;
 	//Particule de reference pour le calcul des deformations
 	partref=sys_->ldof(1)->leftBody();
 	partrefId=partref->id();
@@ -717,7 +739,6 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 
 	if (calcinout) normalForceInOut(Ninout);
 
-
 	if (calcsf) SF();
 
 	if (calcFabric)  A();
@@ -970,7 +991,8 @@ void shearP_CD_A::def()
 		cout<<"*****"<<endl;
 		cout<<".Period completed."<<endl;
 		cout<<"*****"<<endl;
-		X00+=sys_->spl()->boundWidth();
+		//X00+=sys_->spl()->boundWidth();
+		X00-=sys_->spl()->boundWidth();
 	}
 
 	//On calcule la dŽformation totale a partir d'une refŽrence initiale: epsxy_
@@ -1000,7 +1022,7 @@ void shearP_CD_A::def()
 
 	epsp_ = strain.l1()+strain.l2();
 	epsq_ = max(strain.l1(),strain.l2())-min(strain.l1(),strain.l2());
-	epsxy_ =- (partref->x() - X00)/(partref->y()-Y00);
+	epsxy_ = (partref->x() - X00)/(partref->y()-Y00);
 	cout<<" epsp = "<<epsp_<<endl;
 	cout<<" epsq = "<<epsq_<<endl;
 	cout<<" espxy = "<<epsxy_<<endl;
@@ -3339,6 +3361,7 @@ void shearP_CD_A::followparticles()
 
 void shearP_CD_A::printSystem()
 {
+
 	ofstream printSys("Analyse/system.txt",ios::app);
 
 	double vx_wall_sup = sys_->ldof(1)->lowerBody()->vx();
@@ -3575,20 +3598,20 @@ void shearP_CD_A::writePS3( const char * fname)
 	//Left-band
 
 	/*
-	for (unsigned int j=0 ; j<sys_->spl()->leftband().size() ; ++j)
-	{
-		ps	<<"newpath "<<x_offset + (sys_->spl()->body(sys_->spl()->leftband(j))->x() + sys_->spl()->boundWidth())*zoom<<" "
-			<<y_offset + sys_->spl()->body(sys_->spl()->leftband(j))->y()*zoom<<" "<<sys_->spl()->body(sys_->spl()->leftband(j))->sizeVerlet()*zoom<<" " 
-			<<"0.0 360.0 arc closepath 0.0 colorwall fill" << endl;
-	}
+	   for (unsigned int j=0 ; j<sys_->spl()->leftband().size() ; ++j)
+	   {
+	   ps	<<"newpath "<<x_offset + (sys_->spl()->body(sys_->spl()->leftband(j))->x() + sys_->spl()->boundWidth())*zoom<<" "
+	   <<y_offset + sys_->spl()->body(sys_->spl()->leftband(j))->y()*zoom<<" "<<sys_->spl()->body(sys_->spl()->leftband(j))->sizeVerlet()*zoom<<" " 
+	   <<"0.0 360.0 arc closepath 0.0 colorwall fill" << endl;
+	   }
 	//Right-band
 	for (unsigned int j=0 ; j<sys_->spl()->rightband().size() ; ++j)
 	{
-		ps	<<"newpath "<<x_offset + (sys_->spl()->body(sys_->spl()->rightband(j))->x() - sys_->spl()->boundWidth())*zoom<<" "
-			<<y_offset + sys_->spl()->body(sys_->spl()->rightband(j))->y()*zoom<<" "<<sys_->spl()->body(sys_->spl()->rightband(j))->sizeVerlet()*zoom<<" " 
-			<<"0.0 360.0 arc closepath 0.0 colorwall stroke" << endl;
+	ps	<<"newpath "<<x_offset + (sys_->spl()->body(sys_->spl()->rightband(j))->x() - sys_->spl()->boundWidth())*zoom<<" "
+	<<y_offset + sys_->spl()->body(sys_->spl()->rightband(j))->y()*zoom<<" "<<sys_->spl()->body(sys_->spl()->rightband(j))->sizeVerlet()*zoom<<" " 
+	<<"0.0 360.0 arc closepath 0.0 colorwall stroke" << endl;
 	}
-	*/
+	 */
 
 
 	ps.close();
@@ -3781,7 +3804,7 @@ void shearP_CD_A::writePS4( const char * fname)
 void shearP_CD_A::writePS2( const char * fname)
 {
 
-	bool displayforce = true ;
+	bool displayforce = false ;
 
 	ofstream ps(fname);
 

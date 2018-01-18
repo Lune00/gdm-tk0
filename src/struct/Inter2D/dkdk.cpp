@@ -236,14 +236,17 @@ void dkdk::CDcoeff(GroupRelationData * gR) // CDcoeff(double en,double et) ou CD
 //temporaire
 	//double en = 1.0;
 	//double et = 0.0;
-	unsigned int g1 = i_->grp();
-	unsigned int g2 = j_->grp();
+	int g1 = i_->grp();
+	int g2 = j_->grp();
 	//Recuperer les parametres
 	double mi,mj,momi,momj;
 
 	double en = gR->getParameter("en",g1,g2);
 	double et = gR->getParameter("et",g1,g2);
-	//cout<<"en = "<<en<<" ----- et = "<<et<<endl;
+	//double mu = gR->getParameter("mu",g1,g2);
+
+//	cout<<"en = "<<en<<" ----- et = "<<et<<endl;
+//	cout<<"mu = "<<mu<<endl;
 /*	if(g1 == 2 || g2 ==2){
 		cout<<"Particule temoin"<<endl;
 		cout<<"mu "<<g1<<"/"<<g2<<" = "<<gR->getParameter("mu",g1,g2)<<endl;
@@ -320,8 +323,8 @@ void dkdk::CDcoeff() // CDcoeff(double en,double et) ou CDcoeff(grpRel&)
 	double mn, mt, ms;
 
 //temporaire
-	double en = 1.0;
-	double et = 1.0;
+	double en = 0.0;
+	double et = 0.0;
 	//unsigned int g1 = i_->grp();
 	//unsigned int g2 = j_->grp();
 	//Recuperer les parametres

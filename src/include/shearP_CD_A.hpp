@@ -197,6 +197,8 @@ class shearP_CD_A : public System_A
       calcgranulostress=false;
       normpdf=false;
       calcforcesA=false;
+      calcforcesAL=false;
+      calcforcesAC=false;
       calcPtheta=false;
       calcfracdim=false;
       granulo=false;
