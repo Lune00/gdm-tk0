@@ -332,7 +332,7 @@ void dkdk::CDcoeff() // CDcoeff(double en,double et) ou CDcoeff(grpRel&)
 
 	//double en = getParameter("en",g1,g2);
 	//double et = getParameter("et",g1,g2);
-	cout<<"en = "<<en<<" ----- et = "<<et<<endl;
+	//cout<<"en = "<<en<<" ----- et = "<<et<<endl;
 
 	double cin,cit,cjn,cjt;
 

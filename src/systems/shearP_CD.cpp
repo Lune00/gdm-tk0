@@ -81,18 +81,15 @@ void shearP_CD::init()
 
 	//Rajouter gravite dans les options
 	//gravite value
-	double gx, gy ;
-	double angle = 90. ;
+	double gx = 0. ;
+	double gy = 0. ;
+
 	if(gravite_)
 	{
+		double angle = 90. ;
 		cerr<<"Gravity on!"<<endl;
 		gx = 9.81 * multig_ * cos(M_PI * angle / 180. );
 		gy = -9.81 * multig_ * sin(M_PI * angle / 180. );
-	}
-	else
-	{
-		gx = 0. ;
-		gy = 0. ;
 	}
 
 	cerr<<"gx = "<<gx<<" gy = "<<gy<<endl;
@@ -173,7 +170,7 @@ void shearP_CD::init()
 
 		//WIP: remove gravity to walls (control pressure in stress)
 		ldof(0)->setGravity(0.,0.);
-		ldof(1)->setGravity(0.,0.);
+		ldof(1)->setGravity(gx,gy);
 		cerr<<"No gravity acting on dof."<<endl;
 	}
 
@@ -198,6 +195,7 @@ void shearP_CD::init()
 		ldof(0)->affect(_VELOCITY, _VELOCITY, _VELOCITY, -topXvalue_, 0.,  0.);
 
 		cout<<"Affectation:"<<endl;
+
 		cout<<"v_x(dof sup) = "<<ldof(1)->lowerBody()->vx()<<endl;
 		cout<<"v_x(dof inf) = "<<ldof(0)->lowerBody()->vx()<<endl;
 	}
@@ -214,6 +212,7 @@ void shearP_CD::init()
 	{
 		ldof(i)->isPeriodic()=true;
 	}
+
 	spl_->updateBands();//Id based
 
 //	cout<<".Taille zone périodique (d)="<<spl_->boundWidth()/(spl_->rmin()+spl_->rmax())<<endl;

@@ -237,8 +237,8 @@ void Network::retrieve(vector<fsafe> & fs)
 void Network::buildSuperList(Sample * spl,  GroupRelationData * grpRel)
 {
 	
-	cerr<<"---Building SuperList"<<endl;
-	cerr<<"dsuperlist = "<<dsuperList_<<endl;
+	//cerr<<"---Building SuperList"<<endl;
+	//cerr<<"dsuperlist = "<<dsuperList_<<endl;
 	superList_.clear();//Reset le list des pairs particules 
 
 	unsigned int N=spl->lbody().size();
@@ -268,6 +268,7 @@ void Network::buildSuperListP(Sample* spl, GroupRelationData* grpRel)
 	//cerr<<"---Building SuperlistP"<<endl;
 	//Il faut s'assurer que la largeur de bande est au moins egale a la dsuperlistP
 	superListP_.clear();
+
 	unsigned int NL =spl->leftband().size();
 	unsigned int NR =spl->rightband().size();
 	double P = spl->rightBoundary() - spl->leftBoundary();
@@ -311,7 +312,7 @@ void Network::verlet(Sample * spl, GroupRelationData * grpRel)
 {
 	purge(linter_);
 	linter_.clear();// linter_ declaree en tant que donnee membre
-//cerr<<"---Building verlet list"<<endl;
+	//cerr<<"---Building verlet list"<<endl;
 	if (useSuperList_)
 	{
 		unsigned int k;

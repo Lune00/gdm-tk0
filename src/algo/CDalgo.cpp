@@ -74,15 +74,14 @@ void CDalgo::look()
 	for(unsigned int k = 0 ; k < nwk_->clist().size() ; ++k)
 	{
 	  //cout<<"test dkdk? 1"<<endl;
-	  if(nwk_->inter(nwk_->clist(k))->type() == 0 || nwk_->inter(nwk_->clist(k))->type() == 1)
-	  {
-	    nwk_->inter(nwk_->clist(k))->CDcoeff(grpRel_);
-	  }
-	  else
-	  {
-		  cout<<"dans le else"<<endl;
+	 // if(nwk_->inter(nwk_->clist(k))->type() == 0)
+	 // {
+	 //   nwk_->inter(nwk_->clist(k))->CDcoeff(grpRel_);
+	 // }
+	 // else
+	 // {
+	 // }
 	    nwk_->inter(nwk_->clist(k))->CDcoeff();
-	  }
 	}
 
 
@@ -198,17 +197,17 @@ void CDalgo::contact()
     {   
       nwk_->clist().push_back(k);
 
-      if(nwk_->inter(k)->type() == 0 ||  nwk_->inter(k)->type() == 1)
-      {
-	      //cout<<"DKDK -> appel des bons coeffs ? 2"<<endl;
-	      nwk_->inter(k)->CDcoeff(grpRel_);
-      }
-      else
-      {
-	      cout<<"On est dans le else"<<endl;
-	      nwk_->inter(k)->CDcoeff();
-      } 
+      //if(nwk_->inter(k)->type() == 0 )
+      //{
+      //        //cout<<"DKDK -> appel des bons coeffs ? 2"<<endl;
+      //        nwk_->inter(k)->CDcoeff(grpRel_);
+      //}
+      //else
+      //{
+      //        //cout<<"On est dans le else"<<endl;
+      //} 
 
+      nwk_->inter(k)->CDcoeff();
       nwk_->inter(k)->Kin();
     }
     else nwk_->inter(k)->clearForceAndMoment();
@@ -273,7 +272,7 @@ void CDalgo::fres()
 // Gauss-Seidel iteration, original procedure
 unsigned int CDalgo::iter_0()
 {
-	cout<<"iter_0"<<endl;
+	//cout<<"iter_0"<<endl;
 	// No-contact case
 	if (nwk_->clist().empty()) return 0;
 	unsigned int c;
@@ -989,9 +988,6 @@ void CDalgo::hand(unsigned int ns)
 			}
 			contact();
 			nwk_->retrieve(forcesSafe_);
-
-
-
 		}
 		else //Pas maj super mais maj verlet
 		{
