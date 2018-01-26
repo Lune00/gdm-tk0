@@ -161,6 +161,7 @@ class shearP_CD_A : public System_A
     bool calcEnergieMode_;
     bool calcTwall_ ;
     bool sortiegnuplot_;
+    bool calcKineticEnergy_;
 
   public:
 
@@ -227,6 +228,7 @@ class shearP_CD_A : public System_A
       calcRotKeProfile_=false;
       calcEnergieMode_=false;
       calcTwall_ = false ;
+      calcKineticEnergy_ = false;
 
       fnmoy_=1.;
       Nanalyze_ = 0;
@@ -330,6 +332,7 @@ class shearP_CD_A : public System_A
     void GlissementParoi();
     void Glissement();
     void gnuplot();
+    void KineticEnergy();
 
 
 

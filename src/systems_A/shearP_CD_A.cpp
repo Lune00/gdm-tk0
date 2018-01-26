@@ -32,6 +32,7 @@ void shearP_CD_A::read_parameters(istream & is)
 		else if(token== "Fabric") calcFabric=true;
 		else if(token== "EnergieMode") calcEnergieMode_=true;
 		else if(token== "Angles") calcangles=true;
+		else if(token== "Kinetic") calcKineticEnergy_=true;
 		else if(token== "Fractal") calcfracdim=true;
 		else if(token== "Granulo") granulo=true;
 		else if(token== "Inout")
@@ -477,14 +478,14 @@ void shearP_CD_A::initAnalyse( )
 	ofstream strain("Analyse/strain.txt",ios::out);
 	strain.close();	
 
-	ofstream particles("Analyse/particleswall.txt",ios::out);
-	particles.close();
+	//ofstream particles("Analyse/particleswall.txt",ios::out);
+	//particles.close();
 
-	ofstream glissant("Analyse/glissement.txt",ios::out);
-	glissant.close();
-	
-	ofstream printglissant("Analyse/contactglissant.txt",ios::out);
-	printglissant.close();
+	//ofstream glissant("Analyse/glissement.txt",ios::out);
+	//glissant.close();
+	//
+	//ofstream printglissant("Analyse/contactglissant.txt",ios::out);
+	//printglissant.close();
 
 
 	ofstream followw("Analyse/particules.txt",ios::out);
@@ -494,6 +495,11 @@ void shearP_CD_A::initAnalyse( )
 	if(sortiegnuplot_)
 	{
 		system("mkdir -p Analyse/gnuplot");
+	}
+
+	if(calcKineticEnergy_){
+		ofstream a("Analyse/Kinetic.txt",ios::out);
+		a.close();
 	}
 
 	if(calcTwall_)
@@ -715,6 +721,7 @@ void shearP_CD_A::analyse( double t, unsigned int nsi, unsigned int nsf )
 	if(sortiegnuplot_) gnuplot();
 	//computeZparticules();
 	if(calcTwall_) Twall();
+	if(calcKineticEnergy_) KineticEnergy();
 	if(calcRotKeProfile_) RotationalKineticEnergyProfile();
 	if(calcAngleAtWall_) angleAtWall();
 	if(calcStress_profile) Stress_profile();
@@ -4619,6 +4626,34 @@ void shearP_CD_A::GlissementParoi()
 	particleswall.close();
 }
 
+void shearP_CD_A::KineticEnergy(){
+
+	double Ec = 0. ;
+	unsigned int N = 0 ;
+
+	for (unsigned int j=0 ; j<sys_->spl()->lbody().size() ; ++j)
+	{
+		if (sys_->spl()->body(j)->bodyDof()!=NULL) continue;
+
+		double r = sys_->spl()->body(j)->sizeVerlet();
+		double m = sys_->spl()->body(j)->mass();
+		double vx = sys_->spl()->body(j)->vx();
+		double vy = sys_->spl()->body(j)->vy();
+		double w = sys_->spl()->body(j)->vrot();
+		double I = 0.5 * m * r * r ;
+
+		double Erot = 0.5 * I * w * w ;
+		double Et = 0.5 * m * (vx*vx+vy*vy);
+		Ec += Erot + Et;
+		N++;
+	}
+
+	Ec /= (double)N;
+
+	ofstream En("Analyse/Kinetic.txt",ios::app);
+	En<<time<<" "<<Ec<<endl;
+	En.close();
+}
 
 
 void shearP_CD_A::gnuplot()

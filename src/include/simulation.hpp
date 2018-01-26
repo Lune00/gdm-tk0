@@ -46,6 +46,7 @@ class Simulation
 		bool historyNetwork_;
 		bool compactHist_;
 		bool perturbation_;
+		bool increase_ ;
 		unsigned int nHist_;
 		unsigned int numFileHist_;
 		unsigned int nAnalyse_;
@@ -59,6 +60,8 @@ class Simulation
 		unsigned int nUpdateShear_; // permet de reajuster vitesse plaque en stationnaire pour appliquer un taux de cisaillement bien controle (apres dilatation/contraction)
 
 		unsigned int nprintMetrics_;
+		//Increase vw
+		unsigned int nincreasevw_;
 	public:
 
 		Simulation() 
@@ -80,6 +83,7 @@ class Simulation
 			twoFilesHist_   = false;
 			doAnalyse_      = false;
 			compactHist_    = false;
+			increase_ = false;
 
 			perturbation_ = false;
 			ns_  = 0;
@@ -90,6 +94,7 @@ class Simulation
 			nstartAna_ = 0 ;
 			nUpdateShear_ = 0 ;
 			nprintMetrics_ = 0 ;
+			nincreasevw_ = 0 ;
 
 			ofstream time("time.txt",ios::out);
 			time.close();

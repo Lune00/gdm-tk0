@@ -34,6 +34,7 @@ class shearP_CD : public System
 	unsigned int topXmode_ , topYmode_ ;
 	double		  topXvalue_, topYvalue_;
 	unsigned int Nanalyze_;
+	unsigned int nperturb_;
 
 
 	protected:
@@ -94,6 +95,7 @@ class shearP_CD : public System
 		reverse_ =false;
 		bandwidth_=0.;
 		multig_ = 1. ;
+		nperturb_ = 0 ;
 	}
 
 

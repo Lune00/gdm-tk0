@@ -487,7 +487,39 @@ void shearP_CD::SetUnity()
 }
 
 void shearP_CD::perturbation(){
+
+	ofstream top("topXvalue.txt",ios::app);
 	cout<<"Je perturbe dans un cisaillement periodique"<<endl;
+	const double dshear = 0.2 ;
+	if(!shearRate_) return;
+
+	double h = ldof(1)->lowerBody()->y() - ldof(0)->lowerBody()->y();
+	// On re applique le taux de cisaillement initial:
+	topXvalue_ = shearRate_init * h + nperturb_ * dshear ;
+	topXvalue_ *= h ;
+
+	top<<topXvalue_<<endl;
+	top.close();
+
+	if(symetrical_)
+	{
+		cout<<".Imposed symetrical shear rate: "<<topXvalue_<<endl;
+		//topXvalue_ *= ldof(1)->mcy()-ldof(0)->mcy();
+		topXvalue_ *= 0.5;
+
+		ldof(1)->affect(topXmode_, topYmode_, _VELOCITY, topXvalue_, topYvalue_, 0.);
+		ldof(0)->affect(_VELOCITY, _VELOCITY, _VELOCITY,-topXvalue_, 0.,  0.);
+	}
+	else
+	{
+
+		cout<<".Imposed non-symetrical shear rate: "<<topXvalue_<<endl;
+		ldof(1)->affect(topXmode_, topYmode_, _VELOCITY, topXvalue_, topYvalue_, 0.);
+		ldof(0)->affect(_VELOCITY, _VELOCITY, _VELOCITY, 0., 0., 0.);
+	}
+
+	nperturb_++;
+
 }
 void shearP_CD::updateShear(){
 

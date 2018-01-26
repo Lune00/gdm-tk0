@@ -115,6 +115,7 @@ void Simulation::read_data(const char* name)
 	else if (token == "compactHist")    compactHist_ = true;
 	else if (token == "nUpdateShear")	datafile >> nUpdateShear_ ; 
 	else if (token == "perturbation")    {perturbation_ = true;datafile >> nperturb_;}
+	else if (token == "increase" ) {datafile >> nincreasevw_ ; increase_ = true ;cerr<<"Increases on"<<endl;}
 	else if (token == "}")              break;
 	else cerr << "@Simulation::read_data, Unknown parameter: " << token << endl;
 	datafile >> token;
@@ -292,30 +293,37 @@ void Simulation::run()
       ((System*)sys_)->updateShear();
 
     }
+
+
+    if(increase_ && ns_ % nincreasevw_ == 0){
+	    cerr<<"--Perturbation"<<endl;
+	    ((System*)sys_)->perturbation();
+    }
+
     if ( doAnalyse_ && ns_%nAnalyse_  == 0 && ns_ >= nstartAna_ )
     {
-      sysA_->analyse(time_,ns_,nsf_);
+	    sysA_->analyse(time_,ns_,nsf_);
     }
 
     if (ns_%nSpeak_ == 0) 
     {
-      this->speak();
-      algo_->speak();
-      nwk_->speak();
+	    this->speak();
+	    algo_->speak();
+	    nwk_->speak();
     }
 
     if (ns_%nHist_  == 0)
     {
-      cout<<"Ecriture "<<numFileHist_<<endl;
+	    cout<<"Ecriture "<<numFileHist_<<endl;
 
-      history_write(numFileHist_, *spl_, *nwk_, *grpRel_, twoFilesHist_, historyNetwork_, compactHist_);
-      ofstream time("time.txt",ios::app);
-      time<<numFileHist_<<" "<<time_<<endl;
-      time.close();
+	    history_write(numFileHist_, *spl_, *nwk_, *grpRel_, twoFilesHist_, historyNetwork_, compactHist_);
+	    ofstream time("time.txt",ios::app);
+	    time<<numFileHist_<<" "<<time_<<endl;
+	    time.close();
 
-      sprintf((char *) name, "mgp.out.%04d",numFileHist_);
-      //write_mgpost(name,*spl_,*nwk_,numFileHist_,time_);
-      numFileHist_ += 1;
+	    sprintf((char *) name, "mgp.out.%04d",numFileHist_);
+	    //write_mgpost(name,*spl_,*nwk_,numFileHist_,time_);
+	    numFileHist_ += 1;
 
 
     }
@@ -324,7 +332,7 @@ void Simulation::run()
     //Nothing done yet there
     if(ns_ == nperturb_ && perturbation_ == true)
     {
-      sys_->perturbation();
+	    sys_->perturbation();
     }
     if(ns_ == nprintMetrics_)
     {
@@ -337,37 +345,37 @@ void Simulation::run()
 
 void Simulation::load_history(const char * fname )
 {
-  ifstream histFile(fname);
-  if(!histFile)
-  {
-    cerr << "@history_read, cannot open file " << fname << endl;
-    return;
-  }  
+	ifstream histFile(fname);
+	if(!histFile)
+	{
+		cerr << "@history_read, cannot open file " << fname << endl;
+		return;
+	}  
 
-  purge(this->spl()->lbody());
-  purge(this->nwk()->linter());
+	purge(this->spl()->lbody());
+	purge(this->nwk()->linter());
 
-  this->spl()->lbody().clear();
-  this->nwk()->linter().clear();
-  this->nwk()->clist().clear();
-  string token;
-  histFile >> token;
+	this->spl()->lbody().clear();
+	this->nwk()->linter().clear();
+	this->nwk()->clist().clear();
+	string token;
+	histFile >> token;
 
-  while(histFile)
-  {
-    if (token == "Sample{")  this->sys()->ldof() = this->spl()->read(histFile);
-    if (token == "Network{") this->nwk()->read(histFile);
-    if (token == "Fragmentation{") this->sys()->grpRel()->fragmentation()->load_history(histFile);
+	while(histFile)
+	{
+		if (token == "Sample{")  this->sys()->ldof() = this->spl()->read(histFile);
+		if (token == "Network{") this->nwk()->read(histFile);
+		if (token == "Fragmentation{") this->sys()->grpRel()->fragmentation()->load_history(histFile);
 
-    histFile >> token;
-  }
+		histFile >> token;
+	}
 
-  this->nwk()->associate(*this->spl());
-  //cout<<"taille bande spl = "<<this->spl()->leftband().size()<<endl;
-  //cout<<"taille nwk = "<<this->nwk()->linter().size()<<endl;
-  // Compute the data that have not been saved
-  for (unsigned int k=0 ; k < this->nwk()->linter().size() ; ++k)
-  {	
-    this->nwk()->inter(k)->Frame2();
-  }
+	this->nwk()->associate(*this->spl());
+	//cout<<"taille bande spl = "<<this->spl()->leftband().size()<<endl;
+	//cout<<"taille nwk = "<<this->nwk()->linter().size()<<endl;
+	// Compute the data that have not been saved
+	for (unsigned int k=0 ; k < this->nwk()->linter().size() ; ++k)
+	{	
+		this->nwk()->inter(k)->Frame2();
+	}
 }
